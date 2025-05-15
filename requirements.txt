@@ -1,0 +1,23 @@
+# Core Gym Environment
+gym==0.21.0
+nes-py==8.2.1
+gym-super-mario-bros==7.3.0
+
+# Compatibility Fixes
+setuptools==65.7.0
+wheel==0.36.2
+
+# RL Toolkit
+torch==1.10.2+cu113
+torchvision==0.11.3+cu113
+torchaudio==0.10.2
+--extra-index-url https://download.pytorch.org/whl/cu113
+stable-baselines3[extra]==1.4.0
+
+# Extra atm
+numpy==1.21.0
+opencv-python==4.5.3.56
+pygame==2.1.0
+matplotlib==3.4.3
+tqdm
+

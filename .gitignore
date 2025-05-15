@@ -1,0 +1,21 @@
+# PyCharm
+.idea/
+*.iml
+*.ipr
+*.iws
+*.csv
+*.zip
+
+# Ignore trained models
+src/Super_Mario_V1/train/
+src/Super_Mario_V1/logs/
+src/Super_Mario_V1/final_mario_model.zip
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
