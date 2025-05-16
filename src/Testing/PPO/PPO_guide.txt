@@ -1,0 +1,5 @@
+Interesting Articles about PPO
+
+Proximal Policy Optimization by OpenAI
+https://spinningup.openai.com/en/latest/algorithms/ppo.html
+
