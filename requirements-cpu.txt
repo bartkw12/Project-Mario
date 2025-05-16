@@ -19,4 +19,3 @@ opencv-python==4.5.3.56
 pygame==2.1.0
 matplotlib==3.4.3
 tqdm
-
