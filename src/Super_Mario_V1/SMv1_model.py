@@ -4,7 +4,7 @@ import os
 import gym_super_mario_bros
 from nes_py.wrappers import JoypadSpace
 from gym_super_mario_bros.actions import SIMPLE_MOVEMENT
-from SMv1_config import framestack, lr, update_steps, total_timesteps, batch_size, n_epochs
+from SMv1_config import framestack, lr, update_steps, total_timesteps, batch_size, n_epochs, gamma, gae_lambda, clip_range, ent_coef
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import EvalCallback
 from gym.wrappers import GrayScaleObservation
