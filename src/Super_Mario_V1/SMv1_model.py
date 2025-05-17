@@ -19,24 +19,28 @@ print(torch.cuda.is_available())  # should return True
 class CustomReward(RewardWrapper):
     def __init__(self, env):
         super().__init__(env)
+        self.last_x_pos = 0  # Initialize tracking variable
 
     def step(self, action):
         state, reward, done, info = self.env.step(action)
 
         # Penalize death heavily
-        if info["life"] < 2:
-            reward -= 20  # Increased penalty
+        if info["life"] < 2:  # Mario died
+            reward -= 20
 
-        # Reward forward progress
-        reward += info["x_pos"] * 0.1  # Existing
+        # Reward forward progress (delta x_pos)
+        delta_x = info["x_pos"] - self.last_x_pos
+        reward += delta_x * 0.1  # Scale to avoid reward explosion
 
-        # NEW: Reward jumping (critical for Goombas)
-        if action == 2:  # Jump action
-            reward += 2.0  # Larger incentive
+        # Reward jumping (action 2 in SIMPLE_MOVEMENT)
+        if action == 2:
+            reward += 2.0
 
-        # NEW: Penalize standing still
-        if info["x_pos"] == self.last_x_pos:
+        # Penalize standing still (no x_pos change)
+        if delta_x == 0:
             reward -= 0.5
+
+        # Update last_x_pos for next step
         self.last_x_pos = info["x_pos"]
 
         return state, reward, done, info
