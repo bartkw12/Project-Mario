@@ -20,28 +20,39 @@ class CustomReward(RewardWrapper):
     def __init__(self, env):
         super().__init__(env)
         self.last_x_pos = 0  # Initialize tracking variable
+        self.last_time = 400 # start time in mario
+        self.in_air = False # track the jump state
 
     def step(self, action):
         state, reward, done, info = self.env.step(action)
 
         # Penalize death heavily
         if info["life"] < 2:  # Mario died
-            reward -= 20
+            reward -= 25
 
         # Reward forward progress (delta x_pos)
         delta_x = info["x_pos"] - self.last_x_pos
-        reward += delta_x * 0.1  # Scale to avoid reward explosion
+        reward += delta_x * 0.2  # Scale to avoid reward explosion (inc scaling from 0.1 prev)
 
         # Reward jumping (action 2 in SIMPLE_MOVEMENT)
         if action == 2:
-            reward += 2.0
+            reward += 3.0 # inc reward from 2
+            self.in_air = True
+        elif self.in_air:
+            reward += 1.5 # reward air time
+            if info["y_pos"] > 79: # mario mid-jump (y pos is greater than ground lvl)
+                reward += 1.0
 
         # Penalize standing still (no x_pos change)
         if delta_x == 0:
-            reward -= 0.5
+            reward -= 1.0 # inc penalty from -0.5
+        if self.last_time - info["time"] == 0: # time frozen ex. pipe collision
+            reward -= 5.0
 
-        # Update last_x_pos for next step
+        # Update trackers
         self.last_x_pos = info["x_pos"]
+        self.last_time = info["time"]
+        self.in_air = (info["y_pos"] > 79)
 
         return state, reward, done, info
 
