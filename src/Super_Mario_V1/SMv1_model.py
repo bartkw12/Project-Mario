@@ -1,25 +1,35 @@
 # 1) Setup Mario Environment
 import torch
+import os
 import gym_super_mario_bros
 from nes_py.wrappers import JoypadSpace
 from gym_super_mario_bros.actions import SIMPLE_MOVEMENT
 from SMv1_config import framestack, lr, update_steps, total_timesteps, batch_size, n_epochs
+from stable_baselines3 import PPO
+from stable_baselines3.common.callbacks import EvalCallback
+from gym.wrappers import GrayScaleObservation
+from stable_baselines3.common.vec_env import DummyVecEnv, VecFrameStack
+from stable_baselines3.common.monitor import Monitor
 
-# verify cuda
+# verify CUDA
 print(torch.cuda.is_available())  # should return True
 
-# Initialize environment
-env = gym_super_mario_bros.make('SuperMarioBros-v0')  # v0 is the standard Mario version
-env = JoypadSpace(env, SIMPLE_MOVEMENT)               # reduces action space to Discrete(7) from (256)
+def create_env():
+    # Initialize base environment
+    env = gym_super_mario_bros.make('SuperMarioBros-v0')
+    env = JoypadSpace(env, SIMPLE_MOVEMENT)
 
-# print(env.observation_space.shape)
-# print(env.step(1)[3])
+    # Preprocess
+    env = GrayScaleObservation(env, keep_dim=True)
+    env = Monitor(env, './logs/')
+    env = DummyVecEnv([lambda: env])
+    env = VecFrameStack(env, framestack, channels_order='last')
+    return env
 
-# 2) Preprocess Environment
-import os
-from gym.wrappers import GrayScaleObservation
-from stable_baselines3.common.vec_env import VecFrameStack, DummyVecEnv
-from stable_baselines3.common.monitor import Monitor  # reward tracking
+
+# Create training and evaluation environments
+train_env = create_env()
+eval_env = create_env()
 
 # Set up directories
 CHECKPOINT_DIR = './train/'
@@ -27,49 +37,20 @@ LOG_DIR = './logs/'
 os.makedirs(CHECKPOINT_DIR, exist_ok=True)
 os.makedirs(LOG_DIR, exist_ok=True)
 
-# Apply preprocessing
-env = GrayScaleObservation(env, keep_dim=True)
-env = Monitor(env, './logs/')
-env = DummyVecEnv([lambda: env])
-env = VecFrameStack(env, framestack, channels_order='last')
+# Setup evaluation callback to save best model
+eval_callback = EvalCallback(
+    eval_env,
+    best_model_save_path=CHECKPOINT_DIR,
+    log_path=LOG_DIR,
+    eval_freq=5000,  # Evaluate every 5000 steps
+    deterministic=True,
+    render=False
+)
 
-# 3) Train the RL Model
-from stable_baselines3 import PPO
-from stable_baselines3.common.callbacks import BaseCallback
-
-
-class SaveBestModelCallback(BaseCallback):
-    def __init__(self, save_path, verbose=1):
-        super().__init__(verbose)
-        self.save_path = save_path
-        self.best_reward = -float('inf')
-
-    def _init_callback(self):
-        if self.save_path is not None:
-            os.makedirs(self.save_path, exist_ok=True)
-
-    def _on_step(self):
-        # Check if any episodes are completed
-        if len(self.model.ep_info_buffer) > 0:
-
-            # Get the latest episode reward
-            latest_reward = max([ep['r'] for ep in self.model.ep_info_buffer])
-
-            # Save model if it's the best so far
-            if latest_reward > self.best_reward:
-                self.best_reward = latest_reward
-                self.model.save(os.path.join(self.save_path, 'best_model'))
-                print(f"Saved new best model with reward: {self.best_reward}")
-
-        return True
-
-# Initialize callback (save only best model)
-callback = SaveBestModelCallback(save_path=CHECKPOINT_DIR)
-
-# Proximal Policy Optimization Algorithm
+# Initialize PPO model
 model = PPO(
     "CnnPolicy",
-    env,
+    train_env,
     verbose=1,
     tensorboard_log=LOG_DIR,
     learning_rate=lr,
@@ -80,8 +61,13 @@ model = PPO(
 )
 
 # Train the model
-model.learn(total_timesteps=total_timesteps, callback=callback)
+model.learn(
+    total_timesteps=total_timesteps,
+    callback=eval_callback  # Uses EvalCallback to save best model
+)
 
 # Save the final model
 model.save('final_mario_model')
-env.close()
+train_env.close()
+eval_env.close()
+
