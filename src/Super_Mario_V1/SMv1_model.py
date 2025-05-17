@@ -10,22 +10,38 @@ from stable_baselines3.common.callbacks import EvalCallback
 from gym.wrappers import GrayScaleObservation
 from stable_baselines3.common.vec_env import DummyVecEnv, VecFrameStack
 from stable_baselines3.common.monitor import Monitor
+from gym import RewardWrapper
 
 # verify CUDA
 print(torch.cuda.is_available())  # should return True
 
-def create_env():
-    # Initialize base environment
-    env = gym_super_mario_bros.make('SuperMarioBros-v0')
-    env = JoypadSpace(env, SIMPLE_MOVEMENT)
+# Reward shaping implementation
+class CustomReward(RewardWrapper):
+    def __init__(self, env):
+        super().__init__(env)
 
-    # Preprocess
+    def step(self, action):
+        state, reward, done, info = self.env.step(action)
+
+        # Penalize dying heavily
+        if info["life"] < 2:  # Mario died
+            reward -= 15
+
+        # Reward forward progress and jumping
+        reward += info["x_pos"] * 0.1  # Encourage moving right
+        if action == 2:
+            reward += 0.5  # Small reward for jumping
+        return state, reward, done, info
+
+def create_env():
+    env = gym_super_mario_bros.make('SuperMarioBros-1-1-v0')  # Train on just Level 1-1
+    env = JoypadSpace(env, SIMPLE_MOVEMENT)
+    env = CustomReward(env)  # Apply custom rewards
     env = GrayScaleObservation(env, keep_dim=True)
     env = Monitor(env, './logs/')
     env = DummyVecEnv([lambda: env])
     env = VecFrameStack(env, framestack, channels_order='last')
     return env
-
 
 # Create training and evaluation environments
 train_env = create_env()
@@ -57,6 +73,10 @@ model = PPO(
     n_steps=update_steps,
     batch_size=batch_size,
     n_epochs=n_epochs,
+    gamma=gamma,
+    gae_lambda=gae_lambda,
+    clip_range=clip_range,
+    ent_coef=ent_coef,
     device="cuda"
 )
 
