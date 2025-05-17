@@ -21,6 +21,7 @@ def create_env():
 
 # Load the best model (no need to pass environment for inference)
 model = PPO.load('./train/best_model.zip')
+#model = PPO.load('final_mario_model_w_reward_shaping.zip')
 
 # Run the agent
 env = create_env()
