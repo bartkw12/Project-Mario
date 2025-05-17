@@ -8,7 +8,7 @@ batch_size = 128
 n_epochs = 10
 gamma = 0.9               # Discount factor (prioritize short-term rewards)
 gae_lambda = 0.95         # Balance bias/variance in advantage estimation
-clip_range = 0.2          # Standard PPO clipping for policy updates
-ent_coef = 0.01           # Encourage exploration
+clip_range = 0.3          # Standard PPO clipping for policy updates
+ent_coef = 0.03           # Encourage exploration
 
 

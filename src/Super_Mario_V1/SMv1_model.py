@@ -23,14 +23,22 @@ class CustomReward(RewardWrapper):
     def step(self, action):
         state, reward, done, info = self.env.step(action)
 
-        # Penalize dying heavily
-        if info["life"] < 2:  # Mario died
-            reward -= 15
+        # Penalize death heavily
+        if info["life"] < 2:
+            reward -= 20  # Increased penalty
 
-        # Reward forward progress and jumping
-        reward += info["x_pos"] * 0.1  # Encourage moving right
-        if action == 2:
-            reward += 0.5  # Small reward for jumping
+        # Reward forward progress
+        reward += info["x_pos"] * 0.1  # Existing
+
+        # NEW: Reward jumping (critical for Goombas)
+        if action == 2:  # Jump action
+            reward += 2.0  # Larger incentive
+
+        # NEW: Penalize standing still
+        if info["x_pos"] == self.last_x_pos:
+            reward -= 0.5
+        self.last_x_pos = info["x_pos"]
+
         return state, reward, done, info
 
 def create_env():
@@ -87,7 +95,7 @@ model.learn(
 )
 
 # Save the final model
-model.save('final_mario_model')
+model.save('final_mario_model_w_reward_shaping')
 train_env.close()
 eval_env.close()
 
