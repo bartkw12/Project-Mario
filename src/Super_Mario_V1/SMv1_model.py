@@ -108,7 +108,6 @@ model.learn(
 )
 
 # Save the final model
-model.save('final_mario_model_w_jump_boost_v2')
+model.save('final_mario_model_w_jump_boost_v3')
 train_env.close()
 eval_env.close()
-
