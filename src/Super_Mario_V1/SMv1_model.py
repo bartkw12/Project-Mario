@@ -18,40 +18,51 @@ print(torch.cuda.is_available())
 class CustomReward(RewardWrapper):
     def __init__(self, env):
         super().__init__(env)
-        self.last_x_pos = 0  # Initialize tracking variable
-        self.last_time = 400 # start time in mario
-        self.in_air = False # track the jump state
+        self.last_x_pos = 0
+        self.last_y_pos = 79
+        self.jump_start_x = None
+        self.consecutive_jumps = 0
 
     def step(self, action):
         state, reward, done, info = self.env.step(action)
 
-        # Penalize death heavily
-        if info["life"] < 2:  # Mario died
-            reward -= 25
+        # Death penalty
+        if info["life"] < 2:
+            reward -= 30  # Extreme penalty
 
-        # Reward forward progress (delta x_pos)
+        # Progress rewards
         delta_x = info["x_pos"] - self.last_x_pos
-        reward += delta_x * 0.2  # Scale to avoid reward explosion (inc scaling from 0.1 prev)
+        reward += delta_x * 0.3  # Strong progress incentive
 
-        # Reward jumping (action 2 in SIMPLE_MOVEMENT)
+        # Jump system v2
         if action == 2:
-            reward += 3.0 # inc reward from 2
-            self.in_air = True
-        elif self.in_air:
-            reward += 1.5 # reward air time
-            if info["y_pos"] > 79: # mario mid-jump (y pos is greater than ground lvl)
-                reward += 1.0
+            reward += 4.0
+            self.jump_start_x = info["x_pos"]
+            self.consecutive_jumps += 1
+            # Bonus for consecutive jumps
+            reward += self.consecutive_jumps * 0.5
+        else:
+            self.consecutive_jumps = 0
 
-        # Penalize standing still (no x_pos change)
-        if delta_x == 0:
-            reward -= 1.0 # inc penalty from -0.5
-        if self.last_time - info["time"] == 0: # time frozen ex. pipe collision
-            reward -= 5.0
+        # Air-time and obstacle clearance bonus
+        if info["y_pos"] > 82:  # Significant jump height
+            reward += 2.0
+            # If jumping over obstacle (x progressed without ground contact)
+            if delta_x > 0 and info["y_pos"] > 85:
+                reward += 3.0
+
+        # Pipe collision detection
+        if self.last_x_pos == info["x_pos"] and info["time"] < self.last_time:
+            reward -= 8.0  # Heavy penalty for pipe stalling
+
+        # Momentum maintenance
+        if delta_x > 1.5:  # Good running speed
+            reward += 1.0
 
         # Update trackers
         self.last_x_pos = info["x_pos"]
         self.last_time = info["time"]
-        self.in_air = (info["y_pos"] > 79)
+        self.last_y_pos = info["y_pos"]
 
         return state, reward, done, info
 

@@ -3,7 +3,7 @@
 framestack = 4
 lr = 0.00025               # Increased from 0.000001
 update_steps = 4096       # Reduced from 512
-total_timesteps = 500000  # Reduced from 1,000,000
+total_timesteps = 300000  # Reduced from 1,000,000
 batch_size = 256
 n_epochs = 12
 gamma = 0.8              # Discount factor (prioritize short-term rewards)
