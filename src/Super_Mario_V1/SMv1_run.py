@@ -21,7 +21,7 @@ def create_env():
 
 # Load the best model (no need to pass environment for inference)
 model = PPO.load('./train/best_model.zip')
-#model = PPO.load('final_mario_model_w_reward_shaping.zip')
+#model = PPO.load('final_mario_model_w_jump_boost_v2.zip')
 
 # Run the agent
 env = create_env()
@@ -33,5 +33,3 @@ while True:
 
     if done:
         state = env.reset()
-
-

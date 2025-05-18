@@ -1,4 +1,3 @@
-# 1) Setup Mario Environment
 import torch
 import os
 import gym_super_mario_bros
@@ -13,9 +12,9 @@ from stable_baselines3.common.monitor import Monitor
 from gym import RewardWrapper
 
 # verify CUDA
-print(torch.cuda.is_available())  # should return True
+print(torch.cuda.is_available())
 
-# Reward shaping implementation
+# Reward shaping
 class CustomReward(RewardWrapper):
     def __init__(self, env):
         super().__init__(env)
@@ -86,7 +85,6 @@ eval_callback = EvalCallback(
     render=False
 )
 
-# Initialize PPO model
 model = PPO(
     "CnnPolicy",
     train_env,
@@ -110,7 +108,7 @@ model.learn(
 )
 
 # Save the final model
-model.save('final_mario_model_w_reward_shaping')
+model.save('final_mario_model_w_jump_boost_v2')
 train_env.close()
 eval_env.close()
 
