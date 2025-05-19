@@ -3,13 +3,17 @@ import os
 import gym_super_mario_bros
 from nes_py.wrappers import JoypadSpace
 from gym_super_mario_bros.actions import SIMPLE_MOVEMENT
+
 from SMv1_config import framestack, lr, update_steps, total_timesteps, batch_size, n_epochs, gamma, gae_lambda, clip_range, ent_coef
+
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import EvalCallback
-from gym.wrappers import GrayScaleObservation, ResizeObservation
 from stable_baselines3.common.vec_env import DummyVecEnv, VecFrameStack, VecNormalize, VecTransposeImage
 from stable_baselines3.common.monitor import Monitor
+from stable_baselines3.common.utils import get_schedule_fn
+
 from gym import RewardWrapper
+from gym.wrappers import GrayScaleObservation, ResizeObservation
 
 # verify CUDA
 print(torch.cuda.is_available())
