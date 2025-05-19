@@ -1,16 +1,17 @@
 import torch
 import os
+import gym
 import gym_super_mario_bros
+
 from nes_py.wrappers import JoypadSpace
 from gym_super_mario_bros.actions import SIMPLE_MOVEMENT
 
-from SMv1_config import framestack, lr, update_steps, total_timesteps, batch_size, n_epochs, gamma, gae_lambda, clip_range, ent_coef
+from SMv1_config import framestack, lr_schedule, update_steps, total_timesteps, batch_size, n_epochs, gamma, gae_lambda, clip_range, ent_coef
 
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import EvalCallback
 from stable_baselines3.common.vec_env import DummyVecEnv, VecFrameStack, VecNormalize, VecTransposeImage
 from stable_baselines3.common.monitor import Monitor
-from stable_baselines3.common.utils import get_schedule_fn
 
 from gym import RewardWrapper
 from gym.wrappers import GrayScaleObservation, ResizeObservation
@@ -88,10 +89,28 @@ class SimpleShape(RewardWrapper):
 
         return state, reward, done, info
 
+class SkipFrame(gym.Wrapper):
+    def __init__(self, env, skip=4):
+        super().__init__(env)
+        self._skip = skip
+
+    def step(self, action):
+        total_reward = 0.0
+        done = False
+        for _ in range(self._skip):
+            obs, reward, done, info = self.env.step(action)
+            total_reward += reward
+            if done:
+                break
+        return obs, total_reward, done, info
+
+    def reset(self, **kwargs):
+        return self.env.reset(**kwargs)
+
 def create_env():
     env = gym_super_mario_bros.make('SuperMarioBros-1-1-v0')  # Train on just Level 1-1
     env = JoypadSpace(env, SIMPLE_MOVEMENT)
-    #env = SkipFrame(env, skip=4)
+    env = SkipFrame(env, skip=4)
 
     env = SimpleShape(env)  # Apply custom rewards
 
@@ -129,7 +148,7 @@ model = PPO(
     train_env,
     verbose=1,
     tensorboard_log=LOG_DIR,
-    learning_rate=lr,
+    learning_rate=lr_schedule,
     n_steps=update_steps,
     batch_size=batch_size,
     n_epochs=n_epochs,

@@ -1,7 +1,12 @@
 # Config file for Super Mario AI v1 - May 12th, 2025
+from stable_baselines3.common.utils import get_schedule_fn
+
 # Hyperparameters
 framestack = 4
+
 lr = 2.5e-4               # Increased from 0.000001
+lr_schedule = get_schedule_fn(lr, 'linear')
+
 update_steps = 2048       # Reduced from 512
 total_timesteps = 1000000
 batch_size = 64
