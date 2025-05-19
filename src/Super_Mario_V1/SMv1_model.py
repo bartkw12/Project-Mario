@@ -6,8 +6,8 @@ from gym_super_mario_bros.actions import SIMPLE_MOVEMENT
 from SMv1_config import framestack, lr, update_steps, total_timesteps, batch_size, n_epochs, gamma, gae_lambda, clip_range, ent_coef
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import EvalCallback
-from gym.wrappers import GrayScaleObservation
-from stable_baselines3.common.vec_env import DummyVecEnv, VecFrameStack
+from gym.wrappers import GrayScaleObservation, ResizeObservation
+from stable_baselines3.common.vec_env import DummyVecEnv, VecFrameStack, VecNormalize, VecTransposeImage
 from stable_baselines3.common.monitor import Monitor
 from gym import RewardWrapper
 
@@ -69,11 +69,17 @@ class CustomReward(RewardWrapper):
 def create_env():
     env = gym_super_mario_bros.make('SuperMarioBros-1-1-v0')  # Train on just Level 1-1
     env = JoypadSpace(env, SIMPLE_MOVEMENT)
+    #env = SkipFrame(env, skip=4)
+
     env = CustomReward(env)  # Apply custom rewards
+
     env = GrayScaleObservation(env, keep_dim=True)
+    env = ResizeObservation(env, shape=84)
     env = Monitor(env, './logs/')
     env = DummyVecEnv([lambda: env])
-    env = VecFrameStack(env, framestack, channels_order='last')
+    env = VecTransposeImage(env)
+    env = VecFrameStack(env, framestack, channels_order='first')
+    env = VecNormalize(env, norm_obs=True, norm_reward=True, clip_reward=1.0)
     return env
 
 # Create training and evaluation environments
@@ -115,7 +121,7 @@ model = PPO(
 # Train the model
 model.learn(
     total_timesteps=total_timesteps,
-    callback=eval_callback  # Uses EvalCallback to save best model
+    callback=eval_callback  # save best model
 )
 
 # Save the final model
