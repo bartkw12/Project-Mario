@@ -66,12 +66,30 @@ class CustomReward(RewardWrapper):
 
         return state, reward, done, info
 
+class SimpleShape(RewardWrapper):
+    def step(self, action):
+        state, reward, done, info = self.env.step(action)
+
+        # Strongly reward forward movement:
+        reward += 0.1 * (info['x_pos'] - getattr(self, 'last_x', info['x_pos']))
+        self.last_x = info['x_pos']
+
+        # Penalty on death
+        if info['life'] < 2:
+            reward -= 10
+
+        # Big bonus at end of level
+        if info.get('flag_get', False):
+            reward += 100
+
+        return state, reward, done, info
+
 def create_env():
     env = gym_super_mario_bros.make('SuperMarioBros-1-1-v0')  # Train on just Level 1-1
     env = JoypadSpace(env, SIMPLE_MOVEMENT)
     #env = SkipFrame(env, skip=4)
 
-    env = CustomReward(env)  # Apply custom rewards
+    env = SimpleShape(env)  # Apply custom rewards
 
     env = GrayScaleObservation(env, keep_dim=True)
     env = ResizeObservation(env, shape=84)
