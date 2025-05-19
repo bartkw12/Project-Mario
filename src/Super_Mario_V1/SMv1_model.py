@@ -10,7 +10,7 @@ from SMv1_config import framestack, lr_schedule, update_steps, total_timesteps, 
 
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import EvalCallback
-from stable_baselines3.common.vec_env import DummyVecEnv, VecFrameStack, VecNormalize, VecTransposeImage
+from stable_baselines3.common.vec_env import DummyVecEnv, VecFrameStack, VecNormalize, VecTransposeImage, SubprocVecEnv
 from stable_baselines3.common.monitor import Monitor
 
 from gym import RewardWrapper
@@ -108,24 +108,37 @@ class SkipFrame(gym.Wrapper):
         return self.env.reset(**kwargs)
 
 def create_env():
+    # Level and joystick
     env = gym_super_mario_bros.make('SuperMarioBros-1-1-v0')  # Train on just Level 1-1
     env = JoypadSpace(env, SIMPLE_MOVEMENT)
+
+    # Preproc
     env = SkipFrame(env, skip=4)
-
     env = SimpleShape(env)  # Apply custom rewards
-
     env = GrayScaleObservation(env, keep_dim=True)
     env = ResizeObservation(env, shape=84)
     env = Monitor(env, './logs/')
-    env = DummyVecEnv([lambda: env])
-    env = VecTransposeImage(env)
-    env = VecFrameStack(env, framestack, channels_order='first')
-    env = VecNormalize(env, norm_obs=True, norm_reward=True, clip_reward=1.0)
-    return env
+
+    # Vectorize, stack and Norm
+    #env = DummyVecEnv([lambda: env])
+    #env = VecTransposeImage(env)
+    #env = VecFrameStack(env, framestack, channels_order='first')
+    #env = VecNormalize(env, norm_obs=True, norm_reward=True, clip_reward=1.0)
+
+    return env # return a single, un‐vectorized gym.Env
+
+# 8 copies of single-env
+num_envs = 8
+vec_env = SubprocVecEnv([lambda: create_env() for _ in range(num_envs)])
+
+# 2) Apply the SAME wrappers you used in training (transpose, stack, normalize)
+vec_env = VecTransposeImage(vec_env)
+vec_env = VecFrameStack(vec_env, framestack, channels_order='first')
+vec_env = VecNormalize(vec_env, norm_obs=True, norm_reward=True, clip_reward=1.0)
 
 # Create training and evaluation environments
-train_env = create_env()
-eval_env = create_env()
+#train_env = create_env()
+#eval_env = create_env()
 
 # Set up directories
 CHECKPOINT_DIR = './train/'
@@ -135,7 +148,7 @@ os.makedirs(LOG_DIR, exist_ok=True)
 
 # Setup evaluation callback to save best model
 eval_callback = EvalCallback(
-    eval_env,
+    vec_env,
     best_model_save_path=CHECKPOINT_DIR,
     log_path=LOG_DIR,
     eval_freq=5000,  # Evaluate every 5000 steps
@@ -145,7 +158,7 @@ eval_callback = EvalCallback(
 
 model = PPO(
     "CnnPolicy",
-    train_env,
+    vec_env,
     verbose=1,
     tensorboard_log=LOG_DIR,
     learning_rate=lr_schedule,
@@ -167,5 +180,5 @@ model.learn(
 
 # Save the final model
 model.save('final_mario_model_w_jump_boost_v3')
-train_env.close()
-eval_env.close()
+vec_env.close()
+#eval_env.close()
