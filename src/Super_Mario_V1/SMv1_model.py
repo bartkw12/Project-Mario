@@ -146,8 +146,8 @@ if __name__ == "__main__":
     os.makedirs("./train/", exist_ok=True)
     os.makedirs("./logs/", exist_ok=True)
 
-    # Parallelize across 8 processes
-    num_envs = 8
+    # Parallelize across n processes
+    num_envs = 4
     vec_env = SubprocVecEnv([create_env for _ in range(num_envs)])
 
     # Apply vectorized wrappers
@@ -195,6 +195,6 @@ if __name__ == "__main__":
     )
 
     # Save the final model
-    model.save('final_mario_model_v4')
+    model.save('final_mario_model_milli_v4')
     vec_env.close()
     #eval_env.close()
