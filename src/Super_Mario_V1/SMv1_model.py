@@ -6,8 +6,6 @@ import gym_super_mario_bros
 from nes_py.wrappers import JoypadSpace
 from gym_super_mario_bros.actions import SIMPLE_MOVEMENT
 
-from SMv1_config import framestack, lr_schedule, update_steps, total_timesteps, batch_size, n_epochs, gamma, gae_lambda, clip_range, ent_coef
-
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import EvalCallback
 from stable_baselines3.common.vec_env import DummyVecEnv, VecFrameStack, VecNormalize, VecTransposeImage, SubprocVecEnv
@@ -16,8 +14,21 @@ from stable_baselines3.common.monitor import Monitor
 from gym import RewardWrapper
 from gym.wrappers import GrayScaleObservation, ResizeObservation
 
+from SMv1_config import (
+    framestack,
+    lr_schedule,
+    update_steps,
+    total_timesteps,
+    batch_size,
+    n_epochs,
+    gamma,
+    gae_lambda,
+    clip_range,
+    ent_coef,
+)
+
 # verify CUDA
-print(torch.cuda.is_available())
+print("CUDA available:", torch.cuda.is_available())
 
 # Reward shaping
 class CustomReward(RewardWrapper):
@@ -107,12 +118,13 @@ class SkipFrame(gym.Wrapper):
     def reset(self, **kwargs):
         return self.env.reset(**kwargs)
 
+# Create single-env
 def create_env():
-    # Level and joystick
+    # Base env + discrete actions
     env = gym_super_mario_bros.make('SuperMarioBros-1-1-v0')  # Train on just Level 1-1
     env = JoypadSpace(env, SIMPLE_MOVEMENT)
 
-    # Preproc
+    # Preprocessing
     env = SkipFrame(env, skip=4)
     env = SimpleShape(env)  # Apply custom rewards
     env = GrayScaleObservation(env, keep_dim=True)
@@ -125,60 +137,64 @@ def create_env():
     #env = VecFrameStack(env, framestack, channels_order='first')
     #env = VecNormalize(env, norm_obs=True, norm_reward=True, clip_reward=1.0)
 
-    return env # return a single, un‐vectorized gym.Env
+    # return a single, un‐vectorized gym.Env
+    return env
 
-# 8 copies of single-env
-num_envs = 8
-vec_env = SubprocVecEnv([lambda: create_env() for _ in range(num_envs)])
+# Main Training Script
+# --------------------
+if __name__ == "__main__":
+    os.makedirs("./train/", exist_ok=True)
+    os.makedirs("./logs/", exist_ok=True)
 
-# 2) Apply the SAME wrappers you used in training (transpose, stack, normalize)
-vec_env = VecTransposeImage(vec_env)
-vec_env = VecFrameStack(vec_env, framestack, channels_order='first')
-vec_env = VecNormalize(vec_env, norm_obs=True, norm_reward=True, clip_reward=1.0)
+    # Parallelize across 8 processes
+    num_envs = 8
+    vec_env = SubprocVecEnv([create_env for _ in range(num_envs)])
 
-# Create training and evaluation environments
-#train_env = create_env()
-#eval_env = create_env()
+    # Apply vectorized wrappers
+    vec_env = VecTransposeImage(vec_env)
+    vec_env = VecFrameStack(vec_env, framestack, channels_order='first')
+    vec_env = VecNormalize(
+        vec_env,
+        norm_obs=True,
+        norm_reward=True,
+        clip_reward=1.0,
+    )
 
-# Set up directories
-CHECKPOINT_DIR = './train/'
-LOG_DIR = './logs/'
-os.makedirs(CHECKPOINT_DIR, exist_ok=True)
-os.makedirs(LOG_DIR, exist_ok=True)
 
-# Setup evaluation callback to save best model
-eval_callback = EvalCallback(
-    vec_env,
-    best_model_save_path=CHECKPOINT_DIR,
-    log_path=LOG_DIR,
-    eval_freq=5000,  # Evaluate every 5000 steps
-    deterministic=True,
-    render=False
-)
+    # Setup evaluation callback to save best model
+    eval_callback = EvalCallback(
+        vec_env,
+        best_model_save_path="./train/",
+        log_path="./logs/",
+        eval_freq=5000,  # Evaluate every 5000 steps
+        deterministic=True,
+        render=False
+    )
 
-model = PPO(
-    "CnnPolicy",
-    vec_env,
-    verbose=1,
-    tensorboard_log=LOG_DIR,
-    learning_rate=lr_schedule,
-    n_steps=update_steps,
-    batch_size=batch_size,
-    n_epochs=n_epochs,
-    gamma=gamma,
-    gae_lambda=gae_lambda,
-    clip_range=clip_range,
-    ent_coef=ent_coef,
-    device="cuda"
-)
+    # Initialize model
+    model = PPO(
+        "CnnPolicy",
+        vec_env,
+        verbose=1,
+        tensorboard_log="./logs/",
+        learning_rate=lr_schedule,
+        n_steps=update_steps,
+        batch_size=batch_size,
+        n_epochs=n_epochs,
+        gamma=gamma,
+        gae_lambda=gae_lambda,
+        clip_range=clip_range,
+        ent_coef=ent_coef,
+        device="cuda"
+    )
 
-# Train the model
-model.learn(
-    total_timesteps=total_timesteps,
-    callback=eval_callback  # save best model
-)
+    # Train the model
+    model.learn(
+        total_timesteps=total_timesteps,
+        callback=eval_callback  # save best model
+    )
 
-# Save the final model
-model.save('final_mario_model_w_jump_boost_v3')
-vec_env.close()
-#eval_env.close()
+    # Save the final model
+    model.save('final_mario_model_v4')
+    vec_env.close()
+    #eval_env.close()
