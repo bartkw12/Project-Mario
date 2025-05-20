@@ -1,4 +1,4 @@
-import torch
+#import torch
 import os
 import gym
 import gym_super_mario_bros
@@ -6,9 +6,9 @@ import gym_super_mario_bros
 from nes_py.wrappers import JoypadSpace
 from gym_super_mario_bros.actions import SIMPLE_MOVEMENT
 
-from stable_baselines3 import PPO
-from stable_baselines3.common.callbacks import EvalCallback
-from stable_baselines3.common.vec_env import DummyVecEnv, VecFrameStack, VecNormalize, VecTransposeImage, SubprocVecEnv
+#from stable_baselines3 import PPO
+#from stable_baselines3.common.callbacks import EvalCallback
+#from stable_baselines3.common.vec_env import DummyVecEnv, VecFrameStack, VecNormalize, VecTransposeImage, SubprocVecEnv
 from stable_baselines3.common.monitor import Monitor
 
 from gym import RewardWrapper
@@ -26,9 +26,6 @@ from SMv1_config import (
     clip_range,
     ent_coef,
 )
-
-# verify CUDA
-print("CUDA available:", torch.cuda.is_available())
 
 # Reward shaping
 class CustomReward(RewardWrapper):
@@ -143,6 +140,14 @@ def create_env():
 # Main Training Script
 # --------------------
 if __name__ == "__main__":
+    import torch
+    from stable_baselines3 import PPO
+    from stable_baselines3.common.vec_env import SubprocVecEnv, VecTransposeImage, VecFrameStack, VecNormalize
+    from stable_baselines3.common.callbacks import EvalCallback
+
+    # verify CUDA
+    print("CUDA available:", torch.cuda.is_available())
+
     os.makedirs("./train/", exist_ok=True)
     os.makedirs("./logs/", exist_ok=True)
 
