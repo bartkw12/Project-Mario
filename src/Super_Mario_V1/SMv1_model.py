@@ -137,9 +137,11 @@ def create_env():
     # return a single, un‐vectorized gym.Env
     return env
 
+
 # Main Training Script
 # --------------------
 if __name__ == "__main__":
+
     import torch
     from stable_baselines3 import PPO
     from stable_baselines3.common.vec_env import SubprocVecEnv, VecTransposeImage, VecFrameStack, VecNormalize
@@ -152,7 +154,7 @@ if __name__ == "__main__":
     os.makedirs("./logs/", exist_ok=True)
 
     # Parallelize across n processes
-    num_envs = 4
+    num_envs = 2
     vec_env = SubprocVecEnv([create_env for _ in range(num_envs)])
 
     # Apply vectorized wrappers
@@ -164,7 +166,6 @@ if __name__ == "__main__":
         norm_reward=True,
         clip_reward=1.0,
     )
-
 
     # Setup evaluation callback to save best model
     eval_callback = EvalCallback(
