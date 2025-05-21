@@ -1,18 +1,12 @@
-#import torch
 import os
 import gym
 import gym_super_mario_bros
-
+from gym import RewardWrapper
+from gym.wrappers import GrayScaleObservation, ResizeObservation
 from nes_py.wrappers import JoypadSpace
 from gym_super_mario_bros.actions import SIMPLE_MOVEMENT
 
-#from stable_baselines3 import PPO
-#from stable_baselines3.common.callbacks import EvalCallback
-#from stable_baselines3.common.vec_env import DummyVecEnv, VecFrameStack, VecNormalize, VecTransposeImage, SubprocVecEnv
 from stable_baselines3.common.monitor import Monitor
-
-from gym import RewardWrapper
-from gym.wrappers import GrayScaleObservation, ResizeObservation
 
 from SMv1_config import (
     framestack,
@@ -128,12 +122,6 @@ def create_env():
     env = ResizeObservation(env, shape=84)
     env = Monitor(env, './logs/')
 
-    # Vectorize, stack and Norm
-    #env = DummyVecEnv([lambda: env])
-    #env = VecTransposeImage(env)
-    #env = VecFrameStack(env, framestack, channels_order='first')
-    #env = VecNormalize(env, norm_obs=True, norm_reward=True, clip_reward=1.0)
-
     # return a single, un‐vectorized gym.Env
     return env
 
@@ -203,4 +191,3 @@ if __name__ == "__main__":
     # Save the final model
     model.save('final_mario_model_milli_v4')
     vec_env.close()
-    #eval_env.close()

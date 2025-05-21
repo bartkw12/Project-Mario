@@ -7,7 +7,7 @@ framestack = 4
 lr = 2.5e-4
 lr_schedule = get_schedule_fn(lr)
 
-update_steps = 512        # shrink buffer for parallelization.
+update_steps = 512         # shrink buffer for parallelization.
 total_timesteps = 1000000
 batch_size = 64
 n_epochs = 8
