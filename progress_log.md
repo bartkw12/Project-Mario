@@ -32,6 +32,10 @@
 `gym-super-mario-bros` → `nes-py` → `gym==0.21`. Need shimmy or manual adapter
 to bridge to Gymnasium + SB3 2.x. This is the hardest part of Phase 1.
 
+**Shimmy 2.0 risk**: shimmy jumped from 1.3.0 → 2.0.0 (May 2024) → 2.0.1 (Apr 2026).
+Major version bump — need to verify `[gym-v21]` extra still works. Fallback: shimmy 1.3.0
+or a hand-rolled adapter.
+
 ---
 
 ## V1 Bugs to Avoid in V2

@@ -18,18 +18,29 @@
 
 ## 2. Stack
 
-| Component          | Library                        | Version    |
-|--------------------|--------------------------------|------------|
-| Environment        | `gym-super-mario-bros`         | 7.4.0      |
-| Gym API            | `gymnasium`                    | >= 0.29    |
-| Compat shim        | `shimmy[gym-v21]`              | >= 1.0     |
-| NES emulator       | `nes-py`                       | 8.2.1      |
-| RL framework       | `stable-baselines3`            | >= 2.3     |
-| Deep learning      | `torch`                        | >= 2.1     |
-| Config             | `dataclasses` + YAML           | —          |
-| Experiment track   | `tensorboard`                  | —          |
-| Video recording    | `gymnasium.wrappers.RecordVideo` | —        |
-| Python             | 3.10–3.12                      | —          |
+**Pinned versions** (verified on PyPI, April 2026). Exact pins go in
+`pyproject.toml`; this table is the tested reference.
+
+| Component          | Library                          | Pin        | PyPI Latest (Apr 2026) |
+|--------------------|----------------------------------|------------|------------------------|
+| Environment        | `gym-super-mario-bros`           | ==7.4.0    | 7.4.0 (Jun 2022, EOL) |
+| Gym API            | `gymnasium`                      | ==1.2.3    | 1.2.3 (Dec 2025)      |
+| Compat shim        | `shimmy[gym-v21]`                | ==2.0.1    | 2.0.1 (Apr 2026)      |
+| NES emulator       | `nes-py`                         | ==8.2.1    | 8.2.1 (Jun 2022, EOL) |
+| RL framework       | `stable-baselines3`              | ==2.8.0    | 2.8.0 (Apr 2026)      |
+| Deep learning      | `torch`                          | ==2.11.0   | 2.11.0 (Mar 2026)     |
+| Config             | `pyyaml`                         | >=6.0      | —                      |
+| Experiment track   | `tensorboard`                    | >=2.14     | —                      |
+| Video recording    | `gymnasium.wrappers.RecordVideo` | (bundled)  | —                      |
+| Python             |                                  | 3.10–3.12  | —                      |
+
+**Notes**:
+- `gym-super-mario-bros` and `nes-py` are effectively abandoned (last release
+  2022). Pin exact versions; they won't change.
+- `shimmy` 2.0 is a major bump — verify `[gym-v21]` extra still works during
+  Phase 1 install. If not, fall back to `shimmy==1.3.0` or manual adapter.
+- `torch` CUDA build: install via `--index-url https://download.pytorch.org/whl/cu124`
+  (or latest CUDA wheel matching your driver) for GPU phases.
 
 **Rejected**: `gym` (dead), CleanRL as primary (ref only for Phase 4), `torch 1.x`.
 
