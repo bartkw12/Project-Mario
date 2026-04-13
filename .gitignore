@@ -6,10 +6,15 @@
 *.csv
 *.zip
 
-# Ignore trained models
-src/Super_Mario_V1/train/
-src/Super_Mario_V1/logs/
-src/Super_Mario_V1/final_mario_model.zip
+# Trained models & results
+results/models/
+results/logs/
+results/videos/
+*.zip
+
+# Legacy V1 artifacts (kept for reference, not rebuilt)
+legacy/Super_Mario_V1/train/
+legacy/Super_Mario_V1/logs/
 
 # Python
 __pycache__/
@@ -17,5 +22,6 @@ __pycache__/
 *$py.class
 
 # Virtual environment
+.venv/
 venv/
 env/
