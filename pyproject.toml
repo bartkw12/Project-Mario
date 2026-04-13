@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "project-mario"
+version = "0.1.0"
+description = "PPO agent for Super Mario Bros using SB3 + Gymnasium"
+requires-python = ">=3.10,<3.14"
+
+dependencies = [
+    # --- Environment ---
+    "gym-super-mario-bros==7.4.0",
+    "nes-py==8.2.1",
+
+    # --- Gymnasium + compat bridge ---
+    "gymnasium==1.2.3",
+    "shimmy[gym-v21]==2.0.1",
+
+    # --- RL framework ---
+    "stable-baselines3==2.8.0",
+
+    # --- Deep learning (CPU — see GPU note below) ---
+    "torch==2.11.0",
+
+    # --- Utilities ---
+    "pyyaml>=6.0",
+    "tensorboard>=2.14",
+    "opencv-python>=4.8",
+]
+
+# GPU install (do NOT add to dependencies — requires a custom index):
+#   pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cu124
+# Run this AFTER `pip install -e .` to replace the CPU torch with the CUDA build.
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
