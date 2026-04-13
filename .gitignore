@@ -20,6 +20,7 @@ legacy/Super_Mario_V1/logs/
 __pycache__/
 *.py[cod]
 *$py.class
+*.egg-info/
 
 # Virtual environment
 .venv/
