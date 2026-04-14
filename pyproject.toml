@@ -27,6 +27,7 @@ dependencies = [
     "pyyaml>=6.0",
     "tensorboard>=2.14",
     "opencv-python>=4.8",
+    "moviepy>=1.0",
 ]
 
 # GPU install (do NOT add to dependencies — requires a custom index):
