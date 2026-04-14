@@ -30,7 +30,9 @@ def make_single_env(cfg: Config, seed: int | None = None, record_video: bool = F
     env = JoypadSpace(env, SIMPLE_MOVEMENT)
 
     # Bridge to Gymnasium 5-tuple API
-    env = GymV21CompatibilityV0(env=env)
+    # render_mode="rgb_array" needed if RecordVideo will be used
+    render_mode = "rgb_array" if record_video else None
+    env = GymV21CompatibilityV0(env=env, render_mode=render_mode)
 
     # Custom wrappers
     env = SkipFrame(env, skip=cfg.env.frame_skip)
