@@ -100,4 +100,15 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Override seed from config",
     )
+    parser.add_argument(
+        "--episodes",
+        type=int,
+        default=5,
+        help="Number of evaluation episodes (evaluate.py)",
+    )
+    parser.add_argument(
+        "--record",
+        action="store_true",
+        help="Record video during evaluation (evaluate.py)",
+    )
     return parser.parse_args()
