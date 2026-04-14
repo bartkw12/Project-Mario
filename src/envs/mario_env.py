@@ -10,7 +10,7 @@ import gym_super_mario_bros
 from gym_super_mario_bros.actions import SIMPLE_MOVEMENT
 from nes_py.wrappers import JoypadSpace
 from shimmy import GymV21CompatibilityV0
-from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv, VecFrameStack
+from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv, VecFrameStack, VecTransposeImage
 
 from src.config import Config
 from src.envs.wrappers import SimpleRewardShaping, SkipFrame
@@ -20,7 +20,7 @@ def make_single_env(cfg: Config, seed: int | None = None, record_video: bool = F
     """Create a single, fully-wrapped Gymnasium Mario env.
 
     Pipeline: mario → JoypadSpace → shimmy → SkipFrame → SimpleRewardShaping
-              → GrayscaleObservation → ResizeObservation → (optional) RecordVideo
+              → ResizeObservation → GrayscaleObservation → (optional) RecordVideo
 
     Used for: debug, evaluation, video recording.
     NOT vectorized — returns a plain gymnasium.Env.
@@ -43,9 +43,10 @@ def make_single_env(cfg: Config, seed: int | None = None, record_video: bool = F
         flag_bonus=cfg.reward.flag_bonus,
     )
 
-    # Preprocessing
-    env = gymnasium.wrappers.GrayscaleObservation(env, keep_dim=True)
+    # Preprocessing — resize first (while still 3-channel) to avoid cv2
+    # dropping the trailing channel dim, then grayscale to (H, W, 1)
     env = gymnasium.wrappers.ResizeObservation(env, shape=(cfg.env.obs_size, cfg.env.obs_size))
+    env = gymnasium.wrappers.GrayscaleObservation(env, keep_dim=True)
 
     # Optional video recording (single-env path only)
     if record_video and video_dir:
@@ -64,10 +65,8 @@ def _make_env_thunk(cfg: Config, seed: int | None = None):
 def make_vec_env(cfg: Config, use_subproc: bool = False):
     """Create a vectorized env stack for training.
 
-    Pipeline: num_envs × make_single_env → DummyVecEnv/SubprocVecEnv → VecFrameStack
-
-    Does NOT include VecTransposeImage — add only after verifying obs shape
-    in smoke test E (Step 11).
+    Pipeline: num_envs × make_single_env → DummyVecEnv/SubprocVecEnv
+              → VecTransposeImage → VecFrameStack
     """
     env_fns = [
         _make_env_thunk(cfg, seed=cfg.seed + i if cfg.seed is not None else None)
@@ -79,5 +78,7 @@ def make_vec_env(cfg: Config, use_subproc: bool = False):
     else:
         vec_env = DummyVecEnv(env_fns)
 
+    # Transpose (H, W, C) → (C, H, W) so frame stacking works on channel axis
+    vec_env = VecTransposeImage(vec_env)
     vec_env = VecFrameStack(vec_env, n_stack=cfg.env.frame_stack, channels_order="first")
     return vec_env
