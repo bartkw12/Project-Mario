@@ -10,7 +10,7 @@ import gym_super_mario_bros
 from gym_super_mario_bros.actions import SIMPLE_MOVEMENT
 from nes_py.wrappers import JoypadSpace
 from shimmy import GymV21CompatibilityV0
-from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv, VecFrameStack, VecTransposeImage
+from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv, VecFrameStack, VecMonitor, VecTransposeImage
 
 from src.config import Config
 from src.envs.wrappers import SimpleRewardShaping, SkipFrame
@@ -66,7 +66,7 @@ def make_vec_env(cfg: Config, use_subproc: bool = False):
     """Create a vectorized env stack for training.
 
     Pipeline: num_envs × make_single_env → DummyVecEnv/SubprocVecEnv
-              → VecTransposeImage → VecFrameStack
+              → VecMonitor → VecTransposeImage → VecFrameStack
     """
     env_fns = [
         _make_env_thunk(cfg, seed=cfg.seed + i if cfg.seed is not None else None)
@@ -77,6 +77,9 @@ def make_vec_env(cfg: Config, use_subproc: bool = False):
         vec_env = SubprocVecEnv(env_fns)
     else:
         vec_env = DummyVecEnv(env_fns)
+
+    # Monitor for SB3 ep_rew_mean / ep_len_mean tracking
+    vec_env = VecMonitor(vec_env)
 
     # Transpose (H, W, C) → (C, H, W) so frame stacking works on channel axis
     vec_env = VecTransposeImage(vec_env)

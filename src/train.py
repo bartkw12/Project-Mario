@@ -7,6 +7,11 @@ Usage:
     python -m src.train --seed 123             # override seed
 """
 
+from pathlib import Path
+
+from stable_baselines3 import PPO
+
+from src.callbacks import MarioMetricsCallback
 from src.config import Config, parse_args, set_global_seed
 from src.envs import make_vec_env
 
@@ -36,8 +41,41 @@ def dry_run(cfg: Config) -> None:
 
 
 def train(cfg: Config) -> None:
-    """Run PPO training. Phase 2."""
-    raise NotImplementedError("Training is Phase 2 — not yet implemented.")
+    """Run PPO training with SB3."""
+    print(f"[train] Creating {cfg.env.num_envs} training envs (DummyVecEnv)...")
+    env = make_vec_env(cfg, use_subproc=False)
+
+    print(f"[train] Initialising PPO (CnnPolicy, device={cfg.device})...")
+    model = PPO(
+        "CnnPolicy",
+        env,
+        learning_rate=cfg.training.lr,
+        n_steps=cfg.training.n_steps,
+        batch_size=cfg.training.batch_size,
+        n_epochs=cfg.training.n_epochs,
+        gamma=cfg.training.gamma,
+        gae_lambda=cfg.training.gae_lambda,
+        clip_range=cfg.training.clip_range,
+        ent_coef=cfg.training.ent_coef,
+        tensorboard_log=str(Path("results/logs")),
+        device=cfg.device,
+        verbose=1,
+    )
+
+    callbacks = [MarioMetricsCallback()]
+
+    print(f"[train] Starting training for {cfg.training.total_timesteps:,} timesteps...")
+    model.learn(
+        total_timesteps=cfg.training.total_timesteps,
+        callback=callbacks,
+    )
+
+    save_path = Path("results/models/final_model")
+    save_path.parent.mkdir(parents=True, exist_ok=True)
+    model.save(str(save_path))
+    print(f"[train] Final model saved to {save_path}.zip")
+
+    env.close()
 
 
 def main() -> None:
