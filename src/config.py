@@ -111,4 +111,10 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Record video during evaluation (evaluate.py)",
     )
+    parser.add_argument(
+        "--model",
+        type=str,
+        default=None,
+        help="Path to trained model .zip for evaluation (evaluate.py)",
+    )
     return parser.parse_args()
