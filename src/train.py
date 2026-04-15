@@ -12,7 +12,7 @@ from pathlib import Path
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import CheckpointCallback, EvalCallback
 
-from src.callbacks import MarioMetricsCallback
+from src.callbacks import MarioMetricsCallback, ProgressBarCallback
 from src.config import Config, parse_args, set_global_seed
 from src.envs import make_vec_env
 
@@ -60,7 +60,7 @@ def train(cfg: Config) -> None:
         ent_coef=cfg.training.ent_coef,
         tensorboard_log=str(Path("results/logs")),
         device=cfg.device,
-        verbose=1,
+        verbose=0,
     )
 
     # Checkpoint every 500K timesteps (adjusted for n_envs)
@@ -73,7 +73,10 @@ def train(cfg: Config) -> None:
         name_prefix="ppo_mario",
     )
 
-    callbacks = [MarioMetricsCallback(), checkpoint_cb]
+    mario_cb = MarioMetricsCallback()
+    progress_cb = ProgressBarCallback(cfg.training.total_timesteps, mario_cb=mario_cb)
+
+    callbacks = [mario_cb, checkpoint_cb, progress_cb]
 
     # Eval callback: 1-env eval with same wrapper stack, saves best model by mean reward.
     # Note: best model is selected by mean eval reward (proxy); project success
