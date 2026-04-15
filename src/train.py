@@ -10,6 +10,7 @@ Usage:
 from pathlib import Path
 
 from stable_baselines3 import PPO
+from stable_baselines3.common.callbacks import CheckpointCallback
 
 from src.callbacks import MarioMetricsCallback
 from src.config import Config, parse_args, set_global_seed
@@ -62,9 +63,20 @@ def train(cfg: Config) -> None:
         verbose=1,
     )
 
-    callbacks = [MarioMetricsCallback()]
+    # Checkpoint every 500K timesteps (adjusted for n_envs)
+    checkpoint_freq = max(500_000 // cfg.env.num_envs, 1)
+    checkpoint_dir = Path("results/models/checkpoints")
+    checkpoint_dir.mkdir(parents=True, exist_ok=True)
+    checkpoint_cb = CheckpointCallback(
+        save_freq=checkpoint_freq,
+        save_path=str(checkpoint_dir),
+        name_prefix="ppo_mario",
+    )
+
+    callbacks = [MarioMetricsCallback(), checkpoint_cb]
 
     print(f"[train] Starting training for {cfg.training.total_timesteps:,} timesteps...")
+    print(f"[train] Checkpoints every ~500K timesteps (save_freq={checkpoint_freq} calls, n_envs={cfg.env.num_envs})")
     model.learn(
         total_timesteps=cfg.training.total_timesteps,
         callback=callbacks,
