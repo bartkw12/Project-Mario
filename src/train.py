@@ -10,7 +10,7 @@ Usage:
 from pathlib import Path
 
 from stable_baselines3 import PPO
-from stable_baselines3.common.callbacks import CheckpointCallback
+from stable_baselines3.common.callbacks import CheckpointCallback, EvalCallback
 
 from src.callbacks import MarioMetricsCallback
 from src.config import Config, parse_args, set_global_seed
@@ -75,8 +75,29 @@ def train(cfg: Config) -> None:
 
     callbacks = [MarioMetricsCallback(), checkpoint_cb]
 
+    # Eval callback: 1-env eval with same wrapper stack, saves best model by mean reward.
+    # Note: best model is selected by mean eval reward (proxy); project success
+    # (>=80% flag capture) is judged separately via evaluate.py.
+    eval_freq = max(cfg.eval.eval_freq // cfg.env.num_envs, 1)
+    best_model_dir = Path("results/models/best_model")
+    best_model_dir.mkdir(parents=True, exist_ok=True)
+    eval_log_dir = Path("results/logs/eval")
+    eval_log_dir.mkdir(parents=True, exist_ok=True)
+    eval_env = make_vec_env(cfg, use_subproc=False, num_envs=1)
+    eval_cb = EvalCallback(
+        eval_env,
+        eval_freq=eval_freq,
+        n_eval_episodes=cfg.eval.n_eval_episodes,
+        deterministic=cfg.eval.deterministic,
+        best_model_save_path=str(best_model_dir),
+        log_path=str(eval_log_dir),
+        verbose=1,
+    )
+    callbacks.append(eval_cb)
+
     print(f"[train] Starting training for {cfg.training.total_timesteps:,} timesteps...")
     print(f"[train] Checkpoints every ~500K timesteps (save_freq={checkpoint_freq} calls, n_envs={cfg.env.num_envs})")
+    print(f"[train] Eval every ~{cfg.eval.eval_freq:,} timesteps (eval_freq={eval_freq} calls, {cfg.eval.n_eval_episodes} episodes)"))
     model.learn(
         total_timesteps=cfg.training.total_timesteps,
         callback=callbacks,
@@ -87,6 +108,7 @@ def train(cfg: Config) -> None:
     model.save(str(save_path))
     print(f"[train] Final model saved to {save_path}.zip")
 
+    eval_env.close()
     env.close()
 
 

@@ -62,15 +62,19 @@ def _make_env_thunk(cfg: Config, seed: int | None = None):
     return _init
 
 
-def make_vec_env(cfg: Config, use_subproc: bool = False):
+def make_vec_env(cfg: Config, use_subproc: bool = False, num_envs: int | None = None):
     """Create a vectorized env stack for training.
 
     Pipeline: num_envs × make_single_env → DummyVecEnv/SubprocVecEnv
               → VecMonitor → VecTransposeImage → VecFrameStack
+
+    Args:
+        num_envs: Override cfg.env.num_envs (e.g., 1 for eval).
     """
+    n = num_envs if num_envs is not None else cfg.env.num_envs
     env_fns = [
         _make_env_thunk(cfg, seed=cfg.seed + i if cfg.seed is not None else None)
-        for i in range(cfg.env.num_envs)
+        for i in range(n)
     ]
 
     if use_subproc:
