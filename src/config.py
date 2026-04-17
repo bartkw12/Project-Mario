@@ -117,4 +117,10 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Path to trained model .zip for evaluation (evaluate.py)",
     )
+    parser.add_argument(
+        "--resume",
+        type=str,
+        default=None,
+        help="Path to checkpoint .zip to resume training from (train.py)",
+    )
     return parser.parse_args()

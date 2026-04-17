@@ -3,6 +3,7 @@
 Usage:
     python -m src.train --dry-run              # Phase 1: verify env stack
     python -m src.train                        # Phase 2: run PPO training
+    python -m src.train --resume path/to/model.zip  # resume from checkpoint
     python -m src.train --config path.yaml     # custom config
     python -m src.train --seed 123             # override seed
 """
@@ -41,27 +42,36 @@ def dry_run(cfg: Config) -> None:
     print(f"\n[dry-run] PASSED — obs shape {obs.shape} matches expected {expected}")
 
 
-def train(cfg: Config) -> None:
+def train(cfg: Config, resume_path: str | None = None) -> None:
     """Run PPO training with SB3."""
     print(f"[train] Creating {cfg.env.num_envs} training envs (DummyVecEnv)...")
     env = make_vec_env(cfg, use_subproc=False)
 
-    print(f"[train] Initialising PPO (CnnPolicy, device={cfg.device})...")
-    model = PPO(
-        "CnnPolicy",
-        env,
-        learning_rate=cfg.training.lr,
-        n_steps=cfg.training.n_steps,
-        batch_size=cfg.training.batch_size,
-        n_epochs=cfg.training.n_epochs,
-        gamma=cfg.training.gamma,
-        gae_lambda=cfg.training.gae_lambda,
-        clip_range=cfg.training.clip_range,
-        ent_coef=cfg.training.ent_coef,
-        tensorboard_log=str(Path("results/logs")),
-        device=cfg.device,
-        verbose=0,
-    )
+    if resume_path:
+        print(f"[train] Resuming from {resume_path}...")
+        model = PPO.load(
+            resume_path,
+            env=env,
+            tensorboard_log=str(Path("results/logs")),
+            device=cfg.device,
+        )
+    else:
+        print(f"[train] Initialising PPO (CnnPolicy, device={cfg.device})...")
+        model = PPO(
+            "CnnPolicy",
+            env,
+            learning_rate=cfg.training.lr,
+            n_steps=cfg.training.n_steps,
+            batch_size=cfg.training.batch_size,
+            n_epochs=cfg.training.n_epochs,
+            gamma=cfg.training.gamma,
+            gae_lambda=cfg.training.gae_lambda,
+            clip_range=cfg.training.clip_range,
+            ent_coef=cfg.training.ent_coef,
+            tensorboard_log=str(Path("results/logs")),
+            device=cfg.device,
+            verbose=0,
+        )
 
     # Checkpoint every 500K timesteps (adjusted for n_envs)
     checkpoint_freq = max(500_000 // cfg.env.num_envs, 1)
@@ -100,10 +110,11 @@ def train(cfg: Config) -> None:
 
     print(f"[train] Starting training for {cfg.training.total_timesteps:,} timesteps...")
     print(f"[train] Checkpoints every ~500K timesteps (save_freq={checkpoint_freq} calls, n_envs={cfg.env.num_envs})")
-    print(f"[train] Eval every ~{cfg.eval.eval_freq:,} timesteps (eval_freq={eval_freq} calls, {cfg.eval.n_eval_episodes} episodes)"))
+    print(f"[train] Eval every ~{cfg.eval.eval_freq:,} timesteps (eval_freq={eval_freq} calls, {cfg.eval.n_eval_episodes} episodes)")
     model.learn(
         total_timesteps=cfg.training.total_timesteps,
         callback=callbacks,
+        reset_num_timesteps=resume_path is None,
     )
 
     save_path = Path("results/models/final_model")
@@ -127,7 +138,7 @@ def main() -> None:
     if args.dry_run:
         dry_run(cfg)
     else:
-        train(cfg)
+        train(cfg, resume_path=args.resume)
 
 
 if __name__ == "__main__":
