@@ -4,13 +4,10 @@
 *.ipr
 *.iws
 *.csv
-*.zip
 
-# Trained models & results
-results/models/
-results/logs/
+# Trained models & results — allow results/ to be tracked
+# but ignore large/temp files selectively
 results/videos/
-*.zip
 
 # Legacy V1 artifacts (kept for reference, not rebuilt)
 legacy/Super_Mario_V1/train/
