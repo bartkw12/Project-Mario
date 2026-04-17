@@ -16,7 +16,7 @@ from src.config import Config
 from src.envs.wrappers import SimpleRewardShaping, SkipFrame
 
 
-def make_single_env(cfg: Config, seed: int | None = None, record_video: bool = False, video_dir: str | None = None):
+def make_single_env(cfg: Config, seed: int | None = None, record_video: bool = False, video_dir: str | None = None, render_mode: str | None = None):
     """Create a single, fully-wrapped Gymnasium Mario env.
 
     Pipeline: mario → JoypadSpace → shimmy → SkipFrame → SimpleRewardShaping
@@ -30,8 +30,9 @@ def make_single_env(cfg: Config, seed: int | None = None, record_video: bool = F
     env = JoypadSpace(env, SIMPLE_MOVEMENT)
 
     # Bridge to Gymnasium 5-tuple API
-    # render_mode="rgb_array" needed if RecordVideo will be used
-    render_mode = "rgb_array" if record_video else None
+    # render_mode="rgb_array" needed for video recording
+    if render_mode is None and record_video:
+        render_mode = "rgb_array"
     env = GymV21CompatibilityV0(env=env, render_mode=render_mode)
 
     # Custom wrappers
@@ -55,14 +56,14 @@ def make_single_env(cfg: Config, seed: int | None = None, record_video: bool = F
     return env
 
 
-def _make_env_thunk(cfg: Config, seed: int | None = None):
+def _make_env_thunk(cfg: Config, seed: int | None = None, render_mode: str | None = None):
     """Return a callable that creates a single env (for use with VecEnv)."""
     def _init():
-        return make_single_env(cfg, seed=seed)
+        return make_single_env(cfg, seed=seed, render_mode=render_mode)
     return _init
 
 
-def make_vec_env(cfg: Config, use_subproc: bool = False, num_envs: int | None = None):
+def make_vec_env(cfg: Config, use_subproc: bool = False, num_envs: int | None = None, render_mode: str | None = None):
     """Create a vectorized env stack for training.
 
     Pipeline: num_envs × make_single_env → DummyVecEnv/SubprocVecEnv
@@ -70,10 +71,11 @@ def make_vec_env(cfg: Config, use_subproc: bool = False, num_envs: int | None = 
 
     Args:
         num_envs: Override cfg.env.num_envs (e.g., 1 for eval).
+        render_mode: Pass to underlying envs (e.g., "rgb_array" for video recording).
     """
     n = num_envs if num_envs is not None else cfg.env.num_envs
     env_fns = [
-        _make_env_thunk(cfg, seed=cfg.seed + i if cfg.seed is not None else None)
+        _make_env_thunk(cfg, seed=cfg.seed + i if cfg.seed is not None else None, render_mode=render_mode)
         for i in range(n)
     ]
 
