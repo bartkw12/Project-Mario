@@ -100,7 +100,7 @@ def train(cfg: Config) -> None:
 
     print(f"[train] Starting training for {cfg.training.total_timesteps:,} timesteps...")
     print(f"[train] Checkpoints every ~500K timesteps (save_freq={checkpoint_freq} calls, n_envs={cfg.env.num_envs})")
-    print(f"[train] Eval every ~{cfg.eval.eval_freq:,} timesteps (eval_freq={eval_freq} calls, {cfg.eval.n_eval_episodes} episodes)"))
+    print(f"[train] Eval every ~{cfg.eval.eval_freq:,} timesteps (eval_freq={eval_freq} calls, {cfg.eval.n_eval_episodes} episodes)")
     model.learn(
         total_timesteps=cfg.training.total_timesteps,
         callback=callbacks,
