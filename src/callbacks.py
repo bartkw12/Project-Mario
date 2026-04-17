@@ -71,8 +71,11 @@ class ProgressBarCallback(BaseCallback):
         self._pbar: tqdm | None = None
 
     def _on_training_start(self) -> None:
+        # Account for resumed training: start the bar at the current timestep
+        initial = self.model.num_timesteps
         self._pbar = tqdm(
             total=self._total,
+            initial=initial,
             unit="step",
             unit_scale=True,
             desc="Training",
