@@ -94,6 +94,10 @@ class ProgressBarCallback(BaseCallback):
                 postfix["flag%"] = f"{np.mean(self._mario_cb._flag_gets):.1%}"
             self._pbar.set_postfix(postfix, refresh=False)
 
+        # Hard stop when we've reached the target timesteps
+        if self.num_timesteps >= self._total:
+            return False
+
         return True
 
     def _on_training_end(self) -> None:
