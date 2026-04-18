@@ -42,9 +42,11 @@ def dry_run(cfg: Config) -> None:
     print(f"\n[dry-run] PASSED — obs shape {obs.shape} matches expected {expected}")
 
 
-def train(cfg: Config, resume_path: str | None = None, use_subproc: bool = False) -> None:
+def train(cfg: Config, resume_path: str | None = None, use_subproc: bool = False, name: str = "default") -> None:
     """Run PPO training with SB3."""
+    base = Path("results") / name
     vec_type = "SubprocVecEnv" if use_subproc else "DummyVecEnv"
+    print(f"[train] Experiment '{name}' — outputs → {base}/")
     print(f"[train] Creating {cfg.env.num_envs} training envs ({vec_type})...")
     env = make_vec_env(cfg, use_subproc=use_subproc)
 
@@ -53,7 +55,7 @@ def train(cfg: Config, resume_path: str | None = None, use_subproc: bool = False
         model = PPO.load(
             resume_path,
             env=env,
-            tensorboard_log=str(Path("results/logs")),
+            tensorboard_log=str(base / "logs"),
             device=cfg.device,
         )
     else:
@@ -69,14 +71,14 @@ def train(cfg: Config, resume_path: str | None = None, use_subproc: bool = False
             gae_lambda=cfg.training.gae_lambda,
             clip_range=cfg.training.clip_range,
             ent_coef=cfg.training.ent_coef,
-            tensorboard_log=str(Path("results/logs")),
+            tensorboard_log=str(base / "logs"),
             device=cfg.device,
             verbose=0,
         )
 
     # Checkpoint every 500K timesteps (adjusted for n_envs)
     checkpoint_freq = max(500_000 // cfg.env.num_envs, 1)
-    checkpoint_dir = Path("results/models/checkpoints")
+    checkpoint_dir = base / "models" / "checkpoints"
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
     checkpoint_cb = CheckpointCallback(
         save_freq=checkpoint_freq,
@@ -93,9 +95,9 @@ def train(cfg: Config, resume_path: str | None = None, use_subproc: bool = False
     # Note: best model is selected by mean eval reward (proxy); project success
     # (>=80% flag capture) is judged separately via evaluate.py.
     eval_freq = max(cfg.eval.eval_freq // cfg.env.num_envs, 1)
-    best_model_dir = Path("results/models/best_model")
+    best_model_dir = base / "models" / "best_model"
     best_model_dir.mkdir(parents=True, exist_ok=True)
-    eval_log_dir = Path("results/logs/eval")
+    eval_log_dir = base / "logs" / "eval"
     eval_log_dir.mkdir(parents=True, exist_ok=True)
     eval_env = make_vec_env(cfg, use_subproc=False, num_envs=1)
     eval_cb = EvalCallback(
@@ -118,7 +120,7 @@ def train(cfg: Config, resume_path: str | None = None, use_subproc: bool = False
         reset_num_timesteps=resume_path is None,
     )
 
-    save_path = Path("results/models/final_model")
+    save_path = base / "models" / "final_model"
     save_path.parent.mkdir(parents=True, exist_ok=True)
     model.save(str(save_path))
     print(f"[train] Final model saved to {save_path}.zip")
@@ -139,7 +141,7 @@ def main() -> None:
     if args.dry_run:
         dry_run(cfg)
     else:
-        train(cfg, resume_path=args.resume, use_subproc=args.subproc)
+        train(cfg, resume_path=args.resume, use_subproc=args.subproc, name=args.name)
 
 
 if __name__ == "__main__":
