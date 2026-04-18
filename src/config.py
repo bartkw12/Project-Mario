@@ -128,4 +128,10 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Use SubprocVecEnv instead of DummyVecEnv (train.py)",
     )
+    parser.add_argument(
+        "--name",
+        type=str,
+        default="default",
+        help="Experiment name — routes outputs to results/<name>/ (train.py)",
+    )
     return parser.parse_args()
