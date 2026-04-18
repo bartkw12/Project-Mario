@@ -123,4 +123,9 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Path to checkpoint .zip to resume training from (train.py)",
     )
+    parser.add_argument(
+        "--subproc",
+        action="store_true",
+        help="Use SubprocVecEnv instead of DummyVecEnv (train.py)",
+    )
     return parser.parse_args()

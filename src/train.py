@@ -42,10 +42,11 @@ def dry_run(cfg: Config) -> None:
     print(f"\n[dry-run] PASSED — obs shape {obs.shape} matches expected {expected}")
 
 
-def train(cfg: Config, resume_path: str | None = None) -> None:
+def train(cfg: Config, resume_path: str | None = None, use_subproc: bool = False) -> None:
     """Run PPO training with SB3."""
-    print(f"[train] Creating {cfg.env.num_envs} training envs (DummyVecEnv)...")
-    env = make_vec_env(cfg, use_subproc=False)
+    vec_type = "SubprocVecEnv" if use_subproc else "DummyVecEnv"
+    print(f"[train] Creating {cfg.env.num_envs} training envs ({vec_type})...")
+    env = make_vec_env(cfg, use_subproc=use_subproc)
 
     if resume_path:
         print(f"[train] Resuming from {resume_path}...")
@@ -138,7 +139,7 @@ def main() -> None:
     if args.dry_run:
         dry_run(cfg)
     else:
-        train(cfg, resume_path=args.resume)
+        train(cfg, resume_path=args.resume, use_subproc=args.subproc)
 
 
 if __name__ == "__main__":
