@@ -7,13 +7,18 @@ Two creation paths:
 
 import gymnasium
 import gym_super_mario_bros
-from gym_super_mario_bros.actions import SIMPLE_MOVEMENT
+from gym_super_mario_bros.actions import RIGHT_ONLY, SIMPLE_MOVEMENT
 from nes_py.wrappers import JoypadSpace
 from shimmy import GymV21CompatibilityV0
 from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv, VecFrameStack, VecMonitor, VecTransposeImage
 
 from src.config import Config
 from src.envs.wrappers import SimpleRewardShaping, SkipFrame
+
+MOVEMENT_SETS = {
+    "SIMPLE_MOVEMENT": SIMPLE_MOVEMENT,
+    "RIGHT_ONLY": RIGHT_ONLY,
+}
 
 
 def make_single_env(cfg: Config, seed: int | None = None, record_video: bool = False, video_dir: str | None = None, render_mode: str | None = None):
@@ -27,7 +32,12 @@ def make_single_env(cfg: Config, seed: int | None = None, record_video: bool = F
     """
     # Base env + discrete actions (old gym API)
     env = gym_super_mario_bros.make(cfg.env.game)
-    env = JoypadSpace(env, SIMPLE_MOVEMENT)
+    if cfg.env.movement not in MOVEMENT_SETS:
+        raise ValueError(
+            f"Unknown movement '{cfg.env.movement}'. "
+            f"Choose from: {list(MOVEMENT_SETS.keys())}"
+        )
+    env = JoypadSpace(env, MOVEMENT_SETS[cfg.env.movement])
 
     # Bridge to Gymnasium 5-tuple API
     # render_mode="rgb_array" needed for video recording
