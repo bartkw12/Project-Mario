@@ -25,7 +25,7 @@ reward:
 
 eval:
   eval_freq: 50000
-  n_eval_episodes: 5
+  n_eval_episodes: 20
   deterministic: true
 
 seed: 42
