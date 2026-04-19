@@ -103,3 +103,22 @@ class ProgressBarCallback(BaseCallback):
     def _on_training_end(self) -> None:
         if self._pbar is not None:
             self._pbar.close()
+
+
+class EntropyScheduleCallback(BaseCallback):
+    """Linearly decay model.ent_coef from start to end over training.
+
+    SB3 does not support a callable for ent_coef (only lr and clip_range),
+    so this callback mutates model.ent_coef directly at each step.
+    """
+
+    def __init__(self, start: float, end: float, verbose: int = 0):
+        super().__init__(verbose)
+        self._start = start
+        self._end = end
+
+    def _on_step(self) -> bool:
+        progress = self.model.num_timesteps / self.model._total_timesteps
+        self.model.ent_coef = self._start + (self._end - self._start) * progress
+        self.logger.record("train/ent_coef", self.model.ent_coef)
+        return True

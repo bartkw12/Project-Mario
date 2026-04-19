@@ -13,7 +13,7 @@ from pathlib import Path
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import CheckpointCallback, EvalCallback
 
-from src.callbacks import MarioMetricsCallback, ProgressBarCallback
+from src.callbacks import EntropyScheduleCallback, MarioMetricsCallback, ProgressBarCallback
 from src.config import Config, parse_args, set_global_seed
 from src.envs import make_vec_env
 
@@ -60,17 +60,6 @@ def train(cfg: Config, resume_path: str | None = None, use_subproc: bool = False
         )
     else:
         print(f"[train] Initialising PPO (CnnPolicy, device={cfg.device})...")
-
-        # Entropy coefficient: static or linear schedule
-        ent = cfg.training.ent_coef
-        if cfg.training.ent_coef_final is not None:
-            start = cfg.training.ent_coef
-            end = cfg.training.ent_coef_final
-            ent = lambda progress: end + (start - end) * progress
-            print(f"[train] Entropy schedule: {start} → {end} (linear)")
-        else:
-            print(f"[train] Entropy coefficient: {ent} (static)")
-
         model = PPO(
             "CnnPolicy",
             env,
@@ -81,7 +70,7 @@ def train(cfg: Config, resume_path: str | None = None, use_subproc: bool = False
             gamma=cfg.training.gamma,
             gae_lambda=cfg.training.gae_lambda,
             clip_range=cfg.training.clip_range,
-            ent_coef=ent,
+            ent_coef=cfg.training.ent_coef,
             tensorboard_log=str(base / "logs"),
             device=cfg.device,
             verbose=0,
@@ -101,6 +90,14 @@ def train(cfg: Config, resume_path: str | None = None, use_subproc: bool = False
     progress_cb = ProgressBarCallback(cfg.training.total_timesteps, mario_cb=mario_cb)
 
     callbacks = [mario_cb, checkpoint_cb, progress_cb]
+
+    # Optional entropy schedule
+    if cfg.training.ent_coef_final is not None:
+        ent_cb = EntropyScheduleCallback(cfg.training.ent_coef, cfg.training.ent_coef_final)
+        callbacks.append(ent_cb)
+        print(f"[train] Entropy schedule: {cfg.training.ent_coef} → {cfg.training.ent_coef_final} (linear)")
+    else:
+        print(f"[train] Entropy coefficient: {cfg.training.ent_coef} (static)")
 
     # Eval callback: 1-env eval with same wrapper stack, saves best model by mean reward.
     # Note: best model is selected by mean eval reward (proxy); project success
