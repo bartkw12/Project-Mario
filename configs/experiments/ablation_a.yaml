@@ -14,7 +14,7 @@ training:
   total_timesteps: 5000000
   lr: 0.00025
   n_steps: 1024
-  batch_size: 256
+  batch_size: 512
   n_epochs: 4
   gamma: 0.99
   gae_lambda: 0.95
@@ -27,8 +27,8 @@ reward:
   flag_bonus: 50.0
 
 eval:
-  eval_freq: 50000
-  n_eval_episodes: 20
+  eval_freq: 100000
+  n_eval_episodes: 10
   deterministic: true
 
 seed: 42
