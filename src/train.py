@@ -60,6 +60,17 @@ def train(cfg: Config, resume_path: str | None = None, use_subproc: bool = False
         )
     else:
         print(f"[train] Initialising PPO (CnnPolicy, device={cfg.device})...")
+
+        # Entropy coefficient: static or linear schedule
+        ent = cfg.training.ent_coef
+        if cfg.training.ent_coef_final is not None:
+            start = cfg.training.ent_coef
+            end = cfg.training.ent_coef_final
+            ent = lambda progress: end + (start - end) * progress
+            print(f"[train] Entropy schedule: {start} → {end} (linear)")
+        else:
+            print(f"[train] Entropy coefficient: {ent} (static)")
+
         model = PPO(
             "CnnPolicy",
             env,
@@ -70,7 +81,7 @@ def train(cfg: Config, resume_path: str | None = None, use_subproc: bool = False
             gamma=cfg.training.gamma,
             gae_lambda=cfg.training.gae_lambda,
             clip_range=cfg.training.clip_range,
-            ent_coef=cfg.training.ent_coef,
+            ent_coef=ent,
             tensorboard_log=str(base / "logs"),
             device=cfg.device,
             verbose=0,
