@@ -32,6 +32,7 @@ class TrainingConfig:
     clip_range: float = 0.2
     ent_coef: float = 0.01
     ent_coef_final: float | None = None
+    target_kl: float | None = None
 
 
 @dataclass

@@ -13,7 +13,7 @@ from pathlib import Path
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import CheckpointCallback, EvalCallback
 
-from src.callbacks import EntropyScheduleCallback, MarioMetricsCallback, ProgressBarCallback
+from src.callbacks import EntropyCollapseDetector, EntropyScheduleCallback, MarioMetricsCallback, ProgressBarCallback
 from src.config import Config, parse_args, set_global_seed
 from src.envs import make_vec_env
 
@@ -58,6 +58,8 @@ def train(cfg: Config, resume_path: str | None = None, use_subproc: bool = False
             tensorboard_log=str(base / "logs"),
             device=cfg.device,
         )
+        if cfg.training.target_kl is not None:
+            model.target_kl = cfg.training.target_kl
     else:
         print(f"[train] Initialising PPO (CnnPolicy, device={cfg.device})...")
         model = PPO(
@@ -71,6 +73,7 @@ def train(cfg: Config, resume_path: str | None = None, use_subproc: bool = False
             gae_lambda=cfg.training.gae_lambda,
             clip_range=cfg.training.clip_range,
             ent_coef=cfg.training.ent_coef,
+            target_kl=cfg.training.target_kl,
             tensorboard_log=str(base / "logs"),
             device=cfg.device,
             verbose=0,
@@ -88,8 +91,9 @@ def train(cfg: Config, resume_path: str | None = None, use_subproc: bool = False
 
     mario_cb = MarioMetricsCallback()
     progress_cb = ProgressBarCallback(cfg.training.total_timesteps, mario_cb=mario_cb)
+    collapse_cb = EntropyCollapseDetector(mario_cb=mario_cb)
 
-    callbacks = [mario_cb, checkpoint_cb, progress_cb]
+    callbacks = [mario_cb, checkpoint_cb, progress_cb, collapse_cb]
 
     # Optional entropy schedule
     if cfg.training.ent_coef_final is not None:
@@ -100,6 +104,10 @@ def train(cfg: Config, resume_path: str | None = None, use_subproc: bool = False
         print(f"[train] Entropy schedule: {cfg.training.ent_coef} → {cfg.training.ent_coef_final} (linear)")
     else:
         print(f"[train] Entropy coefficient: {cfg.training.ent_coef} (static)")
+
+    if cfg.training.target_kl is not None:
+        print(f"[train] target_kl: {cfg.training.target_kl} (early epoch stopping on KL divergence)")
+    print(f"[train] Collapse detector: {'active (will stop)' if False else 'diagnostic (logging only)'}")
 
     # Eval callback: 1-env eval with same wrapper stack, saves best model by mean reward.
     # Note: best model is selected by mean eval reward (proxy); project success
