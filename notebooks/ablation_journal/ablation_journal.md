@@ -279,11 +279,10 @@ The ent_coef barely moved: 0.04 → 0.03 over 5M additional steps. This was insu
 
 ---
 
-## Ablation G — Reward Shaping Overhaul (in progress)
+## Ablation G — Reward Shaping Overhaul
 
 **Date**: April 20, 2026  
 **Config**: `configs/experiments/ablation_g.yaml`
-**Status**: Training in progress on 3080 Ti.
 
 **Hypothesis**: The agent needs stronger incentives to (a) finish fast and (b) actually care about the flag. Current reward structure gives ~700 reward from forward movement alone (at forward_scale=0.3) — the +50 flag bonus is only 7% of that. Adding a time penalty creates urgency.
 
@@ -307,7 +306,47 @@ The ent_coef barely moved: 0.04 → 0.03 over 5M additional steps. This was insu
 - **ent_coef floor 0.03**: Keeps exploration alive longer based on empirical evidence.
 
 ### Results
-*Pending — will update when training completes.*
+
+| Metric | Ablation D | Ablation G |
+|---|---|---|
+| Eval x_pos | 2,130 | 1,820 |
+| Peak mean_x_pos | 2,003 | **2,179** |
+| Final mean_x_pos | 2,003 | **331** (collapsed) |
+| Peak flag_rate | 22% | **36%** |
+| Final flag_rate | 22% | **0%** |
+| Peak ep_rew_mean | — | **2,777** |
+| Final entropy | -0.61 | **-0.001** (collapsed) |
+| Final ep_len | ~274 | **27** (instant death) |
+| ent_coef schedule | 0.05→0.02 | 0.05→0.03 (worked correctly) |
+| FPS | ~700 | **~623** |
+
+### Flag Rate Timeline
+- **0–3.5M**: Negligible (0–3%), agent still learning the level
+- **3.5M–4.0M**: Ramp-up phase, flag_rate climbing to 6–12%
+- **4.0M–4.3M**: First sustained window ≥10% (peaked 24% at 4.26M)
+- **4.3M–4.4M**: Brief dip to 0–4% (entropy wobble)
+- **4.4M–4.9M**: **Golden window** — sustained 10–36% flag rate, peak **36% at 4.82M**
+- **4.9M–5.0M**: Cliff collapse — entropy crashed from ~0.5 to -0.001, flag_rate dropped to 0%
+
+### Entropy Behavior
+- Schedule operated correctly: ent_coef 0.0499 → 0.0300 over 5M steps
+- Entropy was healthy (~0.7–1.0) from 0–4M steps
+- Began eroding at ~4.0M — first dip below 0.1 at 4.03M
+- **Cliff-edge collapse at ~4.9M**: entropy went from ~0.5 to -0.001 in ~100K steps
+- Unlike Ablation D's smooth final entropy (-0.61), G's entropy hit a catastrophic cliff
+
+### Verdict: **Highest peak ever (36%), but entropy collapse destroyed the policy.**
+
+Reward shaping clearly worked — the agent learned faster, reached higher flag rates, and the time penalty + flag bonus reshaped incentives correctly. But the 0.03 entropy floor was **still not enough** to prevent late-stage collapse. The collapse was more sudden and catastrophic than previous runs.
+
+### Lessons
+- Reward shaping is effective: peak flag_rate improved from 22% (D) to 36% (G)
+- time_penalty creates urgency — agent learned to move faster in the golden window
+- flag_bonus=200 gave the flag meaningful weight in the reward structure
+- **ent_coef floor of 0.03 is still insufficient** — even with correct scheduling, entropy collapsed
+- The collapse is more cliff-like than gradual — once entropy drops below some threshold, it's irrecoverable
+- Ablation D's stability (no collapse) vs G's higher peak but collapse suggests the reward shaping amplifies policy gradient signals, which accelerates both learning AND entropy erosion
+- **Key insight**: The problem isn't the floor value — it's that PPO's clipped objective eventually overpowers *any* static entropy floor in this environment
 
 ---
 
@@ -322,7 +361,7 @@ The ent_coef barely moved: 0.04 → 0.03 over 5M additional steps. This was insu
 | **Ablation C** | 0.05→0.02 | 0.2 | 50 | — | 27% | 0% | Better | Yes |
 | **Ablation D** | 0.05→0.02 | **0.3** | 50 | — | 22% | **22%** | **Yes** | **No** |
 | **Ablation F** | 0.04→0.03* | 0.3 | 50 | — | 26% | 0% | No (bug) | Catastrophic |
-| **Ablation G** | 0.05→0.03 | 0.3 | **200** | **-0.1** | *pending* | *pending* | *pending* | *pending* |
+| **Ablation G** | 0.05→0.03 | 0.3 | **200** | **-0.1** | **36%** | 0% | No (cliff at 4.9M) | Yes (catastrophic) |
 
 \* Ablation F's schedule was effectively static due to the resume bug.
 
@@ -332,37 +371,46 @@ The ent_coef barely moved: 0.04 → 0.03 over 5M additional steps. This was insu
 
 ### On Entropy
 1. **Static ent_coef always collapses eventually** — PPO's clipped objective overpowers it in long runs
-2. **Entropy schedule is essential** — linear decay from 0.05 → floor works, but the floor must be ≥0.03
+2. **Entropy schedule is essential** — linear decay from 0.05 → floor works, but even 0.03 floor isn't enough
 3. **Entropy oscillation predicts policy degradation** — when entropy starts bouncing near 0, the policy will crash within ~500K steps
 4. **Best model checkpoints are critical** — the best model is often saved 1–2M steps before entropy collapse
+5. **Entropy collapse is cliff-like, not gradual** — Ablation G went from 0.5 to -0.001 in ~100K steps. Once it starts, it's irrecoverable.
+6. **No static floor has prevented collapse** — 0.01, 0.02, 0.03 all fail. The problem requires a fundamentally different approach (flat entropy, early stopping, or adaptive control).
 
 ### On Speed & Reward Shaping
 5. **forward_scale=0.3 is the sweet spot** — 0.2 didn't help, 0.3 produced the only non-degrading run
 6. **Higher forward_scale doesn't guarantee faster play** — it just rewards movement. Without time penalty, the agent has no cost for dawdling.
 7. **Flag bonus at +50 is too small** — relative to accumulated forward reward (~700), the flag is only 7% of total reward. Agent has weak incentive to actually finish.
+8. **Reward shaping works but amplifies entropy erosion** — Ablation G's stronger rewards produced faster learning (36% peak vs 22%) but also faster entropy collapse. Stronger gradients = faster convergence = faster determinism.
 
 ### On Training Infrastructure
-8. **SubprocVecEnv is essential** — 2x FPS improvement on 5900X (185 → 365+)
-9. **Reducing eval overhead matters** — eval_freq 10K → 100K + fewer episodes saved 30–60 min per run
-10. **Resume works but has pitfalls** — SB3 inflates `_total_timesteps` on resume, which broke the entropy schedule. Always use explicit config values, not model internals.
+9. **SubprocVecEnv is essential** — 2x FPS improvement on 5900X (185 → 365+)
+10. **Reducing eval overhead matters** — eval_freq 10K → 100K + fewer episodes saved 30–60 min per run
+11. **Resume works but has pitfalls** — SB3 inflates `_total_timesteps` on resume, which broke the entropy schedule. Always use explicit config values, not model internals.
 
 ### On Methodology
-11. **One variable at a time is correct but slow** — when possible, combine proven improvements
-12. **Upward trend at end of training > high peak that degrades** — Ablation D's 22% final flag_rate was more valuable than Ent Schedule's 39% peak that crashed to 0%
-13. **The agent can reach the flag** — every run hit max_x_pos=3161. The problem is consistency and speed, not capability.
+12. **One variable at a time is correct but slow** — when possible, combine proven improvements
+13. **Upward trend at end of training > high peak that degrades** — Ablation D's 22% final flag_rate was more valuable than Ent Schedule's 39% peak that crashed to 0%
+14. **The agent can reach the flag** — every run hit max_x_pos=3161. The problem is consistency and speed, not capability.
 
 ---
 
 ## What's Next
 
-If Ablation G succeeds (sustained flag_rate > previous peaks):
-- May need to extend to 10M with corrected entropy schedule
-- May try RIGHT_ONLY action space as complementary simplification
+Ablation G produced the best peak performance (36%) but collapsed. The entropy problem remains the single blocker. Two leading candidate approaches:
 
-If Ablation G doesn't improve meaningfully:
-- Consider curriculum-style approach (shorter time limit during training)
-- Test KL-target control instead of entropy schedule
-- Investigate if specific level obstacles (gaps, stairs) cause consistent deaths
+**Option A — Flat ent_coef=0.03 (no decay)**
+- Rationale: Ablation D was the only run that never collapsed, and it used a schedule that was still at ~0.03 when it ended. Maybe constant 0.03 with G's reward shaping produces stable high flag rates.
+- Risk: Static entropy failed in A/B at 0.02/0.03 — but those didn't have G's reward shaping.
+
+**Option B — Early stopping on entropy collapse**
+- Rationale: Every run has a "golden window" — stop training when entropy drops below a threshold (e.g., -0.1) and keep the best model.
+- Risk: May cap training prematurely, but the best model is always from the golden window anyway.
+
+Other options to consider:
+- RIGHT_ONLY action space (fewer actions = less entropy erosion)
+- Entropy target via KL penalty (adaptive instead of schedule)
+- Gradient clipping adjustments to slow down policy convergence
 
 **Solved = ≥80% flag capture over 50 deterministic eval episodes.**
 
