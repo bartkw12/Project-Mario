@@ -110,15 +110,20 @@ class EntropyScheduleCallback(BaseCallback):
 
     SB3 does not support a callable for ent_coef (only lr and clip_range),
     so this callback mutates model.ent_coef directly at each step.
+
+    Uses an explicit total_timesteps rather than model._total_timesteps,
+    which SB3 inflates on resume (existing + requested steps). This ensures
+    the schedule tracks the config's intended training length correctly.
     """
 
-    def __init__(self, start: float, end: float, verbose: int = 0):
+    def __init__(self, start: float, end: float, total_timesteps: int, verbose: int = 0):
         super().__init__(verbose)
         self._start = start
         self._end = end
+        self._total = total_timesteps
 
     def _on_step(self) -> bool:
-        progress = self.model.num_timesteps / self.model._total_timesteps
+        progress = min(self.model.num_timesteps / self._total, 1.0)
         self.model.ent_coef = self._start + (self._end - self._start) * progress
         self.logger.record("train/ent_coef", self.model.ent_coef)
         return True

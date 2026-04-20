@@ -39,6 +39,7 @@ class RewardConfig:
     forward_scale: float = 0.1
     death_penalty: float = -15.0
     flag_bonus: float = 50.0
+    time_penalty: float = 0.0
 
 
 @dataclass

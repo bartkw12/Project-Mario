@@ -52,6 +52,7 @@ def make_single_env(cfg: Config, seed: int | None = None, record_video: bool = F
         forward_scale=cfg.reward.forward_scale,
         death_penalty=cfg.reward.death_penalty,
         flag_bonus=cfg.reward.flag_bonus,
+        time_penalty=cfg.reward.time_penalty,
     )
 
     # Preprocessing — resize first (while still 3-channel) to avoid cv2

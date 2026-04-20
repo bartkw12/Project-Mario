@@ -93,7 +93,9 @@ def train(cfg: Config, resume_path: str | None = None, use_subproc: bool = False
 
     # Optional entropy schedule
     if cfg.training.ent_coef_final is not None:
-        ent_cb = EntropyScheduleCallback(cfg.training.ent_coef, cfg.training.ent_coef_final)
+        ent_cb = EntropyScheduleCallback(
+            cfg.training.ent_coef, cfg.training.ent_coef_final, cfg.training.total_timesteps,
+        )
         callbacks.append(ent_cb)
         print(f"[train] Entropy schedule: {cfg.training.ent_coef} → {cfg.training.ent_coef_final} (linear)")
     else:

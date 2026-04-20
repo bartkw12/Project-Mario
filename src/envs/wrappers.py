@@ -42,11 +42,12 @@ class SimpleRewardShaping(gymnasium.Wrapper):
         flag_bonus: reward added when Mario captures the flag (should be positive)
     """
 
-    def __init__(self, env, forward_scale=0.1, death_penalty=-15.0, flag_bonus=50.0):
+    def __init__(self, env, forward_scale=0.1, death_penalty=-15.0, flag_bonus=50.0, time_penalty=0.0):
         super().__init__(env)
         self._forward_scale = forward_scale
         self._death_penalty = death_penalty
         self._flag_bonus = flag_bonus
+        self._time_penalty = time_penalty
         self._last_x_pos = 0
 
     def reset(self, **kwargs):
@@ -61,6 +62,9 @@ class SimpleRewardShaping(gymnasium.Wrapper):
         x_pos = info.get("x_pos", self._last_x_pos)
         delta_x = x_pos - self._last_x_pos
         reward += self._forward_scale * delta_x
+
+        # Time penalty (per-step cost incentivizes faster play)
+        reward += self._time_penalty
 
         # Death penalty
         if info.get("life", 2) < 2:

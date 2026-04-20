@@ -1,0 +1,43 @@
+# Ablation G — Reward shaping overhaul + entropy schedule
+# Changes vs ablation_d (best run so far):
+#   - flag_bonus: 50 → 200 (flag must dominate reward landscape)
+#   - time_penalty: 0 → -0.1 (per-step cost incentivizes faster play)
+#   - ent_coef_final: 0.02 → 0.03 (higher floor, every run at 0.02 collapsed)
+# Kept from ablation_d: forward_scale=0.3, ent_coef=0.05 start
+# Rationale: Agent reaches x=2354 but times out. Needs urgency (time_penalty)
+#   and a stronger finish incentive (flag_bonus). Higher entropy floor prevents
+#   late collapse that killed ablation_f.
+
+env:
+  game: "SuperMarioBros-1-1-v0"
+  movement: "SIMPLE_MOVEMENT"
+  frame_skip: 4
+  frame_stack: 4
+  obs_size: 84
+  num_envs: 16
+
+training:
+  total_timesteps: 5000000
+  lr: 0.00025
+  n_steps: 1024
+  batch_size: 512
+  n_epochs: 4
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  ent_coef: 0.05
+  ent_coef_final: 0.03
+
+reward:
+  forward_scale: 0.3
+  death_penalty: -15.0
+  flag_bonus: 200.0
+  time_penalty: -0.1
+
+eval:
+  eval_freq: 100000
+  n_eval_episodes: 10
+  deterministic: true
+
+seed: 42
+device: "auto"
