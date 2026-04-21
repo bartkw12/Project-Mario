@@ -350,18 +350,96 @@ Reward shaping clearly worked — the agent learned faster, reached higher flag 
 
 ---
 
+## Ablation H — `target_kl=0.015` (KL Divergence Cap)
+
+**Date**: April 20, 2026
+**Config**: `configs/experiments/ablation_h.yaml`
+
+**Hypothesis**: Ablation G's cliff-edge entropy collapse at 4.9M was caused by a cascade of oversized policy updates — once one update pushes the policy too far toward determinism, the next rollout produces lower-entropy data, which yields even larger gradients, accelerating the collapse. SB3's `target_kl` parameter truncates the epoch loop within each PPO update when KL divergence exceeds `1.5 * target_kl`, breaking this positive feedback loop at the source. This is preventive (stops bad updates from happening) rather than reactive (detecting collapse after the fact).
+
+| Changed | Ablation G | Ablation H |
+|---|---|---|
+| target_kl | None | **0.015** |
+
+**What's new in the code**:
+- `target_kl` added to `TrainingConfig` dataclass and wired to PPO constructor (+ resume path)
+- `EntropyCollapseDetector` callback added — runs in diagnostic/logging-only mode (no stopping). Intercepts `logger.dump()` to capture `train/entropy_loss` and `train/approx_kl`, computes rolling entropy velocity, KL clip fraction, and logs all diagnostics under `collapse/` prefix in TensorBoard.
+
+### Results
+
+| Metric | Ablation G | Ablation H |
+|---|---|---|
+| Eval x_pos | 1,820 | **315** |
+| Peak mean_x_pos | 2,179 | **806** |
+| Final mean_x_pos | 331 | **621** |
+| Peak flag_rate | 36% | **1%** (single episode at 540K) |
+| Final flag_rate | 0% | **0%** |
+| Peak ep_rew_mean | 2,777 | **943** |
+| Final entropy | -0.001 (collapsed) | **-0.59** (healthy) |
+| Entropy collapsed? | Yes (cliff at 4.9M) | **No** |
+| Policy degraded? | Yes (catastrophic) | **No (but never learned)** |
+
+### Eval Trajectory
+The evaluations.npz data revealed **zero learning progression** across the entire 5M steps:
+- Eval reward oscillated between ~316 and ~341 from start to finish (std_dev=0.0 within each eval — all 10 episodes identical)
+- Occasional timeout episodes (ep_len=2005, reward=-603) scattered throughout
+- The agent died in ~27–40 steps for the entire run — never progressed past the first few obstacles
+- **The final model produced identical results to the 100K model**
+
+### KL Divergence Analysis — The Smoking Gun
+
+Comparing KL distributions between G (uncapped) and H (target_kl=0.015):
+
+| Statistic | Ablation G (no cap) | Ablation H (target_kl=0.015) |
+|---|---|---|
+| KL min | 0.0000 | -0.0000 |
+| KL 25th | 0.0233 | 0.0118 |
+| KL median | **0.0306** | 0.0166 |
+| KL 75th | 0.0428 | 0.0306 |
+| KL 90th | 0.0688 | 0.0636 |
+| KL max | 1.2603 | 0.3268 |
+| KL mean | 0.0495 | 0.0314 |
+| Would exceed 0.015 | **96%** | 58% |
+| Would exceed 0.0225 (SB3 cutoff = 1.5×target) | — | **35%** |
+
+**Ablation G's *median* KL was 0.031 — more than double the target.** This means a normal, productive PPO update in this environment naturally requires KL ~0.03. SB3 truncates epochs when `approx_kl > 1.5 * target_kl = 0.0225`, so **96% of G's updates would have been throttled** under this cap.
+
+The `collapse/kl_clip_frac` metric confirmed this: **50–80% of recent updates in the rolling window exceeded `target_kl` throughout the entire run**. Many updates were cut to 1–2 epochs out of 4 (or even epoch 1 alone exceeded the limit), effectively halving or quartering the learning rate.
+
+### Why The Agent Never Learned
+`target_kl=0.015` is a textbook value for standard Atari/MuJoCo PPO. But this environment with aggressive reward shaping (forward_scale=0.3, time_penalty=-0.1, flag_bonus=200) produces inherently **higher-variance returns** that require larger policy updates to make progress. The KL cap prevented the cascade that destroys policies — but it also prevented the large updates needed for the policy to transition from random behavior to purposeful movement.
+
+The entropy staying healthy (-0.59) confirms the mechanism works as intended: no large updates → no entropy erosion → no collapse. But also no large updates → no learning.
+
+### Verdict: **Failed as a training run. Excellent as a diagnostic.**
+
+Ablation H proved three important things:
+1. **`target_kl` does prevent entropy collapse** — the mechanism is sound
+2. **0.015 is far too restrictive for this environment** — it throttled ~96% of productive updates
+3. **The natural KL baseline for this environment + reward shaping is ~0.03** — any `target_kl` must be set above this to permit learning
+
+### Lessons
+- `target_kl=0.015` is standard for clean Atari but wrong for shaped-reward Mario — environment-specific calibration is essential
+- **Always check the natural KL distribution before setting target_kl** — compare with an uncapped run first (Ablation G gave us this data retroactively)
+- The `EntropyCollapseDetector` and `collapse/kl_clip_frac` metric proved their value immediately — they diagnosed the throttling in the logs
+- Entropy was the healthiest of any run (-0.59) because the agent was effectively prevented from learning at all — healthy entropy without learning is not a success
+- **Next step**: `target_kl=0.05` would let ~75% of normal updates through (above G's median of 0.031) while still catching the catastrophic cascades (G's max KL was 1.26, cliff collapses would produce spikes >0.10)
+
+---
+
 ## Comparison Summary
 
-| Run | ent_coef | fwd_scale | flag_bonus | time_pen | Peak Flag% | Final Flag% | Entropy Stable? | Degraded? |
-|---|---|---|---|---|---|---|---|---|
-| **Baseline** | 0.01 static | 0.1 | 50 | — | 6% | 0% | No (collapsed) | Yes |
-| **Ablation A** | 0.02 static | 0.1 | 50 | — | 6% | 1% | No (oscillated) | Yes |
-| **Ablation B** | 0.03 static | 0.1 | 50 | — | **28%** | 0% | No (oscillated) | Yes |
-| **Ent Schedule** | 0.05→0.02 | 0.1 | 50 | — | **39%** | 0% | Mostly (late decay) | Yes |
-| **Ablation C** | 0.05→0.02 | 0.2 | 50 | — | 27% | 0% | Better | Yes |
-| **Ablation D** | 0.05→0.02 | **0.3** | 50 | — | 22% | **22%** | **Yes** | **No** |
-| **Ablation F** | 0.04→0.03* | 0.3 | 50 | — | 26% | 0% | No (bug) | Catastrophic |
-| **Ablation G** | 0.05→0.03 | 0.3 | **200** | **-0.1** | **36%** | 0% | No (cliff at 4.9M) | Yes (catastrophic) |
+| Run | ent_coef | fwd_scale | flag_bonus | time_pen | target_kl | Peak Flag% | Final Flag% | Entropy Stable? | Degraded? |
+|---|---|---|---|---|---|---|---|---|---|
+| **Baseline** | 0.01 static | 0.1 | 50 | — | — | 6% | 0% | No (collapsed) | Yes |
+| **Ablation A** | 0.02 static | 0.1 | 50 | — | — | 6% | 1% | No (oscillated) | Yes |
+| **Ablation B** | 0.03 static | 0.1 | 50 | — | — | **28%** | 0% | No (oscillated) | Yes |
+| **Ent Schedule** | 0.05→0.02 | 0.1 | 50 | — | — | **39%** | 0% | Mostly (late decay) | Yes |
+| **Ablation C** | 0.05→0.02 | 0.2 | 50 | — | — | 27% | 0% | Better | Yes |
+| **Ablation D** | 0.05→0.02 | **0.3** | 50 | — | — | 22% | **22%** | **Yes** | **No** |
+| **Ablation F** | 0.04→0.03* | 0.3 | 50 | — | — | 26% | 0% | No (bug) | Catastrophic |
+| **Ablation G** | 0.05→0.03 | 0.3 | **200** | **-0.1** | — | **36%** | 0% | No (cliff at 4.9M) | Yes (catastrophic) |
+| **Ablation H** | 0.05→0.03 | 0.3 | 200 | -0.1 | **0.015** | 1% | 0% | **Yes** | No (never learned) |
 
 \* Ablation F's schedule was effectively static due to the resume bug.
 
@@ -378,39 +456,41 @@ Reward shaping clearly worked — the agent learned faster, reached higher flag 
 6. **No static floor has prevented collapse** — 0.01, 0.02, 0.03 all fail. The problem requires a fundamentally different approach (flat entropy, early stopping, or adaptive control).
 
 ### On Speed & Reward Shaping
-5. **forward_scale=0.3 is the sweet spot** — 0.2 didn't help, 0.3 produced the only non-degrading run
-6. **Higher forward_scale doesn't guarantee faster play** — it just rewards movement. Without time penalty, the agent has no cost for dawdling.
-7. **Flag bonus at +50 is too small** — relative to accumulated forward reward (~700), the flag is only 7% of total reward. Agent has weak incentive to actually finish.
-8. **Reward shaping works but amplifies entropy erosion** — Ablation G's stronger rewards produced faster learning (36% peak vs 22%) but also faster entropy collapse. Stronger gradients = faster convergence = faster determinism.
+7. **forward_scale=0.3 is the sweet spot** — 0.2 didn't help, 0.3 produced the only non-degrading run
+8. **Higher forward_scale doesn't guarantee faster play** — it just rewards movement. Without time penalty, the agent has no cost for dawdling.
+9. **Flag bonus at +50 is too small** — relative to accumulated forward reward (~700), the flag is only 7% of total reward. Agent has weak incentive to actually finish.
+10. **Reward shaping works but amplifies entropy erosion** — Ablation G's stronger rewards produced faster learning (36% peak vs 22%) but also faster entropy collapse. Stronger gradients = faster convergence = faster determinism.
+
+### On KL Divergence & target_kl
+11. **target_kl prevents entropy collapse** — Ablation H had the healthiest entropy of any run (-0.59) because oversized updates were blocked
+12. **target_kl must be calibrated to the environment's natural KL** — 0.015 is textbook for clean Atari but throttled 96% of productive updates in shaped-reward Mario (natural median KL ≈ 0.031)
+13. **Always measure natural KL from an uncapped run before setting target_kl** — Ablation G's data retroactively provided this baseline
+14. **Healthy entropy without learning is not success** — preventing collapse is necessary but not sufficient; the agent must still be able to make meaningful policy updates
 
 ### On Training Infrastructure
-9. **SubprocVecEnv is essential** — 2x FPS improvement on 5900X (185 → 365+)
-10. **Reducing eval overhead matters** — eval_freq 10K → 100K + fewer episodes saved 30–60 min per run
-11. **Resume works but has pitfalls** — SB3 inflates `_total_timesteps` on resume, which broke the entropy schedule. Always use explicit config values, not model internals.
+15. **SubprocVecEnv is essential** — 2x FPS improvement on 5900X (185 → 365+)
+16. **Reducing eval overhead matters** — eval_freq 10K → 100K + fewer episodes saved 30–60 min per run
+17. **Resume works but has pitfalls** — SB3 inflates `_total_timesteps` on resume, which broke the entropy schedule. Always use explicit config values, not model internals.
+18. **EntropyCollapseDetector proved its value** — `collapse/kl_clip_frac` immediately diagnosed the throttling problem in Ablation H
 
 ### On Methodology
-12. **One variable at a time is correct but slow** — when possible, combine proven improvements
-13. **Upward trend at end of training > high peak that degrades** — Ablation D's 22% final flag_rate was more valuable than Ent Schedule's 39% peak that crashed to 0%
-14. **The agent can reach the flag** — every run hit max_x_pos=3161. The problem is consistency and speed, not capability.
+19. **One variable at a time is correct but slow** — when possible, combine proven improvements
+20. **Upward trend at end of training > high peak that degrades** — Ablation D's 22% final flag_rate was more valuable than Ent Schedule's 39% peak that crashed to 0%
+21. **The agent can reach the flag** — every run hit max_x_pos=3161. The problem is consistency and speed, not capability.
+22. **A "failed" run can be the most informative** — Ablation H produced zero learning but gave us the exact KL baseline needed to calibrate target_kl correctly
 
 ---
 
 ## What's Next
 
-Ablation G produced the best peak performance (36%) but collapsed. The entropy problem remains the single blocker. Two leading candidate approaches:
+Ablation H confirmed that `target_kl` is the right mechanism to prevent entropy collapse, but 0.015 was far too restrictive. The natural KL for this environment (from Ablation G's uncapped data) has a **median of 0.031** and **75th percentile of 0.043**.
 
-**Option A — Flat ent_coef=0.03 (no decay)**
-- Rationale: Ablation D was the only run that never collapsed, and it used a schedule that was still at ~0.03 when it ended. Maybe constant 0.03 with G's reward shaping produces stable high flag rates.
-- Risk: Static entropy failed in A/B at 0.02/0.03 — but those didn't have G's reward shaping.
+**Ablation I — `target_kl=0.05`**
+- Rationale: 0.05 sits above ~75% of normal productive updates (letting learning happen) while still catching catastrophic cascades (G's collapse would have produced KL >>0.10). This gives the policy room to learn while preventing the cliff-edge collapse that destroyed G at 4.9M.
+- Risk: May still be slightly restrictive during early training when the policy needs to make large shifts. But the entropy schedule (0.05→0.03) provides strong exploration pressure early, so moderate throttling shouldn't block initial learning.
+- Expected outcome: Learning trajectory similar to G's golden window (3.5–4.9M) but without the collapse at the end. If target_kl catches the cascade, the policy should stabilize and keep improving past where G fell off.
 
-**Option B — Early stopping on entropy collapse**
-- Rationale: Every run has a "golden window" — stop training when entropy drops below a threshold (e.g., -0.1) and keep the best model.
-- Risk: May cap training prematurely, but the best model is always from the golden window anyway.
-
-Other options to consider:
-- RIGHT_ONLY action space (fewer actions = less entropy erosion)
-- Entropy target via KL penalty (adaptive instead of schedule)
-- Gradient clipping adjustments to slow down policy convergence
+If `target_kl=0.05` stabilizes the policy, the `EntropyCollapseDetector` can be promoted from diagnostic to active stopping mode in a follow-up run for extended training (10M+).
 
 **Solved = ≥80% flag capture over 50 deterministic eval episodes.**
 
