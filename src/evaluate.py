@@ -56,11 +56,13 @@ def _save_video(frames: list[np.ndarray], path: str) -> None:
     writer.release()
 
 
-def evaluate(cfg: Config, episodes: int = 5, record: bool = False, model_path: str | None = None) -> None:
+def evaluate(cfg: Config, episodes: int = 5, record: bool = False, model_path: str | None = None, stochastic: bool = False) -> None:
     """Run evaluation for N episodes, print per-episode and summary stats.
 
-    If model_path is provided, loads a trained PPO model and uses
-    deterministic predictions. Otherwise falls back to random actions.
+    If model_path is provided, loads a trained PPO model. Uses deterministic
+    (argmax) predictions by default, or stochastic (sampled) if stochastic=True.
+    Stochastic eval produces varied trajectories across episodes, giving a
+    meaningful flag_capture_rate over N episodes.
     When record=True, captures the raw NES render (upscaled 3x) with a
     stats overlay bar at the bottom and saves one mp4 per episode.
     """
@@ -74,13 +76,15 @@ def evaluate(cfg: Config, episodes: int = 5, record: bool = False, model_path: s
     env = make_vec_env(cfg, use_subproc=False, num_envs=1, render_mode=rm)
 
     model = None
+    deterministic = not stochastic
     if model_path:
         model = PPO.load(model_path, device=cfg.device)
         print(f"[eval] Loaded model from {model_path}")
     else:
         print("[eval] No model provided — using random actions")
 
-    print(f"[eval] Running {episodes} episodes...\n")
+    mode_str = "stochastic (sampled)" if stochastic else "deterministic (argmax)"
+    print(f"[eval] Running {episodes} episodes ({mode_str})...\n")
 
     x_positions = []
     flag_gets = []
@@ -97,7 +101,7 @@ def evaluate(cfg: Config, episodes: int = 5, record: bool = False, model_path: s
 
         while not done:
             if model:
-                action, _ = model.predict(obs, deterministic=True)
+                action, _ = model.predict(obs, deterministic=deterministic)
             else:
                 action = [env.action_space.sample()]
             obs, reward, dones, infos = env.step(action)
@@ -148,7 +152,7 @@ def evaluate(cfg: Config, episodes: int = 5, record: bool = False, model_path: s
     # Summary
     flag_rate = np.mean(flag_gets)
     print(f"\n{'='*55}")
-    print(f"  Summary ({episodes} episodes):")
+    print(f"  Summary ({episodes} episodes, {mode_str}):")
     print(f"    mean_x_pos:         {np.mean(x_positions):.0f}")
     print(f"    max_x_pos:          {np.max(x_positions):.0f}")
     print(f"    mean_reward:        {np.mean(rewards):.1f}")
@@ -174,6 +178,7 @@ def main() -> None:
         episodes=args.episodes,
         record=args.record,
         model_path=args.model,
+        stochastic=args.stochastic,
     )
 
 

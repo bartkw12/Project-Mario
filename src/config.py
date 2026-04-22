@@ -121,6 +121,11 @@ def parse_args() -> argparse.Namespace:
         help="Path to trained model .zip for evaluation (evaluate.py)",
     )
     parser.add_argument(
+        "--stochastic",
+        action="store_true",
+        help="Use stochastic (sampled) actions instead of deterministic argmax (evaluate.py)",
+    )
+    parser.add_argument(
         "--resume",
         type=str,
         default=None,
