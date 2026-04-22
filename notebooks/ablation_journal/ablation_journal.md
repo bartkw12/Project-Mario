@@ -2,7 +2,7 @@
 
 > **Project**: Super Mario Bros 1-1 PPO Agent
 > **Phase**: 3 — Ablations & Iteration
-> **Goal**: ≥80% flag capture over 50 deterministic eval episodes
+> **Goal**: ≥80% flag capture over 50 stochastic eval episodes
 > **Hardware**: RTX 3080 Ti (training) / 5900X CPU (dev)
 > **Started**: April 18, 2026
 
@@ -427,6 +427,185 @@ Ablation H proved three important things:
 
 ---
 
+## Ablation I — `target_kl=0.05` (Calibrated KL Cap)
+
+**Date**: April 21, 2026
+**Config**: `configs/experiments/ablation_i.yaml`
+
+**Hypothesis**: Ablation H proved `target_kl` prevents entropy collapse but 0.015 was far too restrictive (throttled 96% of productive updates). The environment's natural KL median is 0.031 (from Ablation G). Setting `target_kl=0.05` sits above G's 75th percentile (0.043), letting ~75% of normal updates through. SB3's cutoff at `1.5 × 0.05 = 0.075` passes ~90% of natural updates while still catching catastrophic cascades (KL >0.10).
+
+| Changed | Ablation H | Ablation I |
+|---|---|---|
+| target_kl | 0.015 | **0.05** |
+
+### Results
+
+| Metric | Ablation G (no cap) | Ablation H (0.015) | Ablation I (0.05) |
+|---|---|---|---|
+| Peak mean_x_pos | 2,179 | 806 | **1,519** |
+| Final mean_x_pos | 331 | 621 | **1,488** |
+| Peak flag_rate | 36% | 1% | **3%** |
+| Final flag_rate | 0% | 0% | **2%** |
+| Peak ep_rew_mean | 2,777 | 943 | **1,870** |
+| Final entropy | -0.001 (collapsed) | -0.59 (healthy) | **-0.57** (healthy) |
+| Entropy collapsed? | Yes (cliff at 4.9M) | No | **No** |
+| Policy degraded? | Catastrophic | No (never learned) | **No (still climbing)** |
+| KL exceeding SB3 cutoff | N/A | 35% | **2.0%** |
+| FPS | ~623 | — | **~912** |
+
+### KL Divergence — Calibration Confirmed
+
+| Statistic | Ablation G (no cap) | Ablation H (0.015) | Ablation I (0.05) |
+|---|---|---|---|
+| KL median | 0.031 | 0.017 | **0.026** |
+| KL 75th | 0.043 | 0.031 | **0.036** |
+| KL 90th | 0.069 | 0.064 | **0.046** |
+| KL max | 1.260 | 0.327 | **0.127** |
+| Exceeding SB3 cutoff | N/A | 35% | **2.0%** |
+
+`target_kl=0.05` is correctly calibrated: only 2% of updates hit the SB3 cutoff (6/305), compared to 35% at 0.015. The policy makes full-sized productive updates without throttling. The max KL (0.127) is well below G's catastrophic cascade values (max 1.260), confirming target_kl would catch any runaway updates.
+
+### mean_x_pos Acceleration — The Key Signal
+
+| Phase | Start x_pos | End x_pos | Delta |
+|---|---|---|---|
+| 0–1M | 687 | 611 | -76 (exploring) |
+| 1–2M | 611 | 770 | +159 |
+| 2–3M | 763 | 934 | +171 |
+| 3–4M | 913 | 1,045 | +132 |
+| 4–5M | 1,058 | 1,519 | **+461** (accelerating) |
+
+The learning curve was **accelerating** at the end of training. The 4–5M phase produced 3x more progress than any previous phase. This strongly motivated extending to 10M.
+
+### Entropy Behavior
+- Healthy throughout: median ranged from -0.577 to -1.136 per phase
+- Final entropy: -0.571 — comparable to H (-0.59) but **with actual learning**
+- No collapses, no oscillations, no cliff edges
+- The entropy schedule (0.05 → 0.03) combined with target_kl=0.05 produced the first run that was both **learning AND stable** simultaneously
+
+### Verdict: **First run combining learning with stability. Still climbing at 5M.**
+
+Ablation I didn't reach G's peak performance (3% vs 36% flag_rate) because it trained more conservatively. But unlike G, the policy was **still improving** at 5M with **no signs of degradation**. This is the same pattern as Ablation D (still climbing at 5M) but now with the target_kl safety net for extended training.
+
+### Lessons
+- `target_kl=0.05` is correctly calibrated — permits normal learning (98% of updates unthrottled) while guarding against cascades
+- **Learning + stability simultaneously achieved** — prior runs had one or the other, never both
+- The 4–5M acceleration (+461 mean_x_pos) suggests the policy is in a rapid improvement phase — extending training should yield significant gains
+- Slower learning than G (3% vs 36% peak flag_rate at 5M) is expected — target_kl limits maximum update size, trading peak speed for stability
+- **Decision**: Extend to 10M to capitalize on the accelerating learning curve
+
+---
+
+## Ablation J — 10M Steps (resumed from Ablation I)
+
+**Date**: April 22, 2026
+**Config**: `configs/experiments/ablation_j.yaml`
+
+**Hypothesis**: Ablation I was accelerating at 5M (mean_x_pos +461 in 4–5M phase, flag_rate climbing to 3%). This is the same extension strategy as Ablation F (which extended D), but with three protections F didn't have: (1) target_kl=0.05 prevents cascade collapse, (2) entropy schedule bug fixed, (3) EntropyCollapseDetector provides diagnostics.
+
+| Changed | Ablation I | Ablation J |
+|---|---|---|
+| total_timesteps | 5,000,000 | **10,000,000** |
+
+**Method**: Resumed from Ablation I's final model at 5M steps using `--resume`.
+
+### Results
+
+| Metric | Ablation I (5M) | Ablation J (5M→10M) |
+|---|---|---|
+| Peak mean_x_pos | 1,519 | **2,480** |
+| Final mean_x_pos | 1,488 | **1,032** (degraded) |
+| Peak flag_rate | 3% | **42%** (highest ever) |
+| Final flag_rate | 2% | **1%** |
+| Peak ep_rew_mean | 1,870 | **3,167** (highest ever) |
+| Final entropy | -0.571 | **-1.006** (eroded) |
+| Entropy collapsed? | No | **No** (gradual erosion, not cliff) |
+| Policy degraded? | No | **Yes** (gradual, not catastrophic) |
+| KL exceeding SB3 cutoff | 2.0% | **2.3%** |
+| FPS | ~912 | **~746** |
+
+### Flag Rate Timeline
+- **5–6M**: Warming up, 2% avg, 7% peak — resuming I's trajectory
+- **6–7M**: Steady improvement, 4% avg, 11% peak
+- **7–8M**: Breakout phase, 9% avg, **26%** peak — agent learning to finish consistently
+- **8–9M**: **Golden window** — 14% avg, **42% peak** at 8.9M ← highest flag_rate of any run
+- **9–10M**: Degradation — 4% avg, entropy eroding, policy losing reliability
+
+### mean_x_pos Timeline
+- **5–6M**: avg=1488, peak=1734 — steady from I
+- **6–7M**: avg=1650, peak=1916 — climbing
+- **7–8M**: avg=1855, peak=2326 — strong progress
+- **8–9M**: avg=1855, peak=**2463** — peak performance, but *average* stopped climbing
+- **9–10M**: avg=1140, peak=2480 — average crashed, but peak still high (inconsistent policy)
+
+### Entropy Behavior — Gradual Erosion (Not Cliff Collapse)
+- **5–6M**: median=-0.578, healthy — carrying forward from I
+- **6–7M**: median=-0.390, rising — actually more exploratory (ent_coef schedule hitting floor)
+- **7–8M**: median=-0.359, stable — productive exploration
+- **8–9M**: median=-0.296, eroding — entropy drifting toward 0
+- **9–10M**: median=-0.508, decaying — accelerating erosion, final entropy **-1.006**
+
+**Critical difference from G**: Ablation G's entropy went from 0.5 to -0.001 in ~100K steps (cliff collapse). J's entropy eroded from -0.578 to -1.006 over 5M steps — a **gradual decline, not a catastrophic cliff**. `target_kl=0.05` prevented the cascade mechanism that destroyed G, but it could not prevent the slow, steady drift toward determinism.
+
+### KL Divergence — target_kl Working as Intended
+
+| Statistic | Ablation I (5M) | Ablation J (5M→10M) |
+|---|---|---|
+| KL median | 0.026 | **0.033** (slightly higher — more confident policy) |
+| KL 75th | 0.036 | **0.042** |
+| KL max | 0.127 | **0.100** |
+| Exceeding SB3 cutoff | 2.0% | **2.3%** |
+
+KL distribution barely changed between I and J — target_kl kept updates in bounds. Only 2.3% of updates hit the SB3 cutoff at 0.075. The max KL (0.100) was well below G's catastrophic 1.260. **target_kl is doing its job** — the degradation is not from oversized updates but from cumulative small shifts toward determinism.
+
+### Stochastic Evaluation (Post-Training)
+
+During analysis, a **critical bug was discovered and fixed** in `src/evaluate.py`: the evaluation function was hardcoded with `deterministic=True`, which made all multi-episode evaluations produce **identical trajectories**. Every prior eval "flag_rate" from evaluate.py was binary (same episode repeated N times). A `--stochastic` CLI flag was added to fix this.
+
+Results with stochastic evaluation (50 episodes):
+
+| Model | Flag Rate | mean_x_pos | max_x_pos | mean_reward |
+|---|---|---|---|---|
+| best_model (saved by eval callback) | **12% (6/50)** | 1,704 | 3,161 | 2,119 |
+| 7.5M checkpoint | 0% (0/50) | — | — | — |
+
+### Video Recording (10 stochastic episodes)
+
+The best_model was recorded for 10 stochastic episodes — **1 out of 10 captured the flag** (episode 10). The agent navigates the full level, reaching x=3161, demonstrating it knows the complete route. Failures appear to be consistency and timing issues at specific obstacles, not capability limits.
+
+### Verdict: **Highest peak ever (42% training, 12% stochastic eval). target_kl prevents cliff collapse but not gradual erosion.**
+
+Ablation J is the most successful run by both peak training metrics (42% flag_rate, 3167 reward) and verified stochastic evaluation (12% over 50 episodes). The policy learned to capture the flag at a meaningful rate and the video confirms it knows the full route. However, the policy degraded after ~8.5M steps due to gradual entropy erosion — a different and strictly better failure mode than the catastrophic cliffs of G/F.
+
+### Lessons
+- `target_kl=0.05` successfully prevents cliff collapse in extended training — G died in 100K steps, J eroded over 5M steps
+- **42% peak flag_rate from training metrics** — highest of any ablation, confirming the full stack (reward shaping + entropy schedule + target_kl) works
+- **Gradual erosion is a strictly better failure mode** — the best_model checkpoint captures peak performance, and the degradation is slow enough that training could be stopped earlier
+- The ent_coef floor (0.03) is insufficient for 10M+ training — entropy eroded below the floor in the 8–10M range
+- **Stochastic eval is essential** — deterministic eval was giving meaningless identical trajectories. The true flag rate (12%) gives an honest picture of policy consistency
+- **Video recording reveals qualitative insights** — the agent knows the route but fails at specific obstacles, suggesting the policy needs more consistent execution, not more exploration
+- **Decision**: Need to either (a) raise entropy floor for long runs, (b) use EntropyCollapseDetector in stop mode to freeze at peak, or (c) try flat ent_coef + target_kl for very long training
+
+---
+
+## Critical Bug Fix: `evaluate.py` Deterministic Hardcode
+
+**Date**: April 22, 2026
+
+During Ablation J analysis, a critical bug was discovered in `src/evaluate.py`: the `evaluate()` function was hardcoded with `deterministic=True` in the `model.predict()` call. This meant:
+
+- **All multi-episode evaluations produced identical trajectories** — the same actions in the same order every time
+- Every prior evaluate.py "flag_rate" was binary: if the single deterministic trajectory reached the flag, 100%; if not, 0%
+- Training-time eval (SB3's EvalCallback with `n_eval_episodes=10`) was also affected — all 10 episodes per checkpoint were identical
+
+**Fix**: Added a `--stochastic` CLI flag to `src/evaluate.py` and `src/config.py`. When set, `model.predict()` uses `deterministic=False`, producing varied trajectories that reveal the policy's true consistency.
+
+**Impact on prior results**: All eval "flag_rate" numbers in this journal from evaluations.npz and evaluate.py runs are unreliable as measures of consistency. Training metrics (`mario/flag_capture_rate` from the rolling episode buffer across 16 envs) remain valid because they use stochastic rollouts.
+
+**Files changed**: `src/evaluate.py` (added `stochastic` parameter, `--stochastic` CLI flag), `src/config.py` (added `stochastic` field to EvalConfig).
+
+---
+
 ## Comparison Summary
 
 | Run | ent_coef | fwd_scale | flag_bonus | time_pen | target_kl | Peak Flag% | Final Flag% | Entropy Stable? | Degraded? |
@@ -440,8 +619,11 @@ Ablation H proved three important things:
 | **Ablation F** | 0.04→0.03* | 0.3 | 50 | — | — | 26% | 0% | No (bug) | Catastrophic |
 | **Ablation G** | 0.05→0.03 | 0.3 | **200** | **-0.1** | — | **36%** | 0% | No (cliff at 4.9M) | Yes (catastrophic) |
 | **Ablation H** | 0.05→0.03 | 0.3 | 200 | -0.1 | **0.015** | 1% | 0% | **Yes** | No (never learned) |
+| **Ablation I** | 0.05→0.03 | 0.3 | 200 | -0.1 | **0.05** | 3% | **2%** | **Yes** | **No** (still climbing) |
+| **Ablation J** | 0.05→0.03 | 0.3 | 200 | -0.1 | **0.05** | **42%** | 1% | Mostly (gradual erosion) | Yes (gradual) |
 
 \* Ablation F's schedule was effectively static due to the resume bug.
+\*\* Ablation J stochastic eval: **12% flag rate (6/50)** on best_model. 1/10 video episodes captured the flag.
 
 ---
 
@@ -479,23 +661,44 @@ Ablation H proved three important things:
 21. **The agent can reach the flag** — every run hit max_x_pos=3161. The problem is consistency and speed, not capability.
 22. **A "failed" run can be the most informative** — Ablation H produced zero learning but gave us the exact KL baseline needed to calibrate target_kl correctly
 
+### On target_kl Calibration (Ablations I & J)
+23. **target_kl=0.05 is the correct calibration for this environment** — Only 2% of updates hit SB3 cutoff (vs 35% at 0.015), letting normal learning proceed while catching cascades
+24. **target_kl prevents cliff collapse, not gradual erosion** — J's entropy eroded from -0.578 to -1.006 over 5M steps, but never hit the catastrophic cliff that destroyed G in 100K steps. These are two distinct failure modes.
+25. **Gradual entropy erosion is a strictly better failure mode** — The best_model checkpoint captures peak performance, and degradation is slow enough to detect and stop. Cliff collapse destroys the policy before any checkpoint can save it.
+26. **The ent_coef floor (0.03) is insufficient for 10M+ training** — Entropy eroded below the schedule floor in J's 8–10M range. Longer runs need a higher floor (0.04+) or flat ent_coef.
+27. **Learning + stability can coexist** — Ablation I was the first run simultaneously learning AND stable. Prior runs had one or the other. The combination of entropy schedule + target_kl is the key.
+
+### On Evaluation
+28. **Deterministic eval masks true performance** — A critical bug in evaluate.py hardcoded `deterministic=True`, making all multi-episode evals produce identical trajectories. All prior eval "flag_rate" numbers from evaluate.py/evaluations.npz were binary (same trajectory repeated).
+29. **Stochastic eval reveals the real policy** — With stochastic eval, J's best_model achieves 12% flag rate (6/50). The agent CAN reach the flag but is inconsistent. This is the only honest performance number.
+30. **Video recording is invaluable for diagnosis** — Watching 10 stochastic episodes (1 flag capture) reveals failure modes that metrics can't: where the agent hesitates, which obstacles it fails at, timing issues.
+31. **Training metrics remain valid** — `mario/flag_capture_rate` from the rolling episode buffer uses stochastic rollouts across 16 envs, so training-time flag_rate numbers in this journal are trustworthy. Only evaluate.py and evaluations.npz were affected by the bug.
+
 ---
 
 ## What's Next
 
-Ablation H confirmed that `target_kl` is the right mechanism to prevent entropy collapse, but 0.015 was far too restrictive. The natural KL for this environment (from Ablation G's uncapped data) has a **median of 0.031** and **75th percentile of 0.043**.
+Ablation J achieved **42% peak flag_rate** (training) and **12% stochastic eval** (6/50 best_model) — the highest verified result so far. The agent captures the flag in 1/10 video recordings. `target_kl=0.05` prevented the catastrophic cliff collapse that destroyed Ablation G, but gradual entropy erosion still degraded the policy over 10M steps.
 
-**Ablation I — `target_kl=0.05`**
-- Rationale: 0.05 sits above ~75% of normal productive updates (letting learning happen) while still catching catastrophic cascades (G's collapse would have produced KL >>0.10). This gives the policy room to learn while preventing the cliff-edge collapse that destroyed G at 4.9M.
-- Risk: May still be slightly restrictive during early training when the policy needs to make large shifts. But the entropy schedule (0.05→0.03) provides strong exploration pressure early, so moderate throttling shouldn't block initial learning.
-- Expected outcome: Learning trajectory similar to G's golden window (3.5–4.9M) but without the collapse at the end. If target_kl catches the cascade, the policy should stabilize and keep improving past where G fell off.
+**Gap to target**: 12% → 80% stochastic eval (68 percentage points remaining).
 
-If `target_kl=0.05` stabilizes the policy, the `EntropyCollapseDetector` can be promoted from diagnostic to active stopping mode in a follow-up run for extended training (10M+).
+**Key observations from video + eval**:
+- The agent knows the complete route (max_x_pos=3161 in every run)
+- It captures the flag occasionally (12% of the time) — this is a consistency problem, not a capability problem
+- Failures appear to be timing/execution issues at specific obstacles, not directional confusion
 
-**Solved = ≥80% flag capture over 50 deterministic eval episodes.**
+**Options for next ablation**:
+
+1. **Higher entropy floor** — Raise ent_coef_final from 0.03 to 0.04 or 0.05 to combat gradual erosion in extended training. The 0.03 floor erodes over 10M steps.
+2. **EntropyCollapseDetector in stop=True mode** — Freeze training when entropy erosion is detected, preserving peak policy. J's best_model was saved well before training ended.
+3. **RIGHT_ONLY action space** — Reduce from 7 to 5 actions, lower entropy ceiling but potentially faster convergence and less erosion.
+4. **Re-evaluate earlier ablation best models stochastically** — G, D, Ent Schedule best_models may have higher true flag rates than originally reported (all prior evals were deterministic/identical).
+5. **Flat ent_coef + target_kl for very long runs** — Skip the schedule entirely, use static ent_coef=0.03 or 0.04 + target_kl=0.05 for 20M+ steps.
+
+**Solved = ≥80% flag capture over 50 stochastic eval episodes.**
 
 Progress tiers:
-- <20%: Not meaningfully improved
+- <20%: Not meaningfully improved ← **Ablation J best_model is here (12%)**
 - 20–50%: Significant progress, keep iterating
 - 50–80%: Strong result, one more knob turn likely solves
 - ≥80%: **Solved**
