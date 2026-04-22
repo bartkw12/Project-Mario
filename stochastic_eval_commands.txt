@@ -1,0 +1,37 @@
+# Stochastic Re-evaluation Commands
+# Run from: C:\Users\gts\Desktop\Platforms Sandbox\Use Case No37\Use Case No37 Testing\test\RL_project\Project-Mario
+# Each command runs 50 stochastic episodes against the best_model checkpoint.
+# Priority order: highest-value models first.
+
+# --- TOP PRIORITY (highest peak flag_rates) ---
+
+# Ablation G — 36% peak flag_rate, reward shaping golden window, best model saved before cliff collapse
+python -m src.evaluate --model results/ablation_g/models/best_model/best_model.zip --episodes 50 --config configs/experiments/ablation_g.yaml --stochastic
+
+# Ent Schedule — 39% peak flag_rate, sustained 20%+ from 3.3-4M, best model saved before late decay
+python -m src.evaluate --model results/ablation_ent_schedule/models/best_model/best_model.zip --episodes 50 --config configs/experiments/ablation_ent_schedule.yaml --stochastic
+
+# --- SECOND TIER (strong runs, different characteristics) ---
+
+# Ablation D — 22% final flag_rate, only run that NEVER degraded, still climbing at 5M
+python -m src.evaluate --model results/ablation_d/models/best_model/best_model.zip --episodes 50 --config configs/experiments/ablation_d.yaml --stochastic
+
+# Ablation B — 28% peak flag_rate, briefly learned to finish level at 2.5-3M
+python -m src.evaluate --model results/ablation_b/models/best_model/best_model.zip --episodes 50 --config configs/experiments/ablation_b.yaml --stochastic
+
+# Ablation I — 3% peak flag_rate but stable+climbing, predecessor to J
+python -m src.evaluate --model results/ablation_i/models/best_model/best_model.zip --episodes 50 --config configs/experiments/ablation_i.yaml --stochastic
+
+# --- LOWER PRIORITY (for completeness) ---
+
+# Ablation F — 26% peak before entropy schedule bug destroyed it
+python -m src.evaluate --model results/ablation_f/models/best_model/best_model.zip --episodes 50 --config configs/experiments/ablation_f.yaml --stochastic
+
+# Ablation C — 27% peak, forward_scale=0.2
+python -m src.evaluate --model results/ablation_c/models/best_model/best_model.zip --episodes 50 --config configs/experiments/ablation_c.yaml --stochastic
+
+# Ablation A — 6% peak, ent_coef=0.02
+python -m src.evaluate --model results/ablation_a/models/best_model/best_model.zip --episodes 50 --config configs/experiments/ablation_a.yaml --stochastic
+
+# Phase 2 Baseline — 6% peak, original run
+python -m src.evaluate --model results/models/best_model/best_model.zip --episodes 50 --config configs/default.yaml --stochastic
