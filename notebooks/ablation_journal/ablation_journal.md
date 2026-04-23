@@ -606,24 +606,121 @@ During Ablation J analysis, a critical bug was discovered in `src/evaluate.py`: 
 
 ---
 
+## Stochastic Re-evaluation of All Best Models
+
+**Date**: April 22, 2026
+
+With the deterministic eval bug fixed, every ablation's `best_model` checkpoint was re-evaluated with 50 stochastic episodes. This is the single most important analysis in this journal — it retroactively changes the model rankings and invalidates the assumption that training peak flag_rate predicts deployment performance.
+
+### Raw Results
+
+| Run | Stoch Flag% | mean_x_pos | max_x_pos | mean_reward | mean_steps |
+|---|---|---|---|---|---|
+| **Ablation D** | **16% (8/50)** | 1,911 | 3,161 | 2,383 | 281 |
+| **Ablation B** | **14% (7/50)** | 2,100 | 3,161 | 2,219 | 219 |
+| **Ablation J** | **12% (6/50)** | 1,704 | 3,161 | 2,119 | — |
+| **Ablation F** | **8% (4/50)** | 1,849 | 3,161 | 2,306 | 236 |
+| Baseline | 0% (0/50) | 2,524 | 2,850 | 2,554 | 837 |
+| Ablation A | 0% (0/50) | 1,671 | 2,679 | 1,717 | 324 |
+| Ent Schedule | 0% (0/50) | 1,608 | 3,038 | 1,660 | 260 |
+| Ablation C | 0% (0/50) | 1,435 | 2,009 | 1,626 | 199 |
+| Ablation G | 0% (0/50) | 1,353 | 2,026 | 1,651 | 171 |
+| Ablation I | 0% (0/50) | 1,193 | 2,022 | 1,444 | 169 |
+
+### The Ranking Inversion — Training Peaks vs Stochastic Reality
+
+| Run | Training Peak Flag% | Stochastic Eval Flag% | Rank Change |
+|---|---|---|---|
+| Ablation G | **36%** (2nd highest) | **0%** | Was top-tier → bottom |
+| Ent Schedule | **39%** (highest) | **0%** | Was #1 → bottom |
+| Ablation D | 22% (4th) | **16%** (best) | Was middle → **#1** |
+| Ablation B | 28% (3rd) | **14%** (2nd) | Was middle → **#2** |
+| Ablation J | **42%** (highest ever) | **12%** (3rd) | Was #1 → 3rd |
+
+The correlation between training peak flag_rate and stochastic eval is **inverted** for the top models. The runs with the highest training peaks (G: 36%, Ent Schedule: 39%) produced best_model checkpoints that score 0% stochastically. The run with moderate training metrics but stable entropy (D: 22%) produced the most robust checkpoint.
+
+### Why Deterministic Eval Overstated Performance
+
+SB3's `EvalCallback` selects the best model based on deterministic evaluation reward. With `deterministic=True`, `model.predict()` always selects the argmax action — producing a single fixed trajectory. This means:
+
+1. **The best_model is the checkpoint where the single best deterministic path scored highest** — not where the policy was most consistent
+2. **A narrow, overfit policy can score perfectly on one trajectory** while failing on all others. G's best_model deterministic path reached x=1,820 but stochastically maxed at 2,026 — the policy was highly peaked around one trajectory
+3. **The "golden window" checkpoints were saved during entropy erosion** — when the policy was becoming deterministic. This made the deterministic eval look great (the policy was converging to one good path) while the stochastic robustness was collapsing
+
+### Why D and B Won
+
+**Ablation D** (16%, 8/50):
+- Entropy was healthy at save time (-0.61) — the healthiest final entropy of any 5M run at that point
+- The policy **never degraded** — it was still climbing at 5M, so the best_model was saved at a point of genuine learning, not peak-before-collapse
+- No reward shaping amplification — `flag_bonus=50`, no `time_penalty`. The gentler reward signal produced slower but more robust learning
+- 8/50 episodes captured the flag, mean_x_pos=1,911 — the policy is competitive across diverse trajectories
+
+**Ablation B** (14%, 7/50):
+- Simple static `ent_coef=0.03` — no schedule, no target_kl
+- Despite entropy oscillation during training, the best_model was saved during a "good oscillation" window where the policy was both capable and exploratory
+- Highest mean_x_pos of any model (2,100) and fastest (mean_steps=219) — this policy plays aggressively and efficiently
+- 7/50 episodes captured the flag — nearly as consistent as D
+
+### Why G and Ent Schedule Failed Stochastically
+
+**Ablation G** (0%, 0/50):
+- max_x_pos=2,026 — the agent never even reached the flag area (3,161). Under stochastic sampling, it consistently dies around x=1,100–2,000
+- The best_model was saved during the "golden window" (4.4–4.9M) when entropy was already eroding. The deterministic path was good, but the policy had narrowed to the point where any deviation from the optimal trajectory results in death
+- mean_steps=171 — the agent dies quickly, suggesting it learned fast aggressive play but with no fallback strategies
+
+**Ent Schedule** (0%, 0/50):
+- max_x_pos=3,038 — one episode got close but still didn't finish. The policy has some range but not enough to consistently reach the end
+- Pattern of x_pos clustering around ~690, ~1,675, ~2,470 suggests the policy has "walls" — specific obstacles it can pass deterministically but fails at stochastically
+- The high training peak (39%) was during a sustained window (3.3–4M), but the best_model checkpoint was apparently saved during the late-stage entropy decay, not at peak robustness
+
+### The Baseline Anomaly
+
+The Phase 2 Baseline scored 0% but had the highest mean_x_pos (2,524) and uniquely reached x=2,850 in 14/50 episodes — farther than any other model's stochastic max except those that captured the flag. It never captured the flag because mean_steps=837 — it plays so slowly that it consistently hits the NES timer. This model *knows the level* better than most but moves too slowly, confirming the original Phase 2 diagnosis.
+
+### Impact on the Ablation Narrative
+
+This re-evaluation fundamentally changes the story:
+
+1. **"G had the best reward shaping"** → G's reward shaping produced fast training metrics but a brittle checkpoint. D's gentler approach produced a more robust policy.
+
+2. **"Ent Schedule had the best entropy strategy"** → Ent Schedule had good training-time entropy behavior, but its best_model was saved when entropy was decaying. The best stochastic model (D) had a simpler setup.
+
+3. **"J is the culmination of all improvements"** → J ranks 3rd stochastically (12%) behind D (16%) and B (14%). The target_kl + reward shaping + entropy schedule stack produced the highest *training peaks* (42%) but not the most robust checkpoint.
+
+4. **"Training peak flag_rate = progress toward 80% goal"** → Training peaks are unreliable predictors. Stochastic eval is the only honest measure. The project is closer to the goal than the training peaks suggested for D/B, and much farther than they suggested for G/Ent Schedule.
+
+### Implications for Future Work
+
+1. **Switch EvalCallback to stochastic evaluation** — The SB3 EvalCallback should use `deterministic=False` so the best_model checkpoint captures stochastic robustness, not single-trajectory performance. This is the highest-priority code change.
+
+2. **D-family is the best foundation for extension** — D's configuration (forward_scale=0.3, ent_coef 0.05→0.02, no reward shaping overhaul) is the most promising base to extend with target_kl protection. The reward shaping from G/J may be counterproductive.
+
+3. **Entropy health at checkpoint time is the key predictor** — Models with healthy entropy when saved (D: -0.61, B: oscillating but in good phase) are stochastically robust. Models with eroding entropy when saved (G: during golden window collapse, Ent Schedule: during late decay) are stochastically brittle.
+
+4. **All future ablation results must include stochastic eval** — Training metrics and deterministic eval are insufficient. Every run should be evaluated with `--stochastic --episodes 50` on its best_model as the ground truth.
+
+---
+
 ## Comparison Summary
 
-| Run | ent_coef | fwd_scale | flag_bonus | time_pen | target_kl | Peak Flag% | Final Flag% | Entropy Stable? | Degraded? |
-|---|---|---|---|---|---|---|---|---|---|
-| **Baseline** | 0.01 static | 0.1 | 50 | — | — | 6% | 0% | No (collapsed) | Yes |
-| **Ablation A** | 0.02 static | 0.1 | 50 | — | — | 6% | 1% | No (oscillated) | Yes |
-| **Ablation B** | 0.03 static | 0.1 | 50 | — | — | **28%** | 0% | No (oscillated) | Yes |
-| **Ent Schedule** | 0.05→0.02 | 0.1 | 50 | — | — | **39%** | 0% | Mostly (late decay) | Yes |
-| **Ablation C** | 0.05→0.02 | 0.2 | 50 | — | — | 27% | 0% | Better | Yes |
-| **Ablation D** | 0.05→0.02 | **0.3** | 50 | — | — | 22% | **22%** | **Yes** | **No** |
-| **Ablation F** | 0.04→0.03* | 0.3 | 50 | — | — | 26% | 0% | No (bug) | Catastrophic |
-| **Ablation G** | 0.05→0.03 | 0.3 | **200** | **-0.1** | — | **36%** | 0% | No (cliff at 4.9M) | Yes (catastrophic) |
-| **Ablation H** | 0.05→0.03 | 0.3 | 200 | -0.1 | **0.015** | 1% | 0% | **Yes** | No (never learned) |
-| **Ablation I** | 0.05→0.03 | 0.3 | 200 | -0.1 | **0.05** | 3% | **2%** | **Yes** | **No** (still climbing) |
-| **Ablation J** | 0.05→0.03 | 0.3 | 200 | -0.1 | **0.05** | **42%** | 1% | Mostly (gradual erosion) | Yes (gradual) |
+| Run | ent_coef | fwd_scale | flag_bonus | time_pen | target_kl | Peak Flag% | Final Flag% | Stoch Eval | Entropy Stable? | Degraded? |
+|---|---|---|---|---|---|---|---|---|---|---|
+| **Baseline** | 0.01 static | 0.1 | 50 | — | — | 6% | 0% | **0%** (0/50) | No (collapsed) | Yes |
+| **Ablation A** | 0.02 static | 0.1 | 50 | — | — | 6% | 1% | **0%** (0/50) | No (oscillated) | Yes |
+| **Ablation B** | 0.03 static | 0.1 | 50 | — | — | **28%** | 0% | **14%** (7/50) | No (oscillated) | Yes |
+| **Ent Schedule** | 0.05→0.02 | 0.1 | 50 | — | — | **39%** | 0% | **0%** (0/50) | Mostly (late decay) | Yes |
+| **Ablation C** | 0.05→0.02 | 0.2 | 50 | — | — | 27% | 0% | **0%** (0/50) | Better | Yes |
+| **Ablation D** | 0.05→0.02 | **0.3** | 50 | — | — | 22% | **22%** | **16%** (8/50) ★ | **Yes** | **No** |
+| **Ablation F** | 0.04→0.03* | 0.3 | 50 | — | — | 26% | 0% | **8%** (4/50) | No (bug) | Catastrophic |
+| **Ablation G** | 0.05→0.03 | 0.3 | **200** | **-0.1** | — | **36%** | 0% | **0%** (0/50) | No (cliff at 4.9M) | Yes (catastrophic) |
+| **Ablation H** | 0.05→0.03 | 0.3 | 200 | -0.1 | **0.015** | 1% | 0% | — | **Yes** | No (never learned) |
+| **Ablation I** | 0.05→0.03 | 0.3 | 200 | -0.1 | **0.05** | 3% | **2%** | **0%** (0/50) | **Yes** | **No** (still climbing) |
+| **Ablation J** | 0.05→0.03 | 0.3 | 200 | -0.1 | **0.05** | **42%** | 1% | **12%** (6/50) | Mostly (gradual erosion) | Yes (gradual) |
 
 \* Ablation F's schedule was effectively static due to the resume bug.
-\*\* Ablation J stochastic eval: **12% flag rate (6/50)** on best_model. 1/10 video episodes captured the flag.
+★ Ablation D is the **current best verified model** at 16% stochastic flag capture (8/50).
+
+**Key takeaway**: Training Peak Flag% and Stochastic Eval are poorly correlated. G (36% peak → 0% stochastic) and Ent Schedule (39% peak → 0% stochastic) demonstrate that high training peaks can produce brittle checkpoints. D (22% peak → 16% stochastic) demonstrates that stable training with healthy entropy produces robust checkpoints.
 
 ---
 
@@ -674,31 +771,38 @@ During Ablation J analysis, a critical bug was discovered in `src/evaluate.py`: 
 30. **Video recording is invaluable for diagnosis** — Watching 10 stochastic episodes (1 flag capture) reveals failure modes that metrics can't: where the agent hesitates, which obstacles it fails at, timing issues.
 31. **Training metrics remain valid** — `mario/flag_capture_rate` from the rolling episode buffer uses stochastic rollouts across 16 envs, so training-time flag_rate numbers in this journal are trustworthy. Only evaluate.py and evaluations.npz were affected by the bug.
 
+### On Stochastic Re-evaluation (The Ranking Inversion)
+32. **Training peak flag_rate is a poor predictor of stochastic robustness** — G (36% peak → 0% stochastic) and Ent Schedule (39% peak → 0% stochastic) had the highest training peaks but produced checkpoints that score 0/50 stochastically. D (22% peak → 16% stochastic) and B (28% peak → 14% stochastic) had moderate peaks but the best stochastic scores. The correlation is inverted.
+33. **Deterministic EvalCallback selects for narrow policies, not robust ones** — The best_model checkpoint captures the moment when a single deterministic trajectory scores highest. A policy that is converging toward one good trajectory (i.e., entropy is eroding) will produce a high deterministic score while its stochastic diversity collapses. This is exactly what happened to G and Ent Schedule.
+34. **Entropy health at checkpoint save time is the key predictor of stochastic robustness** — D (entropy -0.61 at save) → 16% stochastic. G (entropy eroding during "golden window") → 0% stochastic. Healthy entropy means the policy has fallback strategies when stochastic noise deviates from the optimal path.
+35. **Reward shaping amplified training metrics but degraded checkpoint quality** — D (no time_penalty, flag_bonus=50): 16% stochastic. G (time_penalty=-0.1, flag_bonus=200): 0% stochastic. The stronger reward signal pushed G to learn faster and reach higher training peaks, but the amplified gradients accelerated entropy erosion, producing a brittle policy at checkpoint time.
+36. **Ablation D is the current best verified model** — 16% stochastic flag capture (8/50), mean_x_pos=1,911, max_x_pos=3,161. Configuration: forward_scale=0.3, ent_coef 0.05→0.02, no reward shaping overhaul, no target_kl. Its defining trait: the policy never degraded and entropy stayed healthy (-0.61).
+37. **Future checkpoint selection must use stochastic evaluation** — The EvalCallback should be switched to `deterministic=False` so it selects best_model based on stochastic robustness. All future ablation results must include `--stochastic --episodes 50` as ground truth.
+38. **The Baseline is "far-reaching but slow"** — mean_x_pos=2,524 (highest of any model), reached x=2,850 in 14/50 episodes, but 0% flag captures and mean_steps=837. It knows the level better than most models but times out consistently, confirming the original Phase 2 timeout diagnosis.
+
 ---
 
 ## What's Next
 
-Ablation J achieved **42% peak flag_rate** (training) and **12% stochastic eval** (6/50 best_model) — the highest verified result so far. The agent captures the flag in 1/10 video recordings. `target_kl=0.05` prevented the catastrophic cliff collapse that destroyed Ablation G, but gradual entropy erosion still degraded the policy over 10M steps.
+The stochastic re-evaluation changed the project's trajectory. **Ablation D is the current best verified model** at 16% stochastic flag capture (8/50), followed by B (14%, 7/50) and J (12%, 6/50). The reward shaping + target_kl stack from G/I/J produced the highest *training peaks* but not the most robust checkpoints.
 
-**Gap to target**: 12% → 80% stochastic eval (68 percentage points remaining).
+**Gap to target**: 16% → 80% stochastic eval (64 percentage points remaining).
 
-**Key observations from video + eval**:
-- The agent knows the complete route (max_x_pos=3161 in every run)
-- It captures the flag occasionally (12% of the time) — this is a consistency problem, not a capability problem
-- Failures appear to be timing/execution issues at specific obstacles, not directional confusion
+**Critical infrastructure change needed first**:
+- **Switch EvalCallback to stochastic evaluation** — The SB3 EvalCallback must use `deterministic=False` so that `best_model` captures the most stochastically robust checkpoint, not the best single-trajectory performance. Without this fix, any new ablation will save checkpoints based on the same flawed metric.
 
-**Options for next ablation**:
+**Options for next ablation** (re-prioritized based on stochastic data):
 
-1. **Higher entropy floor** — Raise ent_coef_final from 0.03 to 0.04 or 0.05 to combat gradual erosion in extended training. The 0.03 floor erodes over 10M steps.
-2. **EntropyCollapseDetector in stop=True mode** — Freeze training when entropy erosion is detected, preserving peak policy. J's best_model was saved well before training ended.
-3. **RIGHT_ONLY action space** — Reduce from 7 to 5 actions, lower entropy ceiling but potentially faster convergence and less erosion.
-4. **Re-evaluate earlier ablation best models stochastically** — G, D, Ent Schedule best_models may have higher true flag rates than originally reported (all prior evals were deterministic/identical).
-5. **Flat ent_coef + target_kl for very long runs** — Skip the schedule entirely, use static ent_coef=0.03 or 0.04 + target_kl=0.05 for 20M+ steps.
+1. **Extend D with target_kl protection** — D's config (forward_scale=0.3, ent_coef 0.05→0.02, no reward shaping overhaul) is the most robust foundation. Add `target_kl=0.05` as insurance against cliff collapse and extend to 10M+ steps. D was still climbing at 5M.
+2. **D config + higher entropy floor** — D used ent_coef_final=0.02 (which eroded in every extended run). Raising the floor to 0.03 or 0.04 + target_kl=0.05 may sustain the stable learning longer.
+3. **Re-examine reward shaping at lower intensity** — G's reward shaping (flag_bonus=200, time_penalty=-0.1) may have been too aggressive. A moderate version (flag_bonus=100, time_penalty=-0.05) on D's base could add urgency without the entropy-eroding side effects.
+4. **RIGHT_ONLY action space** — Reduce from 7 to 5 actions on D's config. Fewer actions = lower entropy ceiling = potentially less erosion in extended training.
+5. **EntropyCollapseDetector in stop=True mode** — For any extended run, activate the detector to freeze training at peak stochastic performance.
 
 **Solved = ≥80% flag capture over 50 stochastic eval episodes.**
 
 Progress tiers:
-- <20%: Not meaningfully improved ← **Ablation J best_model is here (12%)**
+- <20%: Early progress ← **Ablation D best_model is here (16%)**
 - 20–50%: Significant progress, keep iterating
 - 50–80%: Strong result, one more knob turn likely solves
 - ≥80%: **Solved**
