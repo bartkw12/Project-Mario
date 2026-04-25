@@ -56,7 +56,7 @@ def _save_video(frames: list[np.ndarray], path: str) -> None:
     writer.release()
 
 
-def evaluate(cfg: Config, episodes: int = 5, record: bool = False, model_path: str | None = None, stochastic: bool = False) -> None:
+def evaluate(cfg: Config, episodes: int = 5, record: bool = False, model_path: str | None = None, stochastic: bool = False, quiet: bool = False) -> dict:
     """Run evaluation for N episodes, print per-episode and summary stats.
 
     If model_path is provided, loads a trained PPO model. Uses deterministic
@@ -65,6 +65,11 @@ def evaluate(cfg: Config, episodes: int = 5, record: bool = False, model_path: s
     meaningful flag_capture_rate over N episodes.
     When record=True, captures the raw NES render (upscaled 3x) with a
     stats overlay bar at the bottom and saves one mp4 per episode.
+    When quiet=True, suppresses per-episode and summary printing (useful for
+    batch evaluation scripts like checkpoint_sweep.py).
+
+    Returns a dict with: flag_rate, mean_x_pos, max_x_pos, mean_reward,
+    mean_steps, flags, x_positions, rewards, episode_lengths.
     """
     video_dir = "results/videos"
     if record:
@@ -79,12 +84,15 @@ def evaluate(cfg: Config, episodes: int = 5, record: bool = False, model_path: s
     deterministic = not stochastic
     if model_path:
         model = PPO.load(model_path, device=cfg.device)
-        print(f"[eval] Loaded model from {model_path}")
+        if not quiet:
+            print(f"[eval] Loaded model from {model_path}")
     else:
-        print("[eval] No model provided — using random actions")
+        if not quiet:
+            print("[eval] No model provided — using random actions")
 
     mode_str = "stochastic (sampled)" if stochastic else "deterministic (argmax)"
-    print(f"[eval] Running {episodes} episodes ({mode_str})...\n")
+    if not quiet:
+        print(f"[eval] Running {episodes} episodes ({mode_str})...\n")
 
     x_positions = []
     flag_gets = []
@@ -134,34 +142,50 @@ def evaluate(cfg: Config, episodes: int = 5, record: bool = False, model_path: s
         rewards.append(total_reward)
         episode_lengths.append(steps)
 
-        print(
-            f"  Episode {ep + 1:>{len(str(episodes))}}/{episodes}: "
-            f"x_pos={x_pos:>5}  "
-            f"reward={total_reward:>8.1f}  "
-            f"steps={steps:>4}  "
-            f"flag={flag}"
-        )
+        if not quiet:
+            print(
+                f"  Episode {ep + 1:>{len(str(episodes))}}/{episodes}: "
+                f"x_pos={x_pos:>5}  "
+                f"reward={total_reward:>8.1f}  "
+                f"steps={steps:>4}  "
+                f"flag={flag}"
+            )
 
         if record and frames:
             vid_path = os.path.join(video_dir, f"episode_{ep + 1:03d}.mp4")
             _save_video(frames, vid_path)
-            print(f"           → saved {vid_path}")
+            if not quiet:
+                print(f"           → saved {vid_path}")
 
     env.close()
 
     # Summary
     flag_rate = np.mean(flag_gets)
-    print(f"\n{'='*55}")
-    print(f"  Summary ({episodes} episodes, {mode_str}):")
-    print(f"    mean_x_pos:         {np.mean(x_positions):.0f}")
-    print(f"    max_x_pos:          {np.max(x_positions):.0f}")
-    print(f"    mean_reward:        {np.mean(rewards):.1f}")
-    print(f"    mean_steps:         {np.mean(episode_lengths):.0f}")
-    print(f"    flag_capture_rate:  {flag_rate:.1%} ({int(np.sum(flag_gets))}/{episodes})")
-    print(f"{'='*55}")
+    if not quiet:
+        print(f"\n{'='*55}")
+        print(f"  Summary ({episodes} episodes, {mode_str}):")
+        print(f"    mean_x_pos:         {np.mean(x_positions):.0f}")
+        print(f"    max_x_pos:          {np.max(x_positions):.0f}")
+        print(f"    mean_reward:        {np.mean(rewards):.1f}")
+        print(f"    mean_steps:         {np.mean(episode_lengths):.0f}")
+        print(f"    flag_capture_rate:  {flag_rate:.1%} ({int(np.sum(flag_gets))}/{episodes})")
+        print(f"{'='*55}")
 
-    if record:
-        print(f"\nVideos saved to {video_dir}/")
+        if record:
+            print(f"\nVideos saved to {video_dir}/")
+
+    return {
+        "flag_rate": float(flag_rate),
+        "flags": int(np.sum(flag_gets)),
+        "mean_x_pos": float(np.mean(x_positions)),
+        "max_x_pos": int(np.max(x_positions)),
+        "mean_reward": float(np.mean(rewards)),
+        "mean_steps": float(np.mean(episode_lengths)),
+        "x_positions": x_positions,
+        "rewards": rewards,
+        "episode_lengths": episode_lengths,
+        "flag_gets": flag_gets,
+    }
 
 
 def main() -> None:
