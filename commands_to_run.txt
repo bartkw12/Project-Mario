@@ -1,8 +1,1 @@
-# Ablation D — full sweep (12 models × 50 eps)
-python -m scripts.checkpoint_sweep --config configs/experiments/ablation_d.yaml --checkpoints results/ablation_d/models/checkpoints --extra results/ablation_d/models/best_model/best_model.zip results/ablation_d/models/final_model.zip --episodes 50
-
-# Ablation J — golden window (5 models × 50 eps)
-python -m scripts.checkpoint_sweep --config configs/experiments/ablation_j.yaml --models results/ablation_j/models/checkpoints/ppo_mario_8000000_steps.zip results/ablation_j/models/checkpoints/ppo_mario_8500000_steps.zip results/ablation_j/models/checkpoints/ppo_mario_9000000_steps.zip results/ablation_j/models/checkpoints/ppo_mario_9500000_steps.zip --extra results/ablation_j/models/best_model/best_model.zip --episodes 50
-
-# Ablation B — full sweep (11 models × 50 eps)
-python -m scripts.checkpoint_sweep --config configs/experiments/ablation_b.yaml --checkpoints results/ablation_b/models/checkpoints --extra results/ablation_b/models/best_model/best_model.zip --episodes 50
+python -m src.train --config configs/experiments/ablation_k.yaml --name ablation_k --subproc
