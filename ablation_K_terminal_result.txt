@@ -1,0 +1,184 @@
+[train] Starting training for 10,000,000 timesteps...
+[train] Checkpoints every ~500K timesteps (save_freq=31250 calls, n_envs=16)
+[train] Eval every ~100,000 timesteps (eval_freq=6250 calls, 10 episodes)
+Training:  50%|██████████████████████████████████████████████████████████████████████████████████████████                                                                                          | 5.00M/10.0M [00:00<?, ?step/s]I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:227: DeprecationWarning: WARN: Core environment is written in old step API which returns one bool instead of two. It is recommended to rewrite the environment with new step API. 
+  logger.deprecation(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:227: DeprecationWarning: WARN: Core environment is written in old step API which returns one bool instead of two. It is recommended to rewrite the environment with new step API. 
+  logger.deprecation(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:227: DeprecationWarning: WARN: Core environment is written in old step API which returns one bool instead of two. It is recommended to rewrite the environment with new step API. 
+  logger.deprecation(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:227: DeprecationWarning: WARN: Core environment is written in old step API which returns one bool instead of two. It is recommended to rewrite the environment with new step API. 
+  logger.deprecation(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:227: DeprecationWarning: WARN: Core environment is written in old step API which returns one bool instead of two. It is recommended to rewrite the environment with new step API. 
+  logger.deprecation(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:227: DeprecationWarning: WARN: Core environment is written in old step API which returns one bool instead of two. It is recommended to rewrite the environment with new step API. 
+  logger.deprecation(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:227: DeprecationWarning: WARN: Core environment is written in old step API which returns one bool instead of two. It is recommended to rewrite the environment with new step API. 
+  logger.deprecation(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:227: DeprecationWarning: WARN: Core environment is written in old step API which returns one bool instead of two. It is recommended to rewrite the environment with new step API. 
+  logger.deprecation(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:233: DeprecationWarning: `np.bool8` is a deprecated alias for `np.bool_`.  (Deprecated NumPy 1.24)
+  if not isinstance(done, (bool, np.bool8)):
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:233: DeprecationWarning: `np.bool8` is a deprecated alias for `np.bool_`.  (Deprecated NumPy 1.24)
+  if not isinstance(done, (bool, np.bool8)):
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:233: DeprecationWarning: `np.bool8` is a deprecated alias for `np.bool_`.  (Deprecated NumPy 1.24)
+  if not isinstance(done, (bool, np.bool8)):
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:233: DeprecationWarning: `np.bool8` is a deprecated alias for `np.bool_`.  (Deprecated NumPy 1.24)
+  if not isinstance(done, (bool, np.bool8)):
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:233: DeprecationWarning: `np.bool8` is a deprecated alias for `np.bool_`.  (Deprecated NumPy 1.24)
+  if not isinstance(done, (bool, np.bool8)):
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:233: DeprecationWarning: `np.bool8` is a deprecated alias for `np.bool_`.  (Deprecated NumPy 1.24)
+  if not isinstance(done, (bool, np.bool8)):
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:233: DeprecationWarning: `np.bool8` is a deprecated alias for `np.bool_`.  (Deprecated NumPy 1.24)
+  if not isinstance(done, (bool, np.bool8)):
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:233: DeprecationWarning: `np.bool8` is a deprecated alias for `np.bool_`.  (Deprecated NumPy 1.24)
+  if not isinstance(done, (bool, np.bool8)):
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:227: DeprecationWarning: WARN: Core environment is written in old step API which returns one bool instead of two. It is recommended to rewrite the environment with new step API. 
+  logger.deprecation(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:227: DeprecationWarning: WARN: Core environment is written in old step API which returns one bool instead of two. It is recommended to rewrite the environment with new step API. 
+  logger.deprecation(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:227: DeprecationWarning: WARN: Core environment is written in old step API which returns one bool instead of two. It is recommended to rewrite the environment with new step API. 
+  logger.deprecation(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:227: DeprecationWarning: WARN: Core environment is written in old step API which returns one bool instead of two. It is recommended to rewrite the environment with new step API. 
+  logger.deprecation(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:233: DeprecationWarning: `np.bool8` is a deprecated alias for `np.bool_`.  (Deprecated NumPy 1.24)
+  if not isinstance(done, (bool, np.bool8)):
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:233: DeprecationWarning: `np.bool8` is a deprecated alias for `np.bool_`.  (Deprecated NumPy 1.24)
+  if not isinstance(done, (bool, np.bool8)):
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:233: DeprecationWarning: `np.bool8` is a deprecated alias for `np.bool_`.  (Deprecated NumPy 1.24)
+  if not isinstance(done, (bool, np.bool8)):
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:227: DeprecationWarning: WARN: Core environment is written in old step API which returns one bool instead of two. It is recommended to rewrite the environment with new step API. 
+  logger.deprecation(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:233: DeprecationWarning: `np.bool8` is a deprecated alias for `np.bool_`.  (Deprecated NumPy 1.24)
+  if not isinstance(done, (bool, np.bool8)):
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:227: DeprecationWarning: WARN: Core environment is written in old step API which returns one bool instead of two. It is recommended to rewrite the environment with new step API. 
+  logger.deprecation(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:227: DeprecationWarning: WARN: Core environment is written in old step API which returns one bool instead of two. It is recommended to rewrite the environment with new step API. 
+  logger.deprecation(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:227: DeprecationWarning: WARN: Core environment is written in old step API which returns one bool instead of two. It is recommended to rewrite the environment with new step API. 
+  logger.deprecation(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:233: DeprecationWarning: `np.bool8` is a deprecated alias for `np.bool_`.  (Deprecated NumPy 1.24)
+  if not isinstance(done, (bool, np.bool8)):
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:233: DeprecationWarning: `np.bool8` is a deprecated alias for `np.bool_`.  (Deprecated NumPy 1.24)
+  if not isinstance(done, (bool, np.bool8)):
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:233: DeprecationWarning: `np.bool8` is a deprecated alias for `np.bool_`.  (Deprecated NumPy 1.24)
+  if not isinstance(done, (bool, np.bool8)):
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:233: DeprecationWarning: `np.bool8` is a deprecated alias for `np.bool_`.  (Deprecated NumPy 1.24)
+  if not isinstance(done, (bool, np.bool8)):
+Training:  51%|█████████████████████████████████████████████████████████████████████████▉                                                                       | 5.10M/10.0M [01:29<1:09:16, 1.18kstep/s, x_pos=1942, flag%=18.0%]I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:227: DeprecationWarning: WARN: Core environment is written in old step API which returns one bool instead of two. It is recommended to rewrite the environment with new step API. 
+  logger.deprecation(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:233: DeprecationWarning: `np.bool8` is a deprecated alias for `np.bool_`.  (Deprecated NumPy 1.24)
+  if not isinstance(done, (bool, np.bool8)):
+Training:  51%|█████████████████████████████████████████████████████████████████████████▉                                                                       | 5.10M/10.0M [01:40<1:09:16, 1.18kstep/s, x_pos=1949, flag%=18.0%]Eval num_timesteps=5100000, episode_reward=109.20 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+New best mean reward!
+Training:  52%|███████████████████████████████████████████████████████████████████████████▍                                                                     | 5.20M/10.0M [05:20<1:05:07, 1.23kstep/s, x_pos=1903, flag%=17.0%]Eval num_timesteps=5200000, episode_reward=2438.80 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+New best mean reward!
+Training:  53%|████████████████████████████████████████████████████████████████████████████▊                                                                    | 5.30M/10.0M [09:00<1:04:25, 1.22kstep/s, x_pos=2007, flag%=13.0%]Eval num_timesteps=5300000, episode_reward=2334.80 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  54%|██████████████████████████████████████████████████████████████████████████████▎                                                                  | 5.40M/10.0M [12:30<1:01:41, 1.24kstep/s, x_pos=1847, flag%=18.0%]Eval num_timesteps=5400000, episode_reward=3091.70 +/- 0.00
+Episode length: 314.00 +/- 0.00
+New best mean reward!
+Training:  55%|████████████████████████████████████████████████████████████████████████████████▊                                                                  | 5.50M/10.0M [14:20<55:25, 1.35kstep/s, x_pos=1948, flag%=12.0%]Eval num_timesteps=5500000, episode_reward=109.20 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  56%|██████████████████████████████████████████████████████████████████████████████████▉                                                                 | 5.60M/10.0M [17:40<54:33, 1.34kstep/s, x_pos=1671, flag%=6.0%]Eval num_timesteps=5600000, episode_reward=317.20 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  57%|███████████████████████████████████████████████████████████████████████████████████▊                                                               | 5.70M/10.0M [20:46<53:28, 1.34kstep/s, x_pos=2171, flag%=22.0%]Eval num_timesteps=5700000, episode_reward=1085.40 +/- 0.00
+Episode length: 137.00 +/- 0.00
+Training:  58%|█████████████████████████████████████████████████████████████████████████████████████▊                                                              | 5.80M/10.0M [22:30<53:03, 1.32kstep/s, x_pos=1092, flag%=0.0%]Eval num_timesteps=5800000, episode_reward=109.20 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  59%|███████████████████████████████████████████████████████████████████████████████████████▎                                                            | 5.90M/10.0M [25:34<51:06, 1.34kstep/s, x_pos=1163, flag%=2.0%]Eval num_timesteps=5900000, episode_reward=1886.70 +/- 0.00
+Episode length: 218.00 +/- 0.00
+Training:  59%|███████████████████████████████████████████████████████████████████████████████████████▌                                                            | 5.92M/10.0M [26:01<50:43, 1.34kstep/s, x_pos=1166, flag%=3.0%][CollapseDetector] WARNING #1: entropy_vel=-0.0596/update, entropy=-0.9149, flag_rate=3.0% @ 5,917,504 steps
+Training:  59%|███████████████████████████████████████████████████████████████████████████████████████▊                                                            | 5.93M/10.0M [26:13<51:36, 1.31kstep/s, x_pos=1170, flag%=4.0%][CollapseDetector] WARNING #2: entropy_vel=-0.0837/update, entropy=-1.0017, flag_rate=3.0% @ 5,933,888 steps
+Training:  60%|████████████████████████████████████████████████████████████████████████████████████████                                                            | 5.95M/10.0M [26:26<50:47, 1.33kstep/s, x_pos=1183, flag%=2.0%][CollapseDetector] WARNING #3: entropy_vel=-0.0890/update, entropy=-1.1222, flag_rate=2.0% @ 5,950,272 steps
+Training:  60%|████████████████████████████████████████████████████████████████████████████████████████▊                                                           | 6.00M/10.0M [27:06<1:17:38, 859step/s, x_pos=1473, flag%=3.0%]Eval num_timesteps=6000000, episode_reward=1080.40 +/- 0.00
+Episode length: 164.00 +/- 0.00
+Training:  61%|██████████████████████████████████████████████████████████████████████████████████████████▎                                                         | 6.10M/10.0M [28:51<50:08, 1.30kstep/s, x_pos=1536, flag%=0.0%]Eval num_timesteps=6100000, episode_reward=317.20 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  62%|███████████████████████████████████████████████████████████████████████████████████████████▊                                                        | 6.20M/10.0M [32:07<45:43, 1.39kstep/s, x_pos=1528, flag%=3.0%]Eval num_timesteps=6200000, episode_reward=851.00 +/- 0.00
+Episode length: 81.00 +/- 0.00
+Training:  63%|█████████████████████████████████████████████████████████████████████████████████████████████▏                                                      | 6.30M/10.0M [33:51<45:35, 1.35kstep/s, x_pos=1556, flag%=0.0%]Eval num_timesteps=6300000, episode_reward=317.20 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  64%|██████████████████████████████████████████████████████████████████████████████████████████████▋                                                     | 6.40M/10.0M [37:21<44:26, 1.35kstep/s, x_pos=1443, flag%=2.0%]Eval num_timesteps=6400000, episode_reward=317.20 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  65%|████████████████████████████████████████████████████████████████████████████████████████████████▏                                                   | 6.50M/10.0M [40:51<43:10, 1.35kstep/s, x_pos=1492, flag%=6.0%]Eval num_timesteps=6500000, episode_reward=2376.40 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  66%|█████████████████████████████████████████████████████████████████████████████████████████████████                                                  | 6.60M/10.0M [44:22<43:11, 1.31kstep/s, x_pos=1630, flag%=14.0%]Eval num_timesteps=6600000, episode_reward=317.20 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  67%|██████████████████████████████████████████████████████████████████████████████████████████████████▍                                                | 6.70M/10.0M [47:42<40:58, 1.34kstep/s, x_pos=1824, flag%=17.0%]Eval num_timesteps=6700000, episode_reward=2071.50 +/- 0.00
+Episode length: 188.00 +/- 0.00
+Training:  68%|████████████████████████████████████████████████████████████████████████████████████████████████████▋                                               | 6.80M/10.0M [49:22<39:39, 1.35kstep/s, x_pos=1287, flag%=7.0%]Eval num_timesteps=6800000, episode_reward=317.20 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  69%|██████████████████████████████████████████████████████████████████████████████████████████████████████                                              | 6.90M/10.0M [52:52<38:35, 1.34kstep/s, x_pos=1535, flag%=9.0%]Eval num_timesteps=6900000, episode_reward=317.20 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  70%|█████████████████████████████████████████████████████████████████████████████████████████████████████████▋                                             | 7.00M/10.0M [56:22<50:45, 985step/s, x_pos=761, flag%=0.0%]Eval num_timesteps=7000000, episode_reward=317.20 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  71%|████████████████████████████████████████████████████████████████████████████████████████████████████████▊                                           | 7.08M/10.0M [59:22<37:01, 1.31kstep/s, x_pos=1054, flag%=0.0%][CollapseDetector] WARNING #1: entropy_vel=-0.0872/update, entropy=-0.9225, flag_rate=0.0% @ 7,080,768 steps
+Training:  71%|█████████████████████████████████████████████████████████████████████████████████████████████████████████                                           | 7.10M/10.0M [59:36<37:36, 1.29kstep/s, x_pos=1228, flag%=1.0%][CollapseDetector] WARNING #2: entropy_vel=-0.0977/update, entropy=-0.9099, flag_rate=1.0% @ 7,097,152 steps
+Training:  71%|█████████████████████████████████████████████████████████████████████████████████████████████████████████                                           | 7.10M/10.0M [59:39<37:34, 1.29kstep/s, x_pos=1260, flag%=1.0%]Eval num_timesteps=7100000, episode_reward=848.10 +/- 0.00
+Episode length: 73.00 +/- 0.00
+[CollapseDetector] WARNING #3: entropy_vel=-0.1014/update, entropy=-0.9363, flag_rate=1.0% @ 7,100,000 steps
+Training:  71%|█████████████████████████████████████████████████████████████████████████████████████████████████████████▎                                          | 7.11M/10.0M [59:54<37:31, 1.28kstep/s, x_pos=1228, flag%=0.0%][CollapseDetector] WARNING #4: entropy_vel=-0.1014/update, entropy=-0.9363, flag_rate=0.0% @ 7,113,536 steps
+Training:  72%|█████████████████████████████████████████████████████████████████████████████████████████████████████████                                         | 7.20M/10.0M [1:01:04<36:02, 1.29kstep/s, x_pos=1262, flag%=1.0%]Eval num_timesteps=7200000, episode_reward=2088.10 +/- 0.00
+Episode length: 173.00 +/- 0.00
+Training:  73%|██████████████████████████████████████████████████████████████████████████████████████████████████████████▌                                       | 7.30M/10.0M [1:02:37<35:28, 1.27kstep/s, x_pos=1233, flag%=1.0%]Eval num_timesteps=7300000, episode_reward=1084.40 +/- 0.00
+Episode length: 145.00 +/- 0.00
+Training:  74%|████████████████████████████████████████████████████████████████████████████████████████████████████████████                                      | 7.40M/10.0M [1:04:23<34:07, 1.27kstep/s, x_pos=1210, flag%=2.0%]Eval num_timesteps=7400000, episode_reward=109.20 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  75%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████▌                                    | 7.50M/10.0M [1:07:53<31:59, 1.30kstep/s, x_pos=1529, flag%=4.0%]Eval num_timesteps=7500000, episode_reward=2444.80 +/- 0.00
+Episode length: 209.00 +/- 0.00
+Training:  76%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████▉                                   | 7.60M/10.0M [1:09:33<31:36, 1.27kstep/s, x_pos=1164, flag%=2.0%]Eval num_timesteps=7600000, episode_reward=109.20 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  77%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████▍                                 | 7.70M/10.0M [1:12:44<29:31, 1.30kstep/s, x_pos=1487, flag%=4.0%]Eval num_timesteps=7700000, episode_reward=2086.80 +/- 0.00
+Episode length: 176.00 +/- 0.00
+Training:  78%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████▉                                | 7.80M/10.0M [1:14:15<27:23, 1.34kstep/s, x_pos=1462, flag%=7.0%]Eval num_timesteps=7800000, episode_reward=2436.00 +/- 0.00
+Episode length: 205.00 +/- 0.00
+Training:  79%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████▎                              | 7.90M/10.0M [1:15:49<25:48, 1.36kstep/s, x_pos=1484, flag%=7.0%]Eval num_timesteps=7900000, episode_reward=1896.10 +/- 0.00
+Episode length: 159.00 +/- 0.00
+Training:  80%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▊                             | 8.00M/10.0M [1:17:33<25:14, 1.32kstep/s, x_pos=1487, flag%=5.0%]Eval num_timesteps=8000000, episode_reward=2446.00 +/- 0.00
+Episode length: 221.00 +/- 0.00
+Training:  81%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▎                           | 8.10M/10.0M [1:18:54<23:21, 1.36kstep/s, x_pos=1515, flag%=3.0%]Eval num_timesteps=8100000, episode_reward=1085.40 +/- 0.00
+Episode length: 136.00 +/- 0.00
+Training:  82%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▋                          | 8.20M/10.0M [1:20:24<22:25, 1.34kstep/s, x_pos=1657, flag%=9.0%]Eval num_timesteps=8200000, episode_reward=2244.10 +/- 0.00
+Episode length: 180.00 +/- 0.00
+Training:  83%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▏                        | 8.30M/10.0M [1:21:55<21:30, 1.32kstep/s, x_pos=1715, flag%=8.0%]Eval num_timesteps=8300000, episode_reward=2443.40 +/- 0.00
+Episode length: 221.00 +/- 0.00
+Training:  84%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▋                       | 8.40M/10.0M [1:23:44<19:49, 1.34kstep/s, x_pos=1479, flag%=4.0%]Eval num_timesteps=8400000, episode_reward=2448.70 +/- 0.00
+Episode length: 204.00 +/- 0.00
+Training:  85%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████                      | 8.50M/10.0M [1:25:05<20:37, 1.21kstep/s, x_pos=1468, flag%=5.0%]Eval num_timesteps=8500000, episode_reward=2234.00 +/- 0.00
+Episode length: 189.00 +/- 0.00
+Training:  86%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▌                    | 8.60M/10.0M [1:26:38<17:32, 1.33kstep/s, x_pos=1671, flag%=8.0%]Eval num_timesteps=8600000, episode_reward=2250.60 +/- 0.00
+Episode length: 170.00 +/- 0.00
+Training:  87%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████                   | 8.70M/10.0M [1:28:24<16:05, 1.35kstep/s, x_pos=1740, flag%=9.0%]Eval num_timesteps=8700000, episode_reward=2447.30 +/- 0.00
+Episode length: 222.00 +/- 0.00
+Training:  88%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▌                 | 8.80M/10.0M [1:29:45<14:50, 1.35kstep/s, x_pos=1877, flag%=11.0%]Eval num_timesteps=8800000, episode_reward=2241.50 +/- 0.00
+Episode length: 184.00 +/- 0.00
+Training:  89%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▊                | 8.90M/10.0M [1:31:20<21:48, 841step/s, x_pos=2067, flag%=26.0%]Eval num_timesteps=8900000, episode_reward=2436.10 +/- 0.00
+Episode length: 188.00 +/- 0.00
+Training:  90%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▌              | 9.00M/10.0M [1:33:04<12:53, 1.29kstep/s, x_pos=1817, flag%=14.0%]Eval num_timesteps=9000000, episode_reward=2917.20 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  91%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▉             | 9.10M/10.0M [1:36:34<11:46, 1.27kstep/s, x_pos=1788, flag%=13.0%]Eval num_timesteps=9100000, episode_reward=3102.80 +/- 0.00
+Episode length: 244.00 +/- 0.00
+New best mean reward!
+Training:  92%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▍           | 9.20M/10.0M [1:38:14<09:59, 1.34kstep/s, x_pos=1972, flag%=13.0%]Eval num_timesteps=9200000, episode_reward=2334.80 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  93%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▊          | 9.30M/10.0M [1:41:35<08:40, 1.34kstep/s, x_pos=1780, flag%=5.0%]Eval num_timesteps=9300000, episode_reward=2605.20 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  94%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▎        | 9.40M/10.0M [1:44:55<07:21, 1.36kstep/s, x_pos=1876, flag%=22.0%]Eval num_timesteps=9400000, episode_reward=2438.80 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  95%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▋       | 9.50M/10.0M [1:48:15<06:23, 1.30kstep/s, x_pos=1859, flag%=7.0%]Eval num_timesteps=9500000, episode_reward=2311.40 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  96%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▏     | 9.60M/10.0M [1:51:24<04:48, 1.39kstep/s, x_pos=1071, flag%=9.0%]Eval num_timesteps=9600000, episode_reward=324.70 +/- 0.00
+Episode length: 31.00 +/- 0.00
+Training:  97%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▌    | 9.70M/10.0M [1:52:46<03:45, 1.33kstep/s, x_pos=1884, flag%=7.0%]Eval num_timesteps=9700000, episode_reward=2246.10 +/- 0.00
+Episode length: 170.00 +/- 0.00
+Training:  98%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████   | 9.80M/10.0M [1:54:14<02:33, 1.30kstep/s, x_pos=1178, flag%=0.0%]Eval num_timesteps=9800000, episode_reward=1387.40 +/- 0.00
+Episode length: 117.00 +/- 0.00
+Training:  99%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▌ | 9.90M/10.0M [1:55:55<01:25, 1.17kstep/s, x_pos=2018, flag%=18.0%]Eval num_timesteps=9900000, episode_reward=2438.80 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 10.0M/10.0M [1:58:59<00:00, 1.24kstep/s, x_pos=1950, flag%=18.0%]Eval num_timesteps=10000000, episode_reward=1851.00 +/- 0.00
+Episode length: 159.00 +/- 0.00
+Training: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 10.0M/10.0M [1:59:10<00:00, 699step/s, x_pos=1943, flag%=17.0%]
+[train] Final model saved to results\ablation_k\models\final_model.zip
