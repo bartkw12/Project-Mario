@@ -130,3 +130,73 @@ I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\wrappers\step_api_compati
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Ablation B — full sweep (11 models × 50 eps)
+
+(.venv) PS I:\Python\RL\Project-Mario> python -m scripts.checkpoint_sweep --config configs/experiments/ablation_b.yaml --checkpoints results/ablation_b/models/checkpoints --extra results/ablation_b/models/best_model/best_model.zip --episodes 50
+Gym has been unmaintained since 2022 and does not support NumPy 2.0 amongst other critical functionality.
+Please upgrade to Gymnasium, the maintained drop-in replacement of Gym, or contact the authors of your software and request that they upgrade.
+See the migration guide at https://gymnasium.farama.org/introduction/migration_guide/ for additional information.
+[sweep] Config: configs/experiments/ablation_b.yaml
+[sweep] Episodes per model: 50 (stochastic)
+[sweep] Models to evaluate: 11
+
+[sweep] (1/11) Evaluating 500K — results\ablation_b\models\checkpoints\ppo_mario_500000_steps.zip
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\envs\registration.py:593: UserWarning: WARN: The environment SuperMarioBros-1-1-v0 is out of date. You should consider upgrading to version `v3`.
+  logger.warn(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\core.py:317: DeprecationWarning: WARN: Initializing wrapper in old step API which returns one bool instead of two. It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future.
+  deprecation(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\wrappers\step_api_compatibility.py:39: DeprecationWarning: WARN: Initializing environment in old step API which returns one bool instead of two. It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future.
+  deprecation(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:227: DeprecationWarning: WARN: Core environment is written in old step API which returns one bool instead of two. It is recommended to rewrite the environment with new step API. 
+  logger.deprecation(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:233: DeprecationWarning: `np.bool8` is a deprecated alias for `np.bool_`.  (Deprecated NumPy 1.24)
+  if not isinstance(done, (bool, np.bool8)):
+         flag_rate=0% (0/50)  mean_x=784  max_x=1436  reward=780  steps=130  (44s)
+[sweep] (2/11) Evaluating 1.0M — results\ablation_b\models\checkpoints\ppo_mario_1000000_steps.zip
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\envs\registration.py:593: UserWarning: WARN: The environment SuperMarioBros-1-1-v0 is out of date. You should consider upgrading to version `v3`.
+  logger.warn(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\core.py:317: DeprecationWarning: WARN: Initializing wrapper in old step API which returns one bool instead of two. It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future.
+  deprecation(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\wrappers\step_api_compatibility.py:39: DeprecationWarning: WARN: Initializing environment in old step API which returns one bool instead of two. It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future.
+  deprecation(
+         flag_rate=0% (0/50)  mean_x=1028  max_x=1955  reward=1047  steps=142  (46s)
+[sweep] (3/11) Evaluating 1.5M — results\ablation_b\models\checkpoints\ppo_mario_1500000_steps.zip
+         flag_rate=0% (0/50)  mean_x=1068  max_x=1958  reward=1090  steps=144  (47s)
+[sweep] (4/11) Evaluating 2.0M — results\ablation_b\models\checkpoints\ppo_mario_2000000_steps.zip
+         flag_rate=4% (2/50)  mean_x=1362  max_x=3161  reward=1407  steps=184  (60s)
+[sweep] (5/11) Evaluating 2.5M — results\ablation_b\models\checkpoints\ppo_mario_2500000_steps.zip
+         flag_rate=4% (2/50)  mean_x=1754  max_x=3161  reward=1832  steps=216  (72s)
+[sweep] (6/11) Evaluating 3.0M — results\ablation_b\models\checkpoints\ppo_mario_3000000_steps.zip
+         flag_rate=14% (7/50)  mean_x=1964  max_x=3161  reward=2038  steps=381  (125s)
+[sweep] (7/11) Evaluating 3.5M — results\ablation_b\models\checkpoints\ppo_mario_3500000_steps.zip
+         flag_rate=0% (0/50)  mean_x=303  max_x=312  reward=271  steps=34  (11s)
+[sweep] (8/11) Evaluating 4.0M — results\ablation_b\models\checkpoints\ppo_mario_4000000_steps.zip
+         flag_rate=0% (0/50)  mean_x=1197  max_x=2011  reward=1230  steps=148  (48s)
+[sweep] (9/11) Evaluating 4.5M — results\ablation_b\models\checkpoints\ppo_mario_4500000_steps.zip
+         flag_rate=0% (0/50)  mean_x=374  max_x=722  reward=169  steps=934  (303s)
+[sweep] (10/11) Evaluating 5.0M — results\ablation_b\models\checkpoints\ppo_mario_5000000_steps.zip
+         flag_rate=0% (0/50)  mean_x=528  max_x=1138  reward=314  steps=1063  (340s)
+[sweep] (11/11) Evaluating best_model — results\ablation_b\models\best_model\best_model.zip
+         flag_rate=22% (11/50)  mean_x=2096  max_x=3161  reward=2219  steps=227  (74s)
+
+===============================================================================================
+  CHECKPOINT SWEEP RESULTS — 50 stochastic episodes per model
+  Config: configs/experiments/ablation_b.yaml
+===============================================================================================
+  Rank  Model           Flag%  Flags   mean_x   max_x   reward   steps
+  ----- -------------- ------ ------ -------- ------- -------- -------
+  1     best_model       22%    11/50     2096    3161     2219    227 ★
+  2     3.0M             14%     7/50     1964    3161     2038    381
+  3     2.5M              4%     2/50     1754    3161     1832    216
+  4     2.0M              4%     2/50     1362    3161     1407    184
+  5     4.0M              0%     0/50     1197    2011     1230    148
+  6     1.5M              0%     0/50     1068    1958     1090    144
+  7     1.0M              0%     0/50     1028    1955     1047    142
+  8     500K              0%     0/50      784    1436      780    130
+  9     5.0M              0%     0/50      528    1138      314   1063
+  10    4.5M              0%     0/50      374     722      169    934
+  11    3.5M              0%     0/50      303     312      271     34
+===============================================================================================
+
+  Best checkpoint: best_model — 22% flag rate (11/50)
+  Path: results\ablation_b\models\best_model\best_model.zip
