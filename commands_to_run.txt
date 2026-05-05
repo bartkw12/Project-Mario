@@ -1,1 +1,1 @@
-python -m src.train --config configs/experiments/ablation_k.yaml --name ablation_k --subproc --resume results/ablation_d/models/checkpoints/ppo_mario_5000000_steps.zip
+python -m scripts.checkpoint_sweep --config configs/experiments/ablation_k.yaml --checkpoints results/ablation_k/models/checkpoints --extra results/ablation_k/models/best_model/best_model.zip results/ablation_k/models/final_model.zip --episodes 50
