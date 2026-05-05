@@ -76,4 +76,57 @@ I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\wrappers\step_api_compati
 
 # Ablation J — golden window (5 models × 50 eps)
 
+(.venv) PS I:\Python\RL\Project-Mario> python -m scripts.checkpoint_sweep --config configs/experiments/ablation_j.yaml --models results/ablation_j/models/checkpoints/ppo_mario_8000000_steps.zip results/ablation_j/models/checkpoints/ppo_mario_8500000_steps.zip results/ablation_j/models/checkpoints/ppo_mario_9000000_steps.zip results/ablation_j/models/checkpoints/ppo_mario_9500000_steps.zip --extra results/ablation_j/models/best_model/best_model.zip --episodes 50
+Gym has been unmaintained since 2022 and does not support NumPy 2.0 amongst other critical functionality.
+Please upgrade to Gymnasium, the maintained drop-in replacement of Gym, or contact the authors of your software and request that they upgrade.
+See the migration guide at https://gymnasium.farama.org/introduction/migration_guide/ for additional information.
+[sweep] Config: configs/experiments/ablation_j.yaml
+[sweep] Episodes per model: 50 (stochastic)
+[sweep] Models to evaluate: 5
+
+[sweep] (1/5) Evaluating 8.0M — results\ablation_j\models\checkpoints\ppo_mario_8000000_steps.zip
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\envs\registration.py:593: UserWarning: WARN: The environment SuperMarioBros-1-1-v0 is out of date. You should consider upgrading to version `v3`.
+  logger.warn(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\core.py:317: DeprecationWarning: WARN: Initializing wrapper in old step API which returns one bool instead of two. It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future.
+  deprecation(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\wrappers\step_api_compatibility.py:39: DeprecationWarning: WARN: Initializing environment in old step API which returns one bool instead of two. It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future.
+  deprecation(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:227: DeprecationWarning: WARN: Core environment is written in old step API which returns one bool instead of two. It is recommended to rewrite the environment with new step API. 
+  logger.deprecation(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:233: DeprecationWarning: `np.bool8` is a deprecated alias for `np.bool_`.  (Deprecated NumPy 1.24)
+  if not isinstance(done, (bool, np.bool8)):
+         flag_rate=26% (13/50)  mean_x=2275  max_x=3161  reward=2881  steps=253  (87s)
+[sweep] (2/5) Evaluating 8.5M — results\ablation_j\models\checkpoints\ppo_mario_8500000_steps.zip
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\envs\registration.py:593: UserWarning: WARN: The environment SuperMarioBros-1-1-v0 is out of date. You should consider upgrading to version `v3`.
+  logger.warn(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\core.py:317: DeprecationWarning: WARN: Initializing wrapper in old step API which returns one bool instead of two. It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future.
+  deprecation(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\wrappers\step_api_compatibility.py:39: DeprecationWarning: WARN: Initializing environment in old step API which returns one bool instead of two. It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future.
+  deprecation(
+         flag_rate=6% (3/50)  mean_x=1759  max_x=3161  reward=2183  steps=204  (68s)
+[sweep] (3/5) Evaluating 9.0M — results\ablation_j\models\checkpoints\ppo_mario_9000000_steps.zip
+         flag_rate=0% (0/50)  mean_x=721  max_x=898  reward=723  steps=525  (172s)
+[sweep] (4/5) Evaluating 9.5M — results\ablation_j\models\checkpoints\ppo_mario_9500000_steps.zip
+         flag_rate=0% (0/50)  mean_x=1715  max_x=1953  reward=2116  steps=190  (62s)
+[sweep] (5/5) Evaluating best_model — results\ablation_j\models\best_model\best_model.zip
+         flag_rate=2% (1/50)  mean_x=1619  max_x=3161  reward=2002  steps=169  (55s)
+
+===============================================================================================
+  CHECKPOINT SWEEP RESULTS — 50 stochastic episodes per model
+  Config: configs/experiments/ablation_j.yaml
+===============================================================================================
+  Rank  Model           Flag%  Flags   mean_x   max_x   reward   steps
+  ----- -------------- ------ ------ -------- ------- -------- -------
+  1     8.0M             26%    13/50     2275    3161     2881    253 ★
+  2     8.5M              6%     3/50     1759    3161     2183    204
+  3     best_model        2%     1/50     1619    3161     2002    169
+  4     9.5M              0%     0/50     1715    1953     2116    190
+  5     9.0M              0%     0/50      721     898      723    525
+===============================================================================================
+
+  Best checkpoint: 8.0M — 26% flag rate (13/50)
+  Path: results\ablation_j\models\checkpoints\ppo_mario_8000000_steps.zip
+(.venv) PS I:\Python\RL\Project-Mario> 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
