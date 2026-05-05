@@ -848,25 +848,78 @@ The stochastic re-evaluation of `best_model` checkpoints (April 22) revealed the
 
 ---
 
+## Ablation K — D Extended to 10M with target_kl + Higher Entropy Floor
+
+**Date**: May 5, 2026
+**Config**: `configs/experiments/ablation_k.yaml`
+
+**Hypothesis**: D was still climbing at 5.0M (18%). Extending to 10M with `ent_coef_final=0.03` (higher floor) + `target_kl=0.05` (cascade protection) should sustain learning and push past D's ceiling.
+
+| Changed | Ablation D | Ablation K |
+|---|---|---|
+| total_timesteps | 5,000,000 | **10,000,000** |
+| ent_coef_final | 0.02 | **0.03** |
+| target_kl | None | **0.05** |
+
+**Method**: Resumed from D's 5.0M checkpoint. Entropy schedule jumped ent_coef from D's floor (0.02) to K's schedule value (~0.04) on resume.
+
+### Results — Checkpoint Sweep (50 stochastic episodes each)
+
+| Rank | Checkpoint | Flag% | mean_x | max_x | reward | steps |
+|---|---|---|---|---|---|---|
+| 1 | **9.0M** | **18% (9/50)** | 1,742 | 3,161 | 2,179 | 211 |
+| 2 | 5.5M | 16% (8/50) | 1,954 | 3,161 | 2,433 | 312 |
+| 3 | 6.0M / 7.5M | 8% (4/50) | — | 3,161 | — | — |
+| 4 | 10.0M / final / 8.5M | 6% (3/50) | — | 3,161 | — | — |
+| — | 7.0M / 8.0M / 9.5M | 0% (0/50) | — | — | — | — |
+
+### Training Observations
+
+- **CollapseDetector fired twice** (~5.9M and ~7.1M): 3–4 warnings each, self-resolved. `target_kl` prevented cascades.
+- **Peak training flag_rate**: 26% at 8.9M (matches J's training peak)
+- **Final training flag_rate**: 17–18% (policy alive at 10M, not collapsed)
+- **Severe oscillation**: Unlike D's monotonic climb, K oscillates wildly (0–26% across checkpoints)
+- **FPS**: ~1.2–1.4K steps/s (2 hours total for 5M new steps)
+
+### Verdict: **Failed to beat D. D-family has a ceiling at ~18%.**
+
+K's best checkpoint (9.0M at 18%) merely ties D 5.0M. Five million additional steps with stability protections produced zero improvement in stochastic robustness.
+
+### Why It Failed
+
+1. **ent_coef discontinuity on resume**: Jumping from 0.02→0.04 degraded the working policy immediately. K's 5.5M (16%) is worse than D's 5.0M (18%) it resumed from. The agent spent ~3.5M steps recovering to where D already was.
+
+2. **D's reward structure has an inherent ceiling**: `flag_bonus=50` is only ~7% of accumulated forward reward. The agent has insufficient incentive to consistently push through hard late-level obstacles. More training time and better protections cannot overcome a ceiling imposed by the reward structure itself.
+
+3. **Higher entropy floor trades stability for consistency**: The 0.03 floor keeps the policy alive (no collapse at 10M — first D-family extension to survive) but prevents consolidation of gains, creating the oscillation pattern.
+
+### Lessons
+
+44. **D-family caps at ~18% stochastic flag rate** — neither more training (K: 10M) nor stability protections (`target_kl`, higher entropy floor) can push past it. The ceiling is in the reward structure, not the training stability.
+45. **Resuming with a different entropy schedule is disruptive** — the ent_coef jump cost ~3.5M steps of recovery. Fresh runs or matching the resume state are preferable.
+46. **`target_kl=0.05` + `ent_coef_final=0.03` successfully prevents collapse through 10M steps** — the protections work as intended. The policy survived where F died. But survival ≠ improvement.
+47. **The project needs stronger reward signal to break past 18-26%** — both families (D gentle, J aggressive) have limitations. A middle-ground reward approach is the logical next experiment.
+
+---
+
 ## What's Next
 
-**J 8.0M is the current best verified model** at 26% stochastic flag capture (13/50). D 5.0M follows at 18% (9/50) with monotonic stability.
+**J 8.0M remains the project champion** at 26% stochastic flag capture (13/50). K failed to beat it.
 
-**Gap to target**: 26% → 80% stochastic eval (54 percentage points remaining).
+**Gap to target**: 26% → 80% (54 percentage points remaining).
 
-**Next ablation: Ablation K** — D-family extended to 10M with protections:
-- D's reward structure (forward_scale=0.3, flag_bonus=50, no time_penalty) — proven most robust
-- `ent_coef 0.05 → 0.03` (higher floor than D's 0.02 — every run hitting 0.02 eroded)
-- `target_kl=0.05` (cascade protection proven in J)
-- 10M total timesteps
-- Checkpoint sweep after training to find true peak
+**Diagnosis**: D-family caps at 18% (reward too gentle). J-family reaches 26% but in a narrow, fragile window (reward too aggressive, accelerates entropy erosion). The next experiment should find the middle ground.
 
-**Rationale**: D was still climbing at 5.0M (18%). With 10M steps + higher entropy floor + target_kl insurance, D-family should sustain learning longer without the erosion that killed J after 8M.
+**Next ablation candidates**:
+
+1. **Moderate reward shaping** (recommended) — `flag_bonus=100` (2× D, 0.5× J), `time_penalty=-0.05` (0.5× J), keep `target_kl=0.05` + `ent_coef 0.05→0.03`. Fresh 10M run. Hypothesis: gentler than J avoids entropy erosion, stronger than D breaks the 18% ceiling.
+2. **J config with active stopping** — Re-run J's config with `EntropyCollapseDetector stop=True` to freeze at peak. Risky: relies on timing the narrow window.
+3. **Resume D 5.0M without ent_coef disruption** — Keep `ent_coef_final=0.02`, add only `target_kl=0.05`. Tests whether D can climb further without the schedule jump. But K's results suggest the ceiling is reward-based, not training-duration-based.
 
 **Solved = ≥80% flag capture over 50 stochastic eval episodes.**
 
 Progress tiers:
-- <20%: Early progress
+- <20%: Early progress ← D-family ceiling (18%)
 - 20–50%: Significant progress ← **J 8.0M is here (26%)**
 - 50–80%: Strong result, one more knob turn likely solves
 - ≥80%: **Solved**
