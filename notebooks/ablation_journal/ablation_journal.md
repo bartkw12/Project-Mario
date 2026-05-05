@@ -782,27 +782,91 @@ This re-evaluation fundamentally changes the story:
 
 ---
 
+## Checkpoint Sweep — Finding the True Best Models
+
+**Date**: May 5, 2026
+
+The stochastic re-evaluation of `best_model` checkpoints (April 22) revealed the ranking inversion, but only tested one checkpoint per ablation. A full sweep of all periodic checkpoints was run to find the true best model across the entire training history.
+
+**Tool**: `scripts/checkpoint_sweep.py` — 50 stochastic episodes per checkpoint.
+
+### Ablation D — Full Sweep (12 models)
+
+| Rank | Checkpoint | Flag% | mean_x | max_x | reward | steps |
+|---|---|---|---|---|---|---|
+| 1 | **5.0M** | **18% (9/50)** | 1,983 | 3,161 | 2,481 | 262 |
+| 2 | final_model | 18% (9/50) | 1,883 | 3,161 | 2,354 | 253 |
+| 3 | best_model | 14% (7/50) | 1,893 | 3,161 | 2,352 | 310 |
+| 4 | 4.5M | 14% (7/50) | 1,856 | 3,161 | 2,316 | 247 |
+| 5 | 4.0M | 2% (1/50) | 1,439 | 3,161 | 1,776 | 201 |
+| 6–12 | ≤3.5M | 0% | ≤1,252 | — | — | — |
+
+**Key finding**: D's 5.0M checkpoint (last periodic save) beats `best_model`. Confirms D was still improving at training end. Monotonic progression — no collapses, no oscillation.
+
+### Ablation J — Golden Window Sweep (5 models)
+
+| Rank | Checkpoint | Flag% | mean_x | max_x | reward | steps |
+|---|---|---|---|---|---|---|
+| 1 | **8.0M** | **26% (13/50)** | 2,275 | 3,161 | 2,881 | 253 |
+| 2 | 8.5M | 6% (3/50) | 1,759 | 3,161 | 2,183 | 204 |
+| 3 | best_model | 2% (1/50) | 1,619 | 3,161 | 2,002 | 169 |
+| 4 | 9.5M | 0% (0/50) | 1,715 | 1,953 | 2,116 | 190 |
+| 5 | 9.0M | 0% (0/50) | 721 | 898 | 723 | 525 |
+
+**Key finding**: J's 8.0M is the **new project champion** at 26%. The degradation is steeper than the journal suggested: 26% → 6% → 0% in just 1M steps. The `target_kl` prevented instant death (like G) but erosion still destroys the policy in ~1M steps once it begins.
+
+### Ablation B — Full Sweep (11 models)
+
+| Rank | Checkpoint | Flag% | mean_x | max_x | reward | steps |
+|---|---|---|---|---|---|---|
+| 1 | **best_model** | **22% (11/50)** | 2,096 | 3,161 | 2,219 | 227 |
+| 2 | 3.0M | 14% (7/50) | 1,964 | 3,161 | 2,038 | 381 |
+| 3 | 2.5M | 4% (2/50) | 1,754 | 3,161 | 1,832 | 216 |
+| 4 | 2.0M | 4% (2/50) | 1,362 | 3,161 | 1,407 | 184 |
+| 5–11 | others | 0% | — | — | — | — |
+
+**Key finding**: B's `best_model` (saved at ~2.5–3M) is genuinely its peak — but entropy collapse at 3.5M (mean_x=303, instant death) shows how volatile static ent_coef is. B's success is luck-of-timing, not stability.
+
+### Updated Global Rankings
+
+| Rank | Model | Flag% | Family | Stable? |
+|---|---|---|---|---|
+| 1 | **J 8.0M** | **26% (13/50)** | J (reward shaping + target_kl) | Narrow window |
+| 2 | **B best_model** | **22% (11/50)** | B (static ent_coef=0.03) | No — volatile |
+| 3 | **D 5.0M** | **18% (9/50)** | D (forward_scale=0.3 + ent schedule) | **Yes** |
+| 4 | D final_model | 18% (9/50) | D | Yes |
+| 5 | B 3.0M | 14% (7/50) | B | No |
+| 6 | D best_model / D 4.5M | 14% (7/50) | D | Yes |
+
+### Insights
+
+39. **J 8.0M is the project's best model** — 26% stochastic flag capture, hidden behind a `best_model` that scored only 2%. The deterministic EvalCallback saved the wrong checkpoint entirely.
+40. **J's "gradual erosion" is actually a ~500K–1M step cliff in stochastic terms** — 26% at 8.0M → 6% at 8.5M → 0% at 9.0M. `target_kl` slows the cliff but doesn't prevent eventual death.
+41. **D is the only family with monotonic improvement and zero collapses** — every checkpoint is better than the last. This makes D the safest base for extension.
+42. **B's success is timing-dependent luck** — best_model was saved during a brief good window. The 3.5M checkpoint (mean_x=303) shows catastrophic collapse within 500K steps of peak. Static ent_coef is fundamentally unreliable.
+43. **Checkpoint sweeps are essential infrastructure** — The "true best" model was never the one labeled `best_model` for D or J. Periodic checkpoints with post-hoc stochastic evaluation is the correct workflow.
+
+---
+
 ## What's Next
 
-The stochastic re-evaluation changed the project's trajectory. **Ablation D is the current best verified model** at 16% stochastic flag capture (8/50), followed by B (14%, 7/50) and J (12%, 6/50). The reward shaping + target_kl stack from G/I/J produced the highest *training peaks* but not the most robust checkpoints.
+**J 8.0M is the current best verified model** at 26% stochastic flag capture (13/50). D 5.0M follows at 18% (9/50) with monotonic stability.
 
-**Gap to target**: 16% → 80% stochastic eval (64 percentage points remaining).
+**Gap to target**: 26% → 80% stochastic eval (54 percentage points remaining).
 
-**Critical infrastructure change needed first**:
-- **Switch EvalCallback to stochastic evaluation** — The SB3 EvalCallback must use `deterministic=False` so that `best_model` captures the most stochastically robust checkpoint, not the best single-trajectory performance. Without this fix, any new ablation will save checkpoints based on the same flawed metric.
+**Next ablation: Ablation K** — D-family extended to 10M with protections:
+- D's reward structure (forward_scale=0.3, flag_bonus=50, no time_penalty) — proven most robust
+- `ent_coef 0.05 → 0.03` (higher floor than D's 0.02 — every run hitting 0.02 eroded)
+- `target_kl=0.05` (cascade protection proven in J)
+- 10M total timesteps
+- Checkpoint sweep after training to find true peak
 
-**Options for next ablation** (re-prioritized based on stochastic data):
-
-1. **Extend D with target_kl protection** — D's config (forward_scale=0.3, ent_coef 0.05→0.02, no reward shaping overhaul) is the most robust foundation. Add `target_kl=0.05` as insurance against cliff collapse and extend to 10M+ steps. D was still climbing at 5M.
-2. **D config + higher entropy floor** — D used ent_coef_final=0.02 (which eroded in every extended run). Raising the floor to 0.03 or 0.04 + target_kl=0.05 may sustain the stable learning longer.
-3. **Re-examine reward shaping at lower intensity** — G's reward shaping (flag_bonus=200, time_penalty=-0.1) may have been too aggressive. A moderate version (flag_bonus=100, time_penalty=-0.05) on D's base could add urgency without the entropy-eroding side effects.
-4. **RIGHT_ONLY action space** — Reduce from 7 to 5 actions on D's config. Fewer actions = lower entropy ceiling = potentially less erosion in extended training.
-5. **EntropyCollapseDetector in stop=True mode** — For any extended run, activate the detector to freeze training at peak stochastic performance.
+**Rationale**: D was still climbing at 5.0M (18%). With 10M steps + higher entropy floor + target_kl insurance, D-family should sustain learning longer without the erosion that killed J after 8M.
 
 **Solved = ≥80% flag capture over 50 stochastic eval episodes.**
 
 Progress tiers:
-- <20%: Early progress ← **Ablation D best_model is here (16%)**
-- 20–50%: Significant progress, keep iterating
+- <20%: Early progress
+- 20–50%: Significant progress ← **J 8.0M is here (26%)**
 - 50–80%: Strong result, one more knob turn likely solves
 - ≥80%: **Solved**
