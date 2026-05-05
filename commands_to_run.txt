@@ -1,1 +1,7 @@
-python -m scripts.checkpoint_sweep --config configs/experiments/ablation_k.yaml --checkpoints results/ablation_k/models/checkpoints --extra results/ablation_k/models/best_model/best_model.zip results/ablation_k/models/final_model.zip --episodes 50
+Training command (3080 Ti required):
+
+python -m src.train --config configs/experiments/ablation_l.yaml --name ablation_l --subproc
+
+Expected ~3–5 hours. After training, run the checkpoint sweep:
+
+python -m scripts.checkpoint_sweep --config configs/experiments/ablation_l.yaml --checkpoints results/ablation_l/models/checkpoints --extra results/ablation_l/models/best_model/best_model.zip results/ablation_l/models/final_model.zip --episodes 50

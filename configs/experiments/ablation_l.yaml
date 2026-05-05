@@ -1,0 +1,49 @@
+# Ablation L — Moderate reward shaping on D's base
+# Base: Ablation D (forward_scale=0.3, ent_coef 0.05→0.02)
+# Changes vs D:
+#   - flag_bonus: 50 → 100 (2× D, 0.5× J — stronger finish incentive without J's excess)
+#   - time_penalty: 0.0 → -0.05 (0.5× J — mild urgency without amplifying entropy erosion)
+#   - ent_coef_final: 0.02 → 0.03 (higher floor — every run hitting 0.02 eroded)
+#   - target_kl: None → 0.05 (cascade protection proven in I/J/K)
+#   - total_timesteps: 5M → 10M (need runway to see if moderate shaping sustains)
+# Hypothesis: D caps at 18% because flag_bonus=50 is only ~7% of forward reward —
+#   the agent has weak incentive to push through hard late-level obstacles.
+#   J reached 26% with flag_bonus=200 + time_penalty=-0.1 but eroded fast.
+#   Halving J's shaping intensity should break D's ceiling while avoiding J's
+#   rapid entropy erosion. target_kl + higher floor provide safety net.
+# Expected: Surpass J 8.0M's 26% stochastic flag rate with broader stability window.
+
+env:
+  game: "SuperMarioBros-1-1-v0"
+  movement: "SIMPLE_MOVEMENT"
+  frame_skip: 4
+  frame_stack: 4
+  obs_size: 84
+  num_envs: 16
+
+training:
+  total_timesteps: 10000000
+  lr: 0.00025
+  n_steps: 1024
+  batch_size: 512
+  n_epochs: 4
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  ent_coef: 0.05
+  ent_coef_final: 0.03
+  target_kl: 0.05
+
+reward:
+  forward_scale: 0.3
+  death_penalty: -15.0
+  flag_bonus: 100.0
+  time_penalty: -0.05
+
+eval:
+  eval_freq: 100000
+  n_eval_episodes: 10
+  deterministic: true
+
+seed: 42
+device: "auto"
