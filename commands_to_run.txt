@@ -1,7 +1,7 @@
-Training command (3080 Ti required):
+Train (resumes from L 9.0M, runs 3M more steps to 12M):
 
-python -m src.train --config configs/experiments/ablation_l.yaml --name ablation_l --subproc
+python -m src.train --config configs/experiments/ablation_m.yaml --name ablation_m --resume results/ablation_l/models/checkpoints/ppo_mario_9000000_steps.zip --subproc
 
-Expected ~3–5 hours. After training, run the checkpoint sweep:
+Sweep (after training completes):
 
-python -m scripts.checkpoint_sweep --config configs/experiments/ablation_l.yaml --checkpoints results/ablation_l/models/checkpoints --extra results/ablation_l/models/best_model/best_model.zip results/ablation_l/models/final_model.zip --episodes 50
+python -m scripts.checkpoint_sweep --config configs/experiments/ablation_m.yaml --checkpoints results/ablation_m/models/checkpoints --extra results/ablation_m/models/best_model/best_model.zip results/ablation_m/models/final_model.zip --episodes 50
