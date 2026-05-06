@@ -1,7 +1,7 @@
-Train (resumes from L 9.0M, runs 3M more steps to 12M):
+Train (resumes from M 10.5M, runs 3M more steps to 13.5M):
 
-python -m src.train --config configs/experiments/ablation_m.yaml --name ablation_m --resume results/ablation_l/models/checkpoints/ppo_mario_9000000_steps.zip --subproc
+python -m src.train --config configs/experiments/ablation_n.yaml --name ablation_n --resume results/ablation_m/models/checkpoints/ppo_mario_10500000_steps.zip --subproc
 
-Sweep (after training completes):
+Sweep:
 
-python -m scripts.checkpoint_sweep --config configs/experiments/ablation_m.yaml --checkpoints results/ablation_m/models/checkpoints --extra results/ablation_m/models/best_model/best_model.zip results/ablation_m/models/final_model.zip --episodes 50
+python -m scripts.checkpoint_sweep --config configs/experiments/ablation_n.yaml --checkpoints results/ablation_n/models/checkpoints --extra results/ablation_n/models/best_model/best_model.zip results/ablation_n/models/final_model.zip --episodes 50
