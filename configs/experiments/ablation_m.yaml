@@ -1,0 +1,46 @@
+# Ablation M — Resume L 9.0M with halved LR
+# Base: Ablation L (flag_bonus=100, time_penalty=-0.05, target_kl=0.05, ent 0.05→0.03)
+# Changes vs L:
+#   - lr: 0.00025 → 0.000125 (halved — smaller updates to exploit peak without triggering collapse)
+#   - total_timesteps: 10M → 12M (3M additional steps from 9.0M resume point)
+# Method: Resume from L 9.0M checkpoint.
+# Hypothesis: L peaked at 30% (9.0M) then collapsed at 9.5M. The collapse was triggered
+#   by oversized policy updates near the performance frontier. Halving LR reduces step
+#   size, allowing the policy to consolidate gains and push beyond 30% without triggering
+#   the catastrophic collapse that destroyed 9.5M.
+# Expected: Sustain or exceed 30% through 12M, avoid the 9.5M-style collapse.
+
+env:
+  game: "SuperMarioBros-1-1-v0"
+  movement: "SIMPLE_MOVEMENT"
+  frame_skip: 4
+  frame_stack: 4
+  obs_size: 84
+  num_envs: 16
+
+training:
+  total_timesteps: 12000000
+  lr: 0.000125
+  n_steps: 1024
+  batch_size: 512
+  n_epochs: 4
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  ent_coef: 0.05
+  ent_coef_final: 0.03
+  target_kl: 0.05
+
+reward:
+  forward_scale: 0.3
+  death_penalty: -15.0
+  flag_bonus: 100.0
+  time_penalty: -0.05
+
+eval:
+  eval_freq: 100000
+  n_eval_episodes: 10
+  deterministic: true
+
+seed: 42
+device: "auto"
