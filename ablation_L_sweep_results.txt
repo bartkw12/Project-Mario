@@ -1,0 +1,82 @@
+(.venv) PS I:\Python\RL\Project-Mario> python -m scripts.checkpoint_sweep --config configs/experiments/ablation_l.yaml --checkpoints results/ablation_l/models/checkpoints --extra results/ablation_l/models/best_model/best_model.zip results/ablation_l/models/final_model.zip --episodes 50
+Gym has been unmaintained since 2022 and does not support NumPy 2.0 amongst other critical functionality.
+Please upgrade to Gymnasium, the maintained drop-in replacement of Gym, or contact the authors of your software and request that they upgrade.
+See the migration guide at https://gymnasium.farama.org/introduction/migration_guide/ for additional information.
+[sweep] Config: configs/experiments/ablation_l.yaml
+[sweep] Episodes per model: 50 (stochastic)
+[sweep] Models to evaluate: 22
+[sweep] (1/22) Evaluating 500K — results\ablation_l\models\checkpoints\ppo_mario_500000_steps.zip
+         flag_rate=0% (0/50)  mean_x=826  max_x=1788  reward=978  steps=154  (49s)
+[sweep] (3/22) Evaluating 1.5M — results\ablation_l\models\checkpoints\ppo_mario_1500000_steps.zip
+         flag_rate=2% (1/50)  mean_x=849  max_x=3161  reward=1014  steps=142  (47s)
+[sweep] (4/22) Evaluating 2.0M — results\ablation_l\models\checkpoints\ppo_mario_2000000_steps.zip
+         flag_rate=0% (0/50)  mean_x=862  max_x=1642  reward=1034  steps=121  (38s)
+[sweep] (5/22) Evaluating 2.5M — results\ablation_l\models\checkpoints\ppo_mario_2500000_steps.zip
+         flag_rate=0% (0/50)  mean_x=786  max_x=2026  reward=939  steps=107  (34s)
+[sweep] (6/22) Evaluating 3.0M — results\ablation_l\models\checkpoints\ppo_mario_3000000_steps.zip
+         flag_rate=0% (0/50)  mean_x=902  max_x=1959  reward=1085  steps=121  (41s)
+[sweep] (7/22) Evaluating 3.5M — results\ablation_l\models\checkpoints\ppo_mario_3500000_steps.zip
+         flag_rate=2% (1/50)  mean_x=1009  max_x=3161  reward=1216  steps=166  (56s)
+[sweep] (8/22) Evaluating 4.0M — results\ablation_l\models\checkpoints\ppo_mario_4000000_steps.zip
+         flag_rate=0% (0/50)  mean_x=962  max_x=1936  reward=1159  steps=141  (47s)
+[sweep] (9/22) Evaluating 4.5M — results\ablation_l\models\checkpoints\ppo_mario_4500000_steps.zip
+         flag_rate=0% (0/50)  mean_x=895  max_x=2024  reward=1078  steps=117  (39s)
+[sweep] (10/22) Evaluating 5.0M — results\ablation_l\models\checkpoints\ppo_mario_5000000_steps.zip
+         flag_rate=2% (1/50)  mean_x=1302  max_x=3161  reward=1598  steps=163  (53s)
+[sweep] (11/22) Evaluating 5.5M — results\ablation_l\models\checkpoints\ppo_mario_5500000_steps.zip
+         flag_rate=10% (5/50)  mean_x=1957  max_x=3161  reward=2433  steps=267  (90s)
+[sweep] (12/22) Evaluating 6.0M — results\ablation_l\models\checkpoints\ppo_mario_6000000_steps.zip
+         flag_rate=0% (0/50)  mean_x=387  max_x=1130  reward=340  steps=426  (141s)
+[sweep] (13/22) Evaluating 6.5M — results\ablation_l\models\checkpoints\ppo_mario_6500000_steps.zip
+         flag_rate=0% (0/50)  mean_x=1127  max_x=2477  reward=1373  steps=145  (47s)
+[sweep] (14/22) Evaluating 7.0M — results\ablation_l\models\checkpoints\ppo_mario_7000000_steps.zip
+         flag_rate=4% (2/50)  mean_x=1319  max_x=3161  reward=1621  steps=172  (56s)
+[sweep] (15/22) Evaluating 7.5M — results\ablation_l\models\checkpoints\ppo_mario_7500000_steps.zip
+         flag_rate=6% (3/50)  mean_x=1749  max_x=3161  reward=2172  steps=209  (69s)
+[sweep] (16/22) Evaluating 8.0M — results\ablation_l\models\checkpoints\ppo_mario_8000000_steps.zip
+         flag_rate=12% (6/50)  mean_x=1555  max_x=3161  reward=1935  steps=175  (57s)
+[sweep] (17/22) Evaluating 8.5M — results\ablation_l\models\checkpoints\ppo_mario_8500000_steps.zip
+         flag_rate=24% (12/50)  mean_x=1917  max_x=3161  reward=2407  steps=227  (77s)
+[sweep] (18/22) Evaluating 9.0M — results\ablation_l\models\checkpoints\ppo_mario_9000000_steps.zip
+         flag_rate=30% (15/50)  mean_x=2302  max_x=3161  reward=2905  steps=263  (87s)
+[sweep] (19/22) Evaluating 9.5M — results\ablation_l\models\checkpoints\ppo_mario_9500000_steps.zip
+         flag_rate=0% (0/50)  mean_x=571  max_x=594  reward=227  steps=1847  (605s)
+[sweep] (20/22) Evaluating 10.0M — results\ablation_l\models\checkpoints\ppo_mario_10000000_steps.zip
+         flag_rate=4% (2/50)  mean_x=1597  max_x=3161  reward=1979  steps=185  (61s)
+[sweep] (21/22) Evaluating best_model — results\ablation_l\models\best_model\best_model.zip
+         flag_rate=20% (10/50)  mean_x=2124  max_x=3161  reward=2670  steps=234  (79s)
+[sweep] (22/22) Evaluating final_model — results\ablation_l\models\final_model.zip
+         flag_rate=8% (4/50)  mean_x=1739  max_x=3161  reward=2161  steps=206  (67s)
+
+===============================================================================================
+  CHECKPOINT SWEEP RESULTS — 50 stochastic episodes per model
+  Config: configs/experiments/ablation_l.yaml
+===============================================================================================
+  Rank  Model           Flag%  Flags   mean_x   max_x   reward   steps
+  ----- -------------- ------ ------ -------- ------- -------- -------
+  1     9.0M             30%    15/50     2302    3161     2905    263 ★
+  2     8.5M             24%    12/50     1917    3161     2407    227
+  3     best_model       20%    10/50     2124    3161     2670    234
+  4     8.0M             12%     6/50     1555    3161     1935    175
+  5     5.5M             10%     5/50     1957    3161     2433    267
+  6     final_model       8%     4/50     1739    3161     2161    206
+  7     7.5M              6%     3/50     1749    3161     2172    209
+  8     10.0M             4%     2/50     1597    3161     1979    185
+  9     7.0M              4%     2/50     1319    3161     1621    172
+  10    5.0M              2%     1/50     1302    3161     1598    163
+  11    3.5M              2%     1/50     1009    3161     1216    166
+  12    1.5M              2%     1/50      849    3161     1014    142
+  13    6.5M              0%     0/50     1127    2477     1373    145
+  14    4.0M              0%     0/50      962    1936     1159    141
+  15    3.0M              0%     0/50      902    1959     1085    121
+  16    4.5M              0%     0/50      895    2024     1078    117
+  17    2.0M              0%     0/50      862    1642     1034    121
+  18    1.0M              0%     0/50      826    1788      978    154
+  19    2.5M              0%     0/50      786    2026      939    107
+  20    500K              0%     0/50      784    1784      921    167
+  21    9.5M              0%     0/50      571     594      227   1847
+  22    6.0M              0%     0/50      387    1130      340    426
+===============================================================================================
+
+  Best checkpoint: 9.0M — 30% flag rate (15/50)
+  Path: results\ablation_l\models\checkpoints\ppo_mario_9000000_steps.zip
