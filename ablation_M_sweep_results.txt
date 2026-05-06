@@ -1,0 +1,43 @@
+[sweep] Config: configs/experiments/ablation_m.yaml
+[sweep] Episodes per model: 50 (stochastic)
+[sweep] Models to evaluate: 8
+
+[sweep] (1/8) Evaluating 9.5M — results\ablation_m\models\checkpoints\ppo_mario_9500000_steps.zip
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\envs\registration.py:593: UserWarning: WARN: The environment SuperMarioBros-1-1-v0 is out of date. You should consider upgrading to version `v3`.
+  logger.warn(
+I:\Python\RL\Project-Mario\.venv\lib\site-packages\gym\utils\passive_env_checker.py:233: DeprecationWarning: `np.bool8` is a deprecated alias for `np.bool_`.  (Deprecated NumPy 1.24)
+  if not isinstance(done, (bool, np.bool8)):
+         flag_rate=28% (14/50)  mean_x=2176  max_x=3161  reward=2742  steps=248  (80s)
+[sweep] (2/8) Evaluating 10.0M — results\ablation_m\models\checkpoints\ppo_mario_10000000_steps.zip
+         flag_rate=12% (6/50)  mean_x=1597  max_x=3161  reward=1981  steps=213  (68s)
+[sweep] (3/8) Evaluating 10.5M — results\ablation_m\models\checkpoints\ppo_mario_10500000_steps.zip
+         flag_rate=36% (18/50)  mean_x=2436  max_x=3161  reward=3080  steps=290  (93s)
+[sweep] (4/8) Evaluating 11.0M — results\ablation_m\models\checkpoints\ppo_mario_11000000_steps.zip
+         flag_rate=0% (0/50)  mean_x=949  max_x=2026  reward=1113  steps=260  (82s)
+[sweep] (5/8) Evaluating 11.5M — results\ablation_m\models\checkpoints\ppo_mario_11500000_steps.zip
+         flag_rate=16% (8/50)  mean_x=1782  max_x=3161  reward=2229  steps=195  (62s)
+[sweep] (6/8) Evaluating 12.0M — results\ablation_m\models\checkpoints\ppo_mario_12000000_steps.zip
+         flag_rate=14% (7/50)  mean_x=2026  max_x=3161  reward=2518  steps=302  (95s)
+[sweep] (7/8) Evaluating best_model — results\ablation_m\models\best_model\best_model.zip
+         flag_rate=36% (18/50)  mean_x=2470  max_x=3161  reward=3130  steps=264  (84s)
+[sweep] (8/8) Evaluating final_model — results\ablation_m\models\final_model.zip
+         flag_rate=10% (5/50)  mean_x=1908  max_x=3161  reward=2368  steps=270  (85s)
+
+===============================================================================================
+  CHECKPOINT SWEEP RESULTS — 50 stochastic episodes per model
+  Config: configs/experiments/ablation_m.yaml
+===============================================================================================
+  Rank  Model           Flag%  Flags   mean_x   max_x   reward   steps
+  ----- -------------- ------ ------ -------- ------- -------- -------
+  1     best_model       36%    18/50     2470    3161     3130    264 ★
+  2     10.5M            36%    18/50     2436    3161     3080    290
+  3     9.5M             28%    14/50     2176    3161     2742    248
+  4     11.5M            16%     8/50     1782    3161     2229    195
+  5     12.0M            14%     7/50     2026    3161     2518    302
+  6     10.0M            12%     6/50     1597    3161     1981    213
+  7     final_model      10%     5/50     1908    3161     2368    270
+  8     11.0M             0%     0/50      949    2026     1113    260
+===============================================================================================
+
+  Best checkpoint: best_model — 36% flag rate (18/50)
+  Path: results\ablation_m\models\best_model\best_model.zip
