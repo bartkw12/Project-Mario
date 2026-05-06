@@ -1,0 +1,238 @@
+Eval num_timesteps=100000, episode_reward=325.30 +/- 0.00
+Episode length: 34.00 +/- 0.00
+New best mean reward!
+Training:   2%|██▉                                                                                                                                                 | 200k/10.0M [02:39<2:02:18, 1.34kstep/s, x_pos=427, flag%=0.0%]Eval num_timesteps=200000, episode_reward=345.15 +/- 0.00
+Episode length: 27.00 +/- 0.00
+New best mean reward!
+Training:   3%|████▍                                                                                                                                               | 300k/10.0M [04:02<2:02:06, 1.32kstep/s, x_pos=595, flag%=0.0%]Eval num_timesteps=300000, episode_reward=345.15 +/- 0.00
+Episode length: 27.00 +/- 0.00
+Training:   4%|█████▉                                                                                                                                              | 400k/10.0M [05:25<2:05:05, 1.28kstep/s, x_pos=612, flag%=0.0%]Eval num_timesteps=400000, episode_reward=342.70 +/- 0.00
+Episode length: 30.00 +/- 0.00
+Training:   5%|███████▍                                                                                                                                            | 500k/10.0M [06:48<1:58:19, 1.34kstep/s, x_pos=861, flag%=0.0%]Eval num_timesteps=500000, episode_reward=345.15 +/- 0.00
+Episode length: 27.00 +/- 0.00
+Training:   6%|████████▉                                                                                                                                           | 600k/10.0M [08:07<2:01:47, 1.29kstep/s, x_pos=535, flag%=0.0%]Eval num_timesteps=600000, episode_reward=345.15 +/- 0.00
+Episode length: 27.00 +/- 0.00
+Training:   7%|██████████▎                                                                                                                                         | 700k/10.0M [09:31<2:03:38, 1.25kstep/s, x_pos=719, flag%=0.0%]Eval num_timesteps=700000, episode_reward=345.15 +/- 0.00
+Episode length: 27.00 +/- 0.00
+Training:   7%|██████████▋                                                                                                                                         | 721k/10.0M [09:51<1:58:13, 1.31kstep/s, x_pos=824, flag%=0.0%][CollapseDetector] WARNING #1: entropy_vel=-0.0510/update, entropy=-1.1530, flag_rate=0.0% @ 720,896 steps
+Training:   8%|███████████▊                                                                                                                                        | 800k/10.0M [11:01<2:02:38, 1.25kstep/s, x_pos=809, flag%=0.0%]Eval num_timesteps=800000, episode_reward=345.15 +/- 0.00
+Episode length: 27.00 +/- 0.00
+Training:   9%|█████████████▎                                                                                                                                      | 900k/10.0M [12:26<2:04:52, 1.21kstep/s, x_pos=768, flag%=0.0%]Eval num_timesteps=900000, episode_reward=345.15 +/- 0.00
+Episode length: 27.00 +/- 0.00
+Training:  10%|██████████████▉                                                                                                                                      | 1.00M/10.0M [14:10<4:26:33, 563step/s, x_pos=712, flag%=0.0%]Eval num_timesteps=1000000, episode_reward=8.96 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  11%|████████████████▏                                                                                                                                  | 1.10M/10.0M [17:40<1:57:41, 1.26kstep/s, x_pos=845, flag%=0.0%]Eval num_timesteps=1100000, episode_reward=8.96 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  12%|█████████████████▋                                                                                                                                 | 1.20M/10.0M [20:59<1:55:39, 1.27kstep/s, x_pos=825, flag%=0.0%]Eval num_timesteps=1200000, episode_reward=345.15 +/- 0.00
+Episode length: 27.00 +/- 0.00
+Training:  13%|███████████████████                                                                                                                                | 1.30M/10.0M [22:41<1:51:58, 1.29kstep/s, x_pos=827, flag%=0.0%]Eval num_timesteps=1300000, episode_reward=8.96 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  14%|████████████████████▌                                                                                                                              | 1.40M/10.0M [26:01<1:50:39, 1.30kstep/s, x_pos=793, flag%=1.0%]Eval num_timesteps=1400000, episode_reward=8.96 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  15%|██████████████████████                                                                                                                             | 1.50M/10.0M [29:07<1:48:08, 1.31kstep/s, x_pos=794, flag%=0.0%]Eval num_timesteps=1500000, episode_reward=317.80 +/- 0.00
+Episode length: 40.00 +/- 0.00
+Training:  16%|███████████████████████▌                                                                                                                           | 1.60M/10.0M [30:29<1:50:23, 1.27kstep/s, x_pos=869, flag%=1.0%]Eval num_timesteps=1600000, episode_reward=317.65 +/- 0.00
+Episode length: 43.00 +/- 0.00
+Training:  17%|████████████████████████▉                                                                                                                          | 1.70M/10.0M [32:01<1:46:35, 1.30kstep/s, x_pos=889, flag%=0.0%]Eval num_timesteps=1700000, episode_reward=8.96 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  18%|██████████████████████████▍                                                                                                                        | 1.80M/10.0M [35:31<1:43:15, 1.32kstep/s, x_pos=876, flag%=0.0%]Eval num_timesteps=1800000, episode_reward=383.37 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+[CollapseDetector] WARNING #1: entropy_vel=-0.0979/update, entropy=-1.1775, flag_rate=0.0% @ 1,800,000 steps
+New best mean reward!
+Training:  18%|██████████████████████████▊                                                                                                                          | 1.80M/10.0M [37:19<4:28:40, 509step/s, x_pos=873, flag%=0.0%][CollapseDetector] WARNING #2: entropy_vel=-0.0979/update, entropy=-1.1775, flag_rate=0.0% @ 1,802,240 steps
+Training:  18%|██████████████████████████▋                                                                                                                        | 1.82M/10.0M [37:32<1:45:16, 1.30kstep/s, x_pos=895, flag%=1.0%][CollapseDetector] WARNING #3: entropy_vel=-0.0997/update, entropy=-1.1553, flag_rate=1.0% @ 1,818,624 steps
+Training:  18%|██████████████████████████▉                                                                                                                        | 1.83M/10.0M [37:45<1:42:19, 1.33kstep/s, x_pos=767, flag%=1.0%][CollapseDetector] WARNING #4: entropy_vel=-0.0800/update, entropy=-1.1246, flag_rate=1.0% @ 1,835,008 steps
+Training:  19%|███████████████████████████▉                                                                                                                       | 1.90M/10.0M [38:38<1:39:06, 1.36kstep/s, x_pos=803, flag%=1.0%]Eval num_timesteps=1900000, episode_reward=317.80 +/- 0.00
+Episode length: 40.00 +/- 0.00
+Training:  20%|█████████████████████████████▍                                                                                                                     | 2.00M/10.0M [40:03<2:06:43, 1.05kstep/s, x_pos=751, flag%=0.0%]Eval num_timesteps=2000000, episode_reward=317.80 +/- 0.00
+Episode length: 40.00 +/- 0.00
+Training:  21%|██████████████████████████████▊                                                                                                                    | 2.10M/10.0M [41:27<1:46:06, 1.24kstep/s, x_pos=847, flag%=1.0%]Eval num_timesteps=2100000, episode_reward=317.80 +/- 0.00
+Episode length: 40.00 +/- 0.00
+Training:  22%|████████████████████████████████▎                                                                                                                  | 2.20M/10.0M [42:49<1:36:14, 1.35kstep/s, x_pos=882, flag%=0.0%]Eval num_timesteps=2200000, episode_reward=317.80 +/- 0.00
+Episode length: 40.00 +/- 0.00
+Training:  23%|█████████████████████████████████▊                                                                                                                 | 2.30M/10.0M [44:12<1:36:11, 1.33kstep/s, x_pos=895, flag%=0.0%]Eval num_timesteps=2300000, episode_reward=317.80 +/- 0.00
+Episode length: 40.00 +/- 0.00
+Training:  24%|███████████████████████████████████▎                                                                                                               | 2.40M/10.0M [45:33<1:32:22, 1.37kstep/s, x_pos=818, flag%=0.0%]Eval num_timesteps=2400000, episode_reward=317.80 +/- 0.00
+Episode length: 40.00 +/- 0.00
+Training:  25%|████████████████████████████████████▋                                                                                                              | 2.50M/10.0M [46:56<1:36:20, 1.30kstep/s, x_pos=935, flag%=1.0%]Eval num_timesteps=2500000, episode_reward=317.80 +/- 0.00
+Episode length: 40.00 +/- 0.00
+Training:  26%|█████████████████████████████████████▌                                                                                                             | 2.56M/10.0M [47:42<1:31:06, 1.36kstep/s, x_pos=764, flag%=0.0%][CollapseDetector] WARNING #1: entropy_vel=-0.0543/update, entropy=-1.1450, flag_rate=0.0% @ 2,555,904 steps
+Training:  26%|██████████████████████████████████████▏                                                                                                            | 2.60M/10.0M [48:32<1:31:06, 1.35kstep/s, x_pos=838, flag%=0.0%]Eval num_timesteps=2600000, episode_reward=8.96 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  27%|███████████████████████████████████████▋                                                                                                           | 2.70M/10.0M [51:42<1:33:03, 1.31kstep/s, x_pos=831, flag%=0.0%]Eval num_timesteps=2700000, episode_reward=317.80 +/- 0.00
+Episode length: 40.00 +/- 0.00
+Training:  28%|█████████████████████████████████████████▏                                                                                                         | 2.80M/10.0M [53:06<1:31:45, 1.31kstep/s, x_pos=909, flag%=0.0%]Eval num_timesteps=2800000, episode_reward=317.80 +/- 0.00
+Episode length: 40.00 +/- 0.00
+Training:  29%|██████████████████████████████████████████▋                                                                                                        | 2.90M/10.0M [54:29<1:27:17, 1.36kstep/s, x_pos=865, flag%=0.0%]Eval num_timesteps=2900000, episode_reward=317.80 +/- 0.00
+Episode length: 40.00 +/- 0.00
+Training:  30%|████████████████████████████████████████████                                                                                                       | 3.00M/10.0M [55:54<1:33:28, 1.25kstep/s, x_pos=935, flag%=0.0%]Eval num_timesteps=3000000, episode_reward=317.80 +/- 0.00
+Episode length: 40.00 +/- 0.00
+Training:  30%|████████████████████████████████████████████▊                                                                                                      | 3.05M/10.0M [56:34<1:25:43, 1.35kstep/s, x_pos=879, flag%=0.0%][CollapseDetector] WARNING #1: entropy_vel=-0.0519/update, entropy=-1.1687, flag_rate=0.0% @ 3,047,424 steps
+Training:  31%|█████████████████████████████████████████████▌                                                                                                     | 3.10M/10.0M [57:18<1:27:36, 1.31kstep/s, x_pos=897, flag%=0.0%]Eval num_timesteps=3100000, episode_reward=320.15 +/- 0.00
+Episode length: 39.00 +/- 0.00
+Training:  32%|███████████████████████████████████████████████                                                                                                    | 3.20M/10.0M [58:43<1:23:58, 1.35kstep/s, x_pos=918, flag%=0.0%]Eval num_timesteps=3200000, episode_reward=317.80 +/- 0.00
+Episode length: 40.00 +/- 0.00
+Training:  33%|███████████████████████████████████████████████▊                                                                                                 | 3.30M/10.0M [1:00:07<1:22:43, 1.35kstep/s, x_pos=943, flag%=0.0%]Eval num_timesteps=3300000, episode_reward=317.80 +/- 0.00
+Episode length: 40.00 +/- 0.00
+Training:  34%|████████████████████████████████████████████████▋                                                                                                | 3.36M/10.0M [1:00:57<1:24:53, 1.30kstep/s, x_pos=886, flag%=0.0%][CollapseDetector] WARNING #1: entropy_vel=-0.0606/update, entropy=-1.5867, flag_rate=0.0% @ 3,358,720 steps
+Training:  34%|████████████████████████████████████████████████▉                                                                                                | 3.38M/10.0M [1:01:10<1:22:47, 1.33kstep/s, x_pos=953, flag%=1.0%][CollapseDetector] WARNING #2: entropy_vel=-0.0706/update, entropy=-1.6416, flag_rate=1.0% @ 3,375,104 steps
+Training:  34%|█████████████████████████████████████████████████▏                                                                                               | 3.39M/10.0M [1:01:24<1:23:01, 1.33kstep/s, x_pos=890, flag%=0.0%][CollapseDetector] WARNING #3: entropy_vel=-0.0668/update, entropy=-1.6819, flag_rate=0.0% @ 3,391,488 steps
+Training:  34%|█████████████████████████████████████████████████▎                                                                                               | 3.40M/10.0M [1:01:43<1:20:50, 1.36kstep/s, x_pos=898, flag%=1.0%]Eval num_timesteps=3400000, episode_reward=8.96 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  34%|█████████████████████████████████████████████████▌                                                                                              | 3.44M/10.0M [1:04:07<1:22:33, 1.32kstep/s, x_pos=1011, flag%=0.0%][CollapseDetector] WARNING #1: entropy_vel=-0.0535/update, entropy=-1.5911, flag_rate=0.0% @ 3,440,640 steps
+Training:  35%|██████████████████████████████████████████████████▏                                                                                              | 3.46M/10.0M [1:04:20<1:22:07, 1.33kstep/s, x_pos=902, flag%=0.0%][CollapseDetector] WARNING #2: entropy_vel=-0.0552/update, entropy=-1.5794, flag_rate=0.0% @ 3,457,024 steps
+Training:  35%|██████████████████████████████████████████████████▊                                                                                              | 3.50M/10.0M [1:05:13<1:22:28, 1.31kstep/s, x_pos=924, flag%=0.0%]Eval num_timesteps=3500000, episode_reward=-17.04 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  36%|████████████████████████████████████████████████████▏                                                                                            | 3.60M/10.0M [1:08:21<1:22:30, 1.29kstep/s, x_pos=940, flag%=1.0%]Eval num_timesteps=3600000, episode_reward=317.80 +/- 0.00
+Episode length: 40.00 +/- 0.00
+Training:  37%|█████████████████████████████████████████████████████▋                                                                                           | 3.70M/10.0M [1:09:49<1:23:14, 1.26kstep/s, x_pos=950, flag%=0.0%]Eval num_timesteps=3700000, episode_reward=317.80 +/- 0.00
+Episode length: 40.00 +/- 0.00
+Training:  38%|███████████████████████████████████████████████████████                                                                                          | 3.80M/10.0M [1:11:33<1:21:05, 1.27kstep/s, x_pos=958, flag%=1.0%]Eval num_timesteps=3800000, episode_reward=8.96 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  39%|████████████████████████████████████████████████████████▎                                                                                        | 3.88M/10.0M [1:14:33<1:18:41, 1.30kstep/s, x_pos=943, flag%=0.0%][CollapseDetector] WARNING #1: entropy_vel=-0.0684/update, entropy=-1.3920, flag_rate=0.0% @ 3,883,008 steps
+Training:  39%|████████████████████████████████████████████████████████▌                                                                                        | 3.90M/10.0M [1:14:47<1:19:07, 1.29kstep/s, x_pos=905, flag%=0.0%][CollapseDetector] WARNING #2: entropy_vel=-0.0656/update, entropy=-1.4946, flag_rate=0.0% @ 3,899,392 steps
+Training:  39%|█████████████████████████████████████████████████████████▎                                                                                         | 3.90M/10.0M [1:15:04<2:41:36, 629step/s, x_pos=916, flag%=0.0%]Eval num_timesteps=3900000, episode_reward=8.96 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+[CollapseDetector] WARNING #3: entropy_vel=-0.0656/update, entropy=-1.5297, flag_rate=0.0% @ 3,900,000 steps
+Training:  39%|████████████████████████████████████████████████████████▊                                                                                        | 3.92M/10.0M [1:17:07<1:19:39, 1.27kstep/s, x_pos=959, flag%=0.0%][CollapseDetector] WARNING #4: entropy_vel=-0.0656/update, entropy=-1.5297, flag_rate=0.0% @ 3,915,776 steps
+Training:  40%|█████████████████████████████████████████████████████████▉                                                                                       | 4.00M/10.0M [1:18:20<1:19:03, 1.26kstep/s, x_pos=978, flag%=0.0%]Eval num_timesteps=4000000, episode_reward=317.80 +/- 0.00
+Episode length: 40.00 +/- 0.00
+Training:  41%|███████████████████████████████████████████████████████████▍                                                                                     | 4.10M/10.0M [1:19:47<1:14:39, 1.32kstep/s, x_pos=913, flag%=0.0%]Eval num_timesteps=4100000, episode_reward=317.80 +/- 0.00
+Episode length: 40.00 +/- 0.00
+Training:  42%|████████████████████████████████████████████████████████████▉                                                                                    | 4.20M/10.0M [1:21:34<1:14:40, 1.29kstep/s, x_pos=999, flag%=0.0%]Eval num_timesteps=4200000, episode_reward=8.96 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  43%|██████████████████████████████████████████████████████████████▎                                                                                  | 4.30M/10.0M [1:25:04<1:11:39, 1.33kstep/s, x_pos=939, flag%=0.0%]Eval num_timesteps=4300000, episode_reward=8.96 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  44%|███████████████████████████████████████████████████████████████▊                                                                                 | 4.40M/10.0M [1:28:34<1:10:44, 1.32kstep/s, x_pos=819, flag%=0.0%]Eval num_timesteps=4400000, episode_reward=8.96 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  45%|████████████████████████████████████████████████████████████████▊                                                                               | 4.50M/10.0M [1:32:05<1:13:27, 1.25kstep/s, x_pos=1040, flag%=1.0%]Eval num_timesteps=4500000, episode_reward=383.37 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  46%|██████████████████████████████████████████████████████████████████▏                                                                             | 4.60M/10.0M [1:35:19<1:06:43, 1.35kstep/s, x_pos=1205, flag%=0.0%]Eval num_timesteps=4600000, episode_reward=823.35 +/- 0.00
+Episode length: 79.00 +/- 0.00
+New best mean reward!
+Training:  47%|███████████████████████████████████████████████████████████████████▋                Eval num_timesteps=4700000, episode_reward=8.96 +/- 0.00    | 4.70M/10.0M [1:37:05<1:04:25, 1.37kstep/s, x_pos=1235, flag%=0.0%]
+Episode length: 2005.00 +/- 0.00
+Training:  48%|█████████████████████████████████████████████████████████████████████                                                                           | 4.80M/10.0M [1:40:35<1:08:42, 1.26kstep/s, x_pos=1226, flag%=0.0%]Eval num_timesteps=4800000, episode_reward=8.96 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  49%|███████████████████████████████████████████████████████████████████████▌                                                                          | 4.90M/10.0M [1:43:55<1:29:11, 953step/s, x_pos=1229, flag%=2.0%]Eval num_timesteps=4900000, episode_reward=8.96 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  50%|█████████████████████████████████████████████████████████████████████████                                                                         | 5.00M/10.0M [1:47:26<59:47, 1.39kstep/s, x_pos=1483, flag%=2.0%]Eval num_timesteps=5000000, episode_reward=8.96 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  51%|█████████████████████████████████████████████████████████████████████████▍                                                                      | 5.10M/10.0M [1:50:32<1:03:06, 1.29kstep/s, x_pos=1447, flag%=3.0%]Eval num_timesteps=5100000, episode_reward=859.80 +/- 0.00
+Episode length: 96.00 +/- 0.00
+New best mean reward!
+Training:  52%|███████████████████████████████████████████████████████████████████████████▉                                                                      | 5.20M/10.0M [1:52:16<59:30, 1.34kstep/s, x_pos=1450, flag%=1.0%]Eval num_timesteps=5200000, episode_reward=8.96 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  53%|█████████████████████████████████████████████████████████████████████████████▍                                                                    | 5.30M/10.0M [1:55:36<58:59, 1.33kstep/s, x_pos=1677, flag%=3.0%]Eval num_timesteps=5300000, episode_reward=216.97 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  54%|█████████████████████████████████████████████████████████████████████████████▊                                                                  | 5.40M/10.0M [1:58:56<1:00:20, 1.27kstep/s, x_pos=1726, flag%=4.0%]Eval num_timesteps=5400000, episode_reward=383.37 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  55%|████████████████████████████████████████████████████████████████████████████████▎                                                                 | 5.50M/10.0M [2:02:07<56:24, 1.33kstep/s, x_pos=1671, flag%=3.0%]Eval num_timesteps=5500000, episode_reward=2243.25 +/- 0.00
+Episode length: 173.00 +/- 0.00
+New best mean reward!
+Training:  56%|█████████████████████████████████████████████████████████████████████████████████▊                                                                | 5.60M/10.0M [2:03:56<54:29, 1.35kstep/s, x_pos=1679, flag%=7.0%]Eval num_timesteps=5600000, episode_reward=2338.47 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+New best mean reward!
+Training:  57%|██████████████████████████████████████████████████████████████████████████████████▋                                                              | 5.70M/10.0M [2:07:17<55:26, 1.29kstep/s, x_pos=1712, flag%=10.0%]Eval num_timesteps=5700000, episode_reward=8.96 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  58%|████████████████████████████████████████████████████████████████████████████████████▋                                                             | 5.80M/10.0M [2:10:37<53:12, 1.32kstep/s, x_pos=1905, flag%=8.0%]Eval num_timesteps=5800000, episode_reward=8.96 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  59%|██████████████████████████████████████████████████████████████████████████████████████▏                                                           | 5.90M/10.0M [2:13:41<52:25, 1.30kstep/s, x_pos=1047, flag%=3.0%]Eval num_timesteps=5900000, episode_reward=332.10 +/- 0.00
+Episode length: 34.00 +/- 0.00
+Training:  60%|████████████████████████████████████████████████████████████████████████████████████████▏                                                          | 6.00M/10.0M [2:15:00<50:04, 1.33kstep/s, x_pos=315, flag%=0.0%]Eval num_timesteps=6000000, episode_reward=317.80 +/- 0.00
+Episode length: 40.00 +/- 0.00
+Training:  61%|█████████████████████████████████████████████████████████████████████████████████████████▌                                                         | 6.09M/10.0M [2:16:18<50:07, 1.30kstep/s, x_pos=819, flag%=0.0%][CollapseDetector] WARNING #1: entropy_vel=-0.0548/update, entropy=-0.9985, flag_rate=0.0% @ 6,094,848 steps
+Training:  61%|█████████████████████████████████████████████████████████████████████████████████████████▋                                                         | 6.10M/10.0M [2:16:23<50:34, 1.29kstep/s, x_pos=811, flag%=0.0%]Eval num_timesteps=6100000, episode_reward=317.80 +/- 0.00
+Episode length: 40.00 +/- 0.00
+[CollapseDetector] WARNING #2: entropy_vel=-0.0650/update, entropy=-1.0992, flag_rate=0.0% @ 6,100,000 steps
+Training:  61%|█████████████████████████████████████████████████████████████████████████████████████████▊                                                         | 6.11M/10.0M [2:16:34<48:52, 1.33kstep/s, x_pos=798, flag%=0.0%][CollapseDetector] WARNING #3: entropy_vel=-0.0650/update, entropy=-1.0992, flag_rate=0.0% @ 6,111,232 steps
+Training:  61%|██████████████████████████████████████████████████████████████████████████████████████████                                                         | 6.13M/10.0M [2:16:48<48:01, 1.34kstep/s, x_pos=836, flag%=0.0%][CollapseDetector] WARNING #4: entropy_vel=-0.0804/update, entropy=-1.0663, flag_rate=0.0% @ 6,127,616 steps
+Training:  61%|██████████████████████████████████████████████████████████████████████████████████████████▎                                                        | 6.14M/10.0M [2:17:01<48:30, 1.32kstep/s, x_pos=857, flag%=0.0%][CollapseDetector] WARNING #5: entropy_vel=-0.1055/update, entropy=-1.0900, flag_rate=0.0% @ 6,144,000 steps
+Training:  62%|██████████████████████████████████████████████████████████████████████████████████████████▌                                                        | 6.16M/10.0M [2:17:14<49:01, 1.31kstep/s, x_pos=910, flag%=0.0%][CollapseDetector] WARNING #6: entropy_vel=-0.0720/update, entropy=-1.1069, flag_rate=0.0% @ 6,160,384 steps
+Training:  62%|██████████████████████████████████████████████████████████████████████████████████████████▊                                                        | 6.18M/10.0M [2:17:28<49:29, 1.29kstep/s, x_pos=868, flag%=0.0%][CollapseDetector] WARNING #7: entropy_vel=-0.0577/update, entropy=-1.1539, flag_rate=0.0% @ 6,176,768 steps
+Training:  62%|███████████████████████████████████████████████████████████████████████████████████████████                                                        | 6.19M/10.0M [2:17:42<46:22, 1.37kstep/s, x_pos=913, flag%=0.0%][CollapseDetector] WARNING #8: entropy_vel=-0.0673/update, entropy=-1.1984, flag_rate=0.0% @ 6,193,152 steps
+Training:  62%|███████████████████████████████████████████████████████████████████████████████████████████▏                                                       | 6.20M/10.0M [2:17:47<46:12, 1.37kstep/s, x_pos=922, flag%=0.0%]Eval num_timesteps=6200000, episode_reward=841.70 +/- 0.00
+Episode length: 94.00 +/- 0.00
+[CollapseDetector] WARNING #9: entropy_vel=-0.0675/update, entropy=-1.2017, flag_rate=0.0% @ 6,200,000 steps
+Training:  62%|███████████████████████████████████████████████████████████████████████████████████████████▎                                                       | 6.21M/10.0M [2:18:01<47:40, 1.33kstep/s, x_pos=876, flag%=0.0%][CollapseDetector] WARNING #10: entropy_vel=-0.0675/update, entropy=-1.2017, flag_rate=0.0% @ 6,209,536 steps
+Training:  63%|███████████████████████████████████████████████████████████████████████████████████████████▉                                                      | 6.30M/10.0M [2:19:37<46:25, 1.33kstep/s, x_pos=1044, flag%=2.0%]Eval num_timesteps=6300000, episode_reward=8.96 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  64%|█████████████████████████████████████████████████████████████████████████████████████████████▍                                                    | 6.40M/10.0M [2:22:49<49:15, 1.22kstep/s, x_pos=1108, flag%=1.0%]Eval num_timesteps=6400000, episode_reward=320.15 +/- 0.00
+Episode length: 39.00 +/- 0.00
+Training:  65%|██████████████████████████████████████████████████████████████████████████████████████████████▉                                                   | 6.50M/10.0M [2:24:37<47:04, 1.24kstep/s, x_pos=1050, flag%=0.0%]Eval num_timesteps=6500000, episode_reward=8.96 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  66%|████████████████████████████████████████████████████████████████████████████████████████████████▎                                                 | 6.60M/10.0M [2:27:50<43:10, 1.31kstep/s, x_pos=1152, flag%=2.0%]Eval num_timesteps=6600000, episode_reward=2068.90 +/- 0.00
+Episode length: 170.00 +/- 0.00
+Training:  67%|█████████████████████████████████████████████████████████████████████████████████████████████████▊                                                | 6.70M/10.0M [2:29:38<42:47, 1.29kstep/s, x_pos=1196, flag%=5.0%]Eval num_timesteps=6700000, episode_reward=2276.07 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  68%|███████████████████████████████████████████████████████████████████████████████████████████████████▎                                              | 6.80M/10.0M [2:33:08<1:28:55, 600step/s, x_pos=1263, flag%=2.0%]Eval num_timesteps=6800000, episode_reward=383.37 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  69%|████████████████████████████████████████████████████████████████████████████████████████████████████▋                                             | 6.90M/10.0M [2:36:38<41:59, 1.23kstep/s, x_pos=1362, flag%=5.0%]Eval num_timesteps=6900000, episode_reward=216.97 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  70%|██████████████████████████████████████████████████████████████████████████████████████████████████████▏                                           | 7.00M/10.0M [2:40:08<40:20, 1.24kstep/s, x_pos=1510, flag%=7.0%]Eval num_timesteps=7000000, episode_reward=216.97 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  71%|███████████████████████████████████████████████████████████████████████████████████████████████████████▋                                          | 7.10M/10.0M [2:43:29<35:05, 1.38kstep/s, x_pos=1356, flag%=4.0%]Eval num_timesteps=7100000, episode_reward=1377.35 +/- 0.00
+Episode length: 111.00 +/- 0.00
+Training:  72%|█████████████████████████████████████████████████████████████████████████████████████████████████████████                                         | 7.20M/10.0M [2:45:18<35:27, 1.32kstep/s, x_pos=1515, flag%=2.0%]Eval num_timesteps=7200000, episode_reward=216.97 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  73%|██████████████████████████████████████████████████████████████████████████████████████████████████████████▌                                       | 7.30M/10.0M [2:48:39<34:27, 1.31kstep/s, x_pos=1369, flag%=6.0%]Eval num_timesteps=7300000, episode_reward=216.97 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  74%|████████████████████████████████████████████████████████████████████████████████████████████████████████████                                      | 7.40M/10.0M [2:51:48<32:40, 1.33kstep/s, x_pos=1364, flag%=2.0%]Eval num_timesteps=7400000, episode_reward=128.30 +/- 0.00
+Episode length: 136.00 +/- 0.00
+Training:  75%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████▌                                    | 7.50M/10.0M [2:53:29<30:38, 1.36kstep/s, x_pos=1605, flag%=6.0%]Eval num_timesteps=7500000, episode_reward=216.97 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  76%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████▉                                   | 7.60M/10.0M [2:56:59<30:43, 1.30kstep/s, x_pos=1846, flag%=7.0%]Eval num_timesteps=7600000, episode_reward=8.96 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  77%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████▍                                 | 7.70M/10.0M [3:00:29<30:50, 1.24kstep/s, x_pos=1657, flag%=7.0%]Eval num_timesteps=7700000, episode_reward=2234.47 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  78%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████                                | 7.80M/10.0M [3:03:59<29:40, 1.24kstep/s, x_pos=1749, flag%=10.0%]Eval num_timesteps=7800000, episode_reward=216.97 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  79%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████▎                              | 7.90M/10.0M [3:07:30<27:07, 1.29kstep/s, x_pos=1612, flag%=6.0%]Eval num_timesteps=7900000, episode_reward=216.97 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  80%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████                             | 8.00M/10.0M [3:11:00<27:45, 1.20kstep/s, x_pos=1685, flag%=15.0%]Eval num_timesteps=8000000, episode_reward=8.96 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  81%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▍                           | 8.10M/10.0M [3:14:30<26:32, 1.19kstep/s, x_pos=1770, flag%=16.0%]Eval num_timesteps=8100000, episode_reward=2504.87 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+New best mean reward!
+Training:  82%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▉                          | 8.20M/10.0M [3:17:57<24:36, 1.22kstep/s, x_pos=1746, flag%=10.0%]Eval num_timesteps=8200000, episode_reward=2528.30 +/- 0.00
+Episode length: 196.00 +/- 0.00
+New best mean reward!
+Training:  83%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▎                        | 8.30M/10.0M [3:19:50<24:06, 1.17kstep/s, x_pos=2047, flag%=20.0%]Eval num_timesteps=8300000, episode_reward=8.96 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  84%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▊                       | 8.40M/10.0M [3:23:20<22:11, 1.20kstep/s, x_pos=1962, flag%=18.0%]Eval num_timesteps=8400000, episode_reward=2338.47 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  85%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▎                     | 8.50M/10.0M [3:26:40<20:37, 1.21kstep/s, x_pos=1852, flag%=15.0%]Eval num_timesteps=8500000, episode_reward=8.96 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  86%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▋                    | 8.60M/10.0M [3:30:11<19:14, 1.21kstep/s, x_pos=1866, flag%=15.0%]Eval num_timesteps=8600000, episode_reward=216.97 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  87%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▉                   | 8.70M/10.0M [3:33:30<45:08, 480step/s, x_pos=2090, flag%=20.0%]Eval num_timesteps=8700000, episode_reward=845.80 +/- 0.00
+Episode length: 72.00 +/- 0.00
+Training:  88%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▌                 | 8.80M/10.0M [3:35:11<16:33, 1.21kstep/s, x_pos=2048, flag%=19.0%]Eval num_timesteps=8800000, episode_reward=216.97 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  89%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████                | 8.90M/10.0M [3:38:41<14:09, 1.29kstep/s, x_pos=2039, flag%=20.0%]Eval num_timesteps=8900000, episode_reward=216.97 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  90%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▌              | 9.00M/10.0M [3:42:11<13:37, 1.22kstep/s, x_pos=2093, flag%=21.0%]Eval num_timesteps=9000000, episode_reward=216.97 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  91%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▉             | 9.10M/10.0M [3:45:37<12:48, 1.17kstep/s, x_pos=1866, flag%=12.0%]Eval num_timesteps=9100000, episode_reward=2530.55 +/- 0.00
+Episode length: 179.00 +/- 0.00
+New best mean reward!
+Training:  92%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▍           | 9.20M/10.0M [3:47:31<10:55, 1.22kstep/s, x_pos=2257, flag%=21.0%]Eval num_timesteps=9200000, episode_reward=2338.47 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  93%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▊          | 9.30M/10.0M [3:51:02<09:21, 1.25kstep/s, x_pos=2235, flag%=25.0%]Eval num_timesteps=9300000, episode_reward=216.97 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  94%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▎        | 9.40M/10.0M [3:54:22<07:38, 1.31kstep/s, x_pos=2295, flag%=28.0%]Eval num_timesteps=9400000, episode_reward=2430.30 +/- 0.00
+Episode length: 182.00 +/- 0.00
+Training:  95%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▊       | 9.50M/10.0M [3:56:02<06:53, 1.21kstep/s, x_pos=2198, flag%=27.0%]Eval num_timesteps=9500000, episode_reward=216.97 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  96%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████      | 9.60M/10.0M [3:59:32<05:20, 1.25kstep/s, x_pos=742, flag%=1.0%]Eval num_timesteps=9600000, episode_reward=8.96 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  97%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▌    | 9.70M/10.0M [4:02:52<05:27, 917step/s, x_pos=1658, flag%=14.0%]Eval num_timesteps=9700000, episode_reward=8.96 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  98%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████   | 9.80M/10.0M [4:06:22<02:37, 1.27kstep/s, x_pos=1686, flag%=6.0%]Eval num_timesteps=9800000, episode_reward=216.97 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training:  99%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▌ | 9.90M/10.0M [4:09:43<01:18, 1.28kstep/s, x_pos=1718, flag%=8.0%]Eval num_timesteps=9900000, episode_reward=8.96 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 10.0M/10.0M [4:13:13<00:00, 1.27kstep/s, x_pos=1778, flag%=14.0%]Eval num_timesteps=10000000, episode_reward=216.97 +/- 0.00
+Episode length: 2005.00 +/- 0.00
+Training: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 10.0M/10.0M [4:15:01<00:00, 654step/s, x_pos=1778, flag%=14.0%]
+[train] Final model saved to results\ablation_l\models\final_model.zip
