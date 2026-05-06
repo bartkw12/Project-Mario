@@ -902,19 +902,86 @@ K's best checkpoint (9.0M at 18%) merely ties D 5.0M. Five million additional st
 
 ---
 
+## Ablation L — Moderate Reward Shaping (Middle Ground)
+
+**Date**: May 5–6, 2026
+**Config**: `configs/experiments/ablation_l.yaml`
+
+**Hypothesis**: D-family caps at 18% (reward too gentle). J-family reaches 26% in a narrow window (reward too aggressive, accelerates entropy erosion). A middle-ground reward (`flag_bonus=100`, `time_penalty=-0.05`) with stability protections (`target_kl=0.05`, `ent_coef 0.05→0.03`) should break D's ceiling while maintaining broader stability than J.
+
+| Changed | Ablation D | Ablation J | Ablation L |
+|---|---|---|---|
+| flag_bonus | 50 | 200 | **100** |
+| time_penalty | 0 | -0.1 | **-0.05** |
+| ent_coef_final | 0.02 | 0.03 | **0.03** |
+| target_kl | None | 0.05 | **0.05** |
+| total_timesteps | 5M | 10M (resumed) | **10M (fresh)** |
+
+**Method**: Fresh 10M run (no resume).
+
+### Results — Checkpoint Sweep (50 stochastic episodes each)
+
+| Rank | Checkpoint | Flag% | mean_x | max_x | reward | steps |
+|---|---|---|---|---|---|---|
+| 1 | **9.0M** | **30% (15/50)** | 2,302 | 3,161 | 2,905 | 263 |
+| 2 | 8.5M | 24% (12/50) | 1,917 | 3,161 | 2,407 | 227 |
+| 3 | best_model | 20% (10/50) | 2,124 | 3,161 | 2,670 | 234 |
+| 4 | 8.0M | 12% (6/50) | 1,555 | 3,161 | 1,935 | 175 |
+| 5 | 5.5M | 10% (5/50) | 1,957 | 3,161 | 2,433 | 267 |
+| 6 | final_model | 8% (4/50) | 1,739 | 3,161 | 2,161 | 206 |
+| — | 9.5M | 0% (0/50) | 571 | 594 | 227 | 1,847 |
+| — | 6.0M | 0% (0/50) | 387 | 1,130 | 340 | 426 |
+
+### Training Profile
+
+- **0–5M (slow cook)**: 0–3% training flag_rate, learning forward movement
+- **5–5.5M (breakthrough)**: First sustained flag captures, 10% stochastic
+- **5.5–9.0M (climbing)**: Steady improvement to 30% peak, training flag% hits 28% at 9.4M
+- **9.5M (catastrophe)**: Policy freezes — mean_x=571, steps=1,847
+- **10.0M (partial recovery)**: 4% flag rate
+- **Training time**: ~4h 15min
+
+### Stability
+
+CollapseDetector fired in multiple bursts (~720K, 1.8M, 2.5M, 3.0–3.4M, 3.8–3.9M, 6.0–6.2M). The 9.5M catastrophe is the worst single-checkpoint collapse in the project — policy completely degenerates then partially recovers. The useful window is 8.0–9.0M (3 checkpoints above 12%).
+
+### Verdict: **New project champion at 30%. Moderate reward shaping hypothesis validated.**
+
+L 9.0M beats J 8.0M (26%) by 4 percentage points. The middle-ground reward (flag_bonus=100, time_penalty=-0.05) broke D's 18% ceiling while slightly widening J's narrow performance window (3 checkpoints ≥12% vs J's 1).
+
+### Updated Global Rankings
+
+| Rank | Model | Flag% | Family |
+|---|---|---|---|
+| 1 | **L 9.0M** | **30% (15/50)** | L (moderate shaping + target_kl) |
+| 2 | J 8.0M | 26% (13/50) | J (aggressive shaping + target_kl) |
+| 3 | L 8.5M | 24% (12/50) | L |
+| 4 | B best_model | 22% (11/50) | B (static ent_coef) |
+| 5 | L best_model | 20% (10/50) | L |
+| 6 | D 5.0M / K 9.0M | 18% (9/50) | D / K |
+
+### Lessons
+
+48. **Moderate reward shaping outperforms both extremes** — flag_bonus=100 + time_penalty=-0.05 is the new best configuration. D (50/0) was too gentle, J (200/-0.1) too aggressive.
+49. **L still suffers from narrow-peak fragility** — the useful window (8.0–9.0M) is only ~1M steps wide, similar to J. The 9.5M catastrophe shows the policy can still fully collapse despite `target_kl` protection.
+50. **30% is a new ceiling to break** — 50 percentage points remain to the 80% target. The climbing phase (5.5–9M) shows the policy learns progressively, suggesting either longer stable training or better reward structure could push higher.
+51. **Fresh runs avoid the resume ent_coef discontinuity** — Unlike K (resumed with mismatched schedule), L's fresh start allowed clean learning from scratch.
+
+---
+
 ## What's Next
 
-**J 8.0M remains the project champion** at 26% stochastic flag capture (13/50). K failed to beat it.
+**L 9.0M is the new project champion** at 30% stochastic flag capture (15/50).
 
-**Gap to target**: 26% → 80% (54 percentage points remaining).
+**Gap to target**: 30% → 80% (50 percentage points remaining).
 
-**Diagnosis**: D-family caps at 18% (reward too gentle). J-family reaches 26% but in a narrow, fragile window (reward too aggressive, accelerates entropy erosion). The next experiment should find the middle ground.
+**Diagnosis**: L validated moderate reward shaping but exhibits the same narrow-peak fragility as J (~1M useful window). The 9.5M catastrophe shows entropy erosion still eventually kills the policy. The training curve was still climbing when collapse hit — suggesting if the collapse can be delayed, higher peaks are reachable.
 
 **Next ablation candidates**:
 
-1. **Moderate reward shaping** (recommended) — `flag_bonus=100` (2× D, 0.5× J), `time_penalty=-0.05` (0.5× J), keep `target_kl=0.05` + `ent_coef 0.05→0.03`. Fresh 10M run. Hypothesis: gentler than J avoids entropy erosion, stronger than D breaks the 18% ceiling.
-2. **J config with active stopping** — Re-run J's config with `EntropyCollapseDetector stop=True` to freeze at peak. Risky: relies on timing the narrow window.
-3. **Resume D 5.0M without ent_coef disruption** — Keep `ent_coef_final=0.02`, add only `target_kl=0.05`. Tests whether D can climb further without the schedule jump. But K's results suggest the ceiling is reward-based, not training-duration-based.
+1. **Resume from L 9.0M with halved LR (1.25e-4)** — Exploit the peak with smaller updates to avoid triggering collapse. Cheapest experiment (~2–3 hours for 2–3M more steps).
+2. **L settings + larger batch (1024) + n_epochs=3** — Smoother gradient updates may widen the stable window and delay collapse.
+3. **Re-run L with a different seed** — Test if 30% is reproducible or a lucky seed.
 
 **Solved = ≥80% flag capture over 50 stochastic eval episodes.**
 
