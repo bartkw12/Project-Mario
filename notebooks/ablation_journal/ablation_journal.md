@@ -969,24 +969,91 @@ L 9.0M beats J 8.0M (26%) by 4 percentage points. The middle-ground reward (flag
 
 ---
 
+## Ablation M — Resume L 9.0M with Halved LR
+
+**Date**: May 6, 2026
+**Config**: `configs/experiments/ablation_m.yaml`
+
+**Hypothesis**: L peaked at 30% (9.0M) then catastrophically collapsed at 9.5M. Halving LR to 1.25e-4 reduces update magnitude, allowing the policy to consolidate gains past the collapse point.
+
+| Changed | Ablation L | Ablation M |
+|---|---|---|
+| lr | 0.00025 | **0.000125** |
+| total_timesteps | 10M | **12M** |
+
+**Method**: Resumed from L 9.0M checkpoint. 3M additional steps (~1h 15min).
+
+### Results — Checkpoint Sweep (50 stochastic episodes each)
+
+| Rank | Checkpoint | Flag% | mean_x | max_x | reward | steps |
+|---|---|---|---|---|---|---|
+| 1 | **best_model** | **36% (18/50)** | 2,470 | 3,161 | 3,130 | 264 |
+| 2 | 10.5M | 36% (18/50) | 2,436 | 3,161 | 3,080 | 290 |
+| 3 | 9.5M | 28% (14/50) | 2,176 | 3,161 | 2,742 | 248 |
+| 4 | 11.5M | 16% (8/50) | 1,782 | 3,161 | 2,229 | 195 |
+| 5 | 12.0M | 14% (7/50) | 2,026 | 3,161 | 2,518 | 302 |
+| 6 | 10.0M | 12% (6/50) | 1,597 | 3,161 | 1,981 | 213 |
+| — | 11.0M | 0% (0/50) | 949 | 2,026 | 1,113 | 260 |
+
+### Key Comparison — L vs M at the Same Checkpoints
+
+| Checkpoint | L (LR=2.5e-4) | M (LR=1.25e-4) |
+|---|---|---|
+| 9.5M | 0% (catastrophic) | **28%** (stable) |
+| 10.0M | 4% (partial recovery) | 12% |
+| 10.5M | — | **36%** (new peak) |
+
+Halved LR directly prevented L's 9.5M catastrophe and enabled continued climbing to 36%.
+
+### Stability
+
+- 6 checkpoints ≥10% (vs L's 3) — broader useful window
+- 11.0M = 0% collapse (mean_x=949), but recovers at 11.5M — less severe than L's 9.5M death
+- CollapseDetector fired at ~10.2M and ~10.9M, self-resolved
+- Peak training flag_rate: 38% (at 9.5M and 10.7M)
+- Final training flag_rate: 29% at 12M — policy alive at end
+
+### Verdict: **New project champion at 36%. Halved LR strategy validated.**
+
+M best_model beats L 9.0M (30%) by 6 percentage points. The same resume-with-lower-LR pattern that failed for K (due to ent_coef discontinuity) succeeded here because the entropy schedule was near-continuous (0.035 at resume point).
+
+### Updated Global Rankings
+
+| Rank | Model | Flag% | Family |
+|---|---|---|---|
+| 1 | **M best_model / M 10.5M** | **36% (18/50)** | M (L + half LR) |
+| 2 | L 9.0M | 30% (15/50) | L |
+| 3 | M 9.5M | 28% (14/50) | M |
+| 4 | J 8.0M | 26% (13/50) | J |
+| 5 | L 8.5M | 24% (12/50) | L |
+| 6 | B best_model | 22% (11/50) | B |
+
+### Lessons
+
+52. **Halving LR at the performance frontier prevents collapse and enables continued improvement** — L's catastrophic 9.5M → M's stable 28% at same checkpoint. The policy was dying from oversized updates, not fundamental instability.
+53. **"Resume from peak with lower LR" is a repeatable strategy** — 1 hour of cheap training yielded +6% over L's entire 10M run. This pattern should be iterated.
+54. **Entropy erosion still eventually kills** — M's 11.0M dip (0%) shows the policy remains vulnerable, just on a longer timescale. The oscillation pattern (36% → 0% → 16% → 14%) suggests further LR reduction or additional protections are needed.
+
+---
+
 ## What's Next
 
-**L 9.0M is the new project champion** at 30% stochastic flag capture (15/50).
+**M best_model / M 10.5M is the new project champion** at 36% stochastic flag capture (18/50).
 
-**Gap to target**: 30% → 80% (50 percentage points remaining).
+**Gap to target**: 36% → 80% (44 percentage points remaining).
 
-**Diagnosis**: L validated moderate reward shaping but exhibits the same narrow-peak fragility as J (~1M useful window). The 9.5M catastrophe shows entropy erosion still eventually kills the policy. The training curve was still climbing when collapse hit — suggesting if the collapse can be delayed, higher peaks are reachable.
+**Diagnosis**: Halved LR successfully extended the climbing phase past L's collapse point. The policy still eventually destabilizes (11.0M dip) but recovers. The same strategy may work again from M 10.5M.
 
 **Next ablation candidates**:
 
-1. **Resume from L 9.0M with halved LR (1.25e-4)** — Exploit the peak with smaller updates to avoid triggering collapse. Cheapest experiment (~2–3 hours for 2–3M more steps).
-2. **L settings + larger batch (1024) + n_epochs=3** — Smoother gradient updates may widen the stable window and delay collapse.
-3. **Re-run L with a different seed** — Test if 30% is reproducible or a lucky seed.
+1. **Resume from M 10.5M with LR halved again (6.25e-5) for 2–3M** — Same strategy that just worked. Cheapest test (~1 hour).
+2. **L config with cosine LR schedule (2.5e-4 → ~6e-5 over 12M)** — Automates the LR reduction, avoids manual resume chains.
+3. **Resume from M 10.5M with `n_epochs=3`** — Fewer gradient steps per batch may smooth out the 11.0M-style dips.
 
 **Solved = ≥80% flag capture over 50 stochastic eval episodes.**
 
 Progress tiers:
 - <20%: Early progress ← D-family ceiling (18%)
-- 20–50%: Significant progress ← **J 8.0M is here (26%)**
+- 20–50%: Significant progress ← **M best_model is here (36%)**
 - 50–80%: Strong result, one more knob turn likely solves
 - ≥80%: **Solved**
