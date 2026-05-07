@@ -1,0 +1,45 @@
+# Ablation O — Resume N 13.5M with LR halved again
+# Base: Ablation N (L config + LR=6.25e-5, resumed from M 10.5M)
+# Changes vs N:
+#   - lr: 0.0000625 → 0.00003125 (halved again — 4th iteration of compounding strategy)
+#   - total_timesteps: 13.5M → 16.5M (3M additional steps from 13.5M resume point)
+# Method: Resume from N 13.5M checkpoint.
+# Hypothesis: N peaked at 64% (13.5M) and was still climbing (training flag_rate 62%).
+#   The compounding LR strategy has produced +6%, +28% gains on successive halvings.
+#   One more halving should push past 64% toward the 80% target.
+# Expected: Cross or approach 80% stochastic flag capture.
+
+env:
+  game: "SuperMarioBros-1-1-v0"
+  movement: "SIMPLE_MOVEMENT"
+  frame_skip: 4
+  frame_stack: 4
+  obs_size: 84
+  num_envs: 16
+
+training:
+  total_timesteps: 16500000
+  lr: 0.00003125
+  n_steps: 1024
+  batch_size: 512
+  n_epochs: 4
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  ent_coef: 0.05
+  ent_coef_final: 0.03
+  target_kl: 0.05
+
+reward:
+  forward_scale: 0.3
+  death_penalty: -15.0
+  flag_bonus: 100.0
+  time_penalty: -0.05
+
+eval:
+  eval_freq: 100000
+  n_eval_episodes: 10
+  deterministic: true
+
+seed: 42
+device: "auto"
