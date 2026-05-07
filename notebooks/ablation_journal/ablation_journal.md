@@ -1092,23 +1092,88 @@ The compounding LR halving strategy produced near-doubling of performance (36% �
 
 ---
 
+## Ablation O — Resume N 13.5M with LR Halved Again
+
+**Date**: May 7, 2026
+**Config**: `configs/experiments/ablation_o.yaml`
+
+**Hypothesis**: N peaked at 64% (13.5M) and was still climbing (training flag_rate 62%). The compounding LR strategy has produced +6%, +28% gains on successive halvings. One more halving should push past 64% toward the 80% target.
+
+| Changed | Ablation N | Ablation O |
+|---|---|---|
+| lr | 0.0000625 | **0.00003125** |
+| total_timesteps | 13.5M | **16.5M** |
+
+**Method**: Resumed from N 13.5M checkpoint. 3M additional steps (~1h 17min).
+
+### Results — Checkpoint Sweep (50 stochastic episodes each)
+
+| Rank | Checkpoint | Flag% | mean_x | max_x | reward | steps |
+|---|---|---|---|---|---|---|
+| 1 | **14.5M** | **74% (37/50)** | 2,923 | 3,161 | 3,746 | 330 |
+| 2 | 15.0M | 66% (33/50) | 2,827 | 3,161 | 3,617 | 314 |
+| 3 | 14.0M | 60% (30/50) | 2,723 | 3,161 | 3,451 | 407 |
+| 4 | best_model | 54% (27/50) | 2,494 | 3,161 | 3,163 | 341 |
+| 5 | 16.5M | 26% (13/50) | 2,117 | 3,161 | 2,655 | 282 |
+| 6 | final_model | 14% (7/50) | 1,963 | 3,161 | 2,449 | 252 |
+| 7 | 16.0M | 6% (3/50) | 1,596 | 3,161 | 1,977 | 190 |
+| 8 | 15.5M | 0% (0/50) | 1,182 | 2,018 | 1,447 | 137 |
+
+### The Compounding LR Strategy (updated)
+
+| Stage | LR | Peak Flag% | Gain | Additional Steps |
+|---|---|---|---|---|
+| L (fresh) | 2.5e-4 | 30% | — | 10M |
+| M (resume L 9.0M) | 1.25e-4 | 36% | +6% | +3M |
+| N (resume M 10.5M) | 6.25e-5 | 64% | +28% | +3M |
+| **O (resume N 13.5M)** | **3.125e-5** | **74%** | **+10%** | **+3M** |
+
+### Training Profile
+
+- **13.5–14.5M (golden window)**: Training flag% ramped 36→76%, peak at 14.5M
+- **14.5–15.2M (plateau/decline)**: 64–71% training flag%, still strong
+- **15.3–15.5M (collapse)**: Cliff-edge — training flag% → 0%, CollapseDetector warning at 15.45M (entropy_vel=-0.056, entropy=-0.507)
+- **15.5–16.5M (partial recovery)**: Slow climb back to 21% by end — unique among collapses
+
+### Key Observations
+
+- **Golden window is ~1.5M steps wide** (14.0–15.0M): 3 checkpoints above 60%
+- **Entropy collapse persists even at LR=3.125e-5** — the mechanism is not purely about update size but cumulative drift
+- **Partial recovery is new behavior**: Previous collapses were permanent (G, F) or very slow (J). O's policy partially recovered from 0% to 26% in ~1M steps, suggesting the very low LR allows self-correction
+- **Training metrics correlate well with stochastic eval at high quality**: peak training 76% ↔ stochastic 74% at same checkpoint
+
+### Updated Global Rankings
+
+| Rank | Model | Flag% | Family |
+|---|---|---|---|
+| 1 | **O 14.5M** | **74% (37/50)** | O (L + 3× LR halving) |
+| 2 | O 15.0M | 66% (33/50) | O |
+| 3 | N 13.5M | 64% (32/50) | N |
+| 4 | O 14.0M / N best_model | 60% (30/50) | O / N |
+| 5 | N final_model | 58% (29/50) | N |
+| 6 | O best_model | 54% (27/50) | O |
+| 7 | M best_model / M 10.5M | 36% (18/50) | M |
+
+### Verdict: **New project champion at 74%. 6 percentage points from solving.**
+
+### Lessons
+
+58. **Compounding LR strategy continues to work but with diminishing returns** — gains per halving: +6%, +28%, +10%. The +10% from O is smaller than N's +28%, indicating the strategy may be approaching its limit.
+59. **Entropy collapse is inevitable regardless of LR** — even at 1/8th original LR, the policy still hits a collapse cliff. The fundamental cause is cumulative entropy erosion, not individual update magnitude.
+60. **Very low LR enables partial collapse recovery** — a new phenomenon. The policy recovered from 0% to 26% post-collapse, suggesting the gradient signal is small enough that the policy can self-correct. This may be exploitable with longer training.
+
+---
+
 ## What's Next
 
-**N 13.5M is the new project champion** at 64% stochastic flag capture (32/50).
+**O 14.5M is the new project champion** at 74% stochastic flag capture (37/50).
 
-**Gap to target**: 64% → 80% (16 percentage points remaining).
-
-**Diagnosis**: The compounding LR halving strategy is working consistently. The policy was still climbing at 13.5M. One more iteration should approach or cross 80%.
-
-**Next ablation candidates**:
-
-1. **Resume from N 13.5M with LR halved again (3.125e-5) for 2–3M** — Same compounding strategy. Cheapest test (~1 hour). High confidence given the trend.
-2. **Resume from N 13.5M with same LR (6.25e-5) for 3M more** — The policy was still climbing; maybe it just needs more steps at the same LR.
+**Gap to target**: 74% → 80% (6 percentage points remaining).
 
 **Solved = ≥80% flag capture over 50 stochastic eval episodes.**
 
 Progress tiers:
 - <20%: Early progress ← D-family ceiling (18%)
 - 20–50%: Significant progress
-- 50–80%: Strong result, one more knob turn likely solves ← **N 13.5M is here (64%)**
-- ≥80%: **Solved**
+- 50–80%: Strong result
+- ≥80%: **Solved** ← **O 14.5M is 6 points away (74%)**
