@@ -1,0 +1,40 @@
+(.venv) PS I:\Python\RL\Project-Mario> python -m scripts.checkpoint_sweep --config configs/experiments/ablation_o.yaml --checkpoints results/ablation_o/models/checkpoints --extra results/ablation_o/models/best_model/best_model.zip results/ablation_o/models/final_model.zip --episodes 50
+Gym has been unmaintained since 2022 and does not support NumPy 2.0 amongst other critical functionality.
+Please upgrade to Gymnasium, the maintained drop-in replacement of Gym, or contact the authors of your software and request that they upgrade.
+See the migration guide at https://gymnasium.farama.org/introduction/migration_guide/ for additional information.
+[sweep] Config: configs/experiments/ablation_o.yaml
+[sweep] Episodes per model: 50 (stochastic)
+[sweep] Models to evaluate: 8
+[sweep] (1/8) Evaluating 14.0M — results\ablation_o\models\checkpoints\ppo_mario_14000000_steps.zip
+         flag_rate=74% (37/50)  mean_x=2923  max_x=3161  reward=3746  steps=330  (105s)
+[sweep] (3/8) Evaluating 15.0M — results\ablation_o\models\checkpoints\ppo_mario_15000000_steps.zip
+         flag_rate=66% (33/50)  mean_x=2827  max_x=3161  reward=3617  steps=314  (101s)
+[sweep] (4/8) Evaluating 15.5M — results\ablation_o\models\checkpoints\ppo_mario_15500000_steps.zip
+         flag_rate=0% (0/50)  mean_x=1182  max_x=2018  reward=1447  steps=137  (43s)
+[sweep] (5/8) Evaluating 16.0M — results\ablation_o\models\checkpoints\ppo_mario_16000000_steps.zip
+         flag_rate=6% (3/50)  mean_x=1596  max_x=3161  reward=1977  steps=190  (60s)
+[sweep] (6/8) Evaluating 16.5M — results\ablation_o\models\checkpoints\ppo_mario_16500000_steps.zip
+         flag_rate=26% (13/50)  mean_x=2117  max_x=3161  reward=2655  steps=282  (90s)
+[sweep] (7/8) Evaluating best_model — results\ablation_o\models\best_model\best_model.zip
+         flag_rate=54% (27/50)  mean_x=2494  max_x=3161  reward=3163  steps=341  (109s)
+[sweep] (8/8) Evaluating final_model — results\ablation_o\models\final_model.zip
+         flag_rate=14% (7/50)  mean_x=1963  max_x=3161  reward=2449  steps=252  (81s)
+
+===============================================================================================
+  CHECKPOINT SWEEP RESULTS — 50 stochastic episodes per model
+  Config: configs/experiments/ablation_o.yaml
+===============================================================================================
+  Rank  Model           Flag%  Flags   mean_x   max_x   reward   steps
+  ----- -------------- ------ ------ -------- ------- -------- -------
+  1     14.5M            74%    37/50     2923    3161     3746    330 ★
+  2     15.0M            66%    33/50     2827    3161     3617    314
+  3     14.0M            60%    30/50     2723    3161     3451    407
+  4     best_model       54%    27/50     2494    3161     3163    341
+  5     16.5M            26%    13/50     2117    3161     2655    282
+  6     final_model      14%     7/50     1963    3161     2449    252
+  7     16.0M             6%     3/50     1596    3161     1977    190
+  8     15.5M             0%     0/50     1182    2018     1447    137
+===============================================================================================
+
+  Best checkpoint: 14.5M — 74% flag rate (37/50)
+  Path: results\ablation_o\models\checkpoints\ppo_mario_14500000_steps.zip
