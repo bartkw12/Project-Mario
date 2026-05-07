@@ -1,8 +1,11 @@
-Train (resumes from N 13.5M, runs 3M more steps to 16.5M):
+Step 1 — Re-evaluate O 14.5M with 200 episodes:
 
-python -m src.train --config configs/experiments/ablation_o.yaml --name ablation_o --resume results/ablation_n/models/checkpoints/ppo_mario_13500000_steps.zip --subproc
+python -m src.evaluate --config configs/experiments/ablation_o.yaml --model results/ablation_o/models/checkpoints/ppo_mario_14500000_steps.zip --episodes 200 --stochastic
 
-Sweep:
+Step 2 — Run Ablation P (after reviewing the 200-episode result):
 
-python -m scripts.checkpoint_sweep --config configs/experiments/ablation_o.yaml --checkpoints results/ablation_o/models/checkpoints --extra results/ablation_o/models/best_model/best_model.zip results/ablation_o/models/final_model.zip --episodes 50
+python -m src.train --config configs/experiments/ablation_p.yaml --resume results/ablation_o/models/checkpoints/ppo_mario_14500000_steps.zip --name ablation_p --subproc
 
+Step 3 — Sweep P checkpoints:
+
+python -m scripts.checkpoint_sweep --config configs/experiments/ablation_p.yaml --checkpoints results/ablation_p/models/checkpoints --extra results/ablation_p/models/best_model/best_model.zip results/ablation_p/models/final_model.zip --episodes 50
