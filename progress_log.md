@@ -11,7 +11,7 @@
 **Phase**: 3 — Ablations & Iteration
 **Branch**: `v2-dev`
 **Hardware**: CPU (dev VM) + 3080 Ti (personal PC)
-**Last session**: April 17, 2026
+**Last session**: May 7, 2026
 **Previous phases**: Phase 1, Phase 2 archived in `progress_log_archive/`
 
 ---
@@ -31,29 +31,19 @@ Baseline PPO (5M steps, default config) completed but **not solved**.
 
 **Goal**: Achieve ≥80% flag capture over 50 eval episodes through targeted ablations.
 
-### Priority 1 — Fix entropy collapse
-- [ ] Ablation A: `ent_coef=0.02` (2x baseline), 5M steps
-- [ ] Ablation B: `ent_coef=0.03` (3x baseline), 5M steps
-- [ ] Monitor entropy stays above ~0.3 throughout training
+### Completed
+- [x] Ablations A–J: Entropy scheduling, forward_scale, reward shaping, target_kl calibration
+- [x] Ablation K: D extended to 10M (failed — D-family caps at 18%)
+- [x] Ablation L: Moderate reward shaping (flag_bonus=100, time_penalty=-0.05) — peaked 30%
+- [x] Ablation M: Resume L 9.0M with LR halved (1.25e-4) — peaked 36%
+- [x] Ablation N: Resume M 10.5M with LR halved again (6.25e-5) — peaked **64%**
 
-### Priority 2 — Incentivize speed
-- [ ] Ablation C: `forward_scale=0.5` (5x baseline) with best ent_coef from above
-- [ ] Ablation D: `forward_scale=1.0` (10x baseline)
-- [ ] Track: do episodes finish via flag rather than time limit?
+### Current — Compounding LR strategy
+- [ ] Ablation O: Resume N 13.5M with LR halved again (3.125e-5) for 3M more steps
+- Target: cross 80% stochastic flag capture
 
-### Priority 3 — Action space reduction
-- [ ] Ablation E: `RIGHT_ONLY` (5 actions) instead of `SIMPLE_MOVEMENT` (7 actions)
-- [ ] Fewer actions = less entropy drift, faster learning
-
-### Priority 4 — Extended training (if needed)
-- [ ] Ablation F: 10M steps with best config from above
-- [ ] Only run if 5M with tuned params shows progress but isn't solved
-
-### Stretch
-- [ ] Ablation G: Learning rate schedule (linear decay)
-- [ ] Ablation H: Sticky death penalty (penalize more when dying in same spot)
-
-**Solved = ≥80% flag capture over 50 eval episodes (same as Phase 2 criterion).**
+**Best model**: N 13.5M — 64% flag rate (32/50 stochastic episodes)
+**Solved = ≥80% flag capture over 50 stochastic eval episodes.**
 
 ---
 
@@ -94,13 +84,16 @@ Baseline PPO (5M steps, default config) completed but **not solved**.
 | 2026-04-13 | SB3 as primary, not CleanRL               | Polish + reliability for resume           |
 | 2026-04-13 | SIMPLE_MOVEMENT (7 actions)               | Standard for Mario RL                     |
 | 2026-04-13 | No VecNormalize on rewards initially      | V1 reward clipping killed signal          |
-| 2026-04-13 | 8 parallel envs default                   | Balance speed/stability on 3080 Ti        |
 | 2026-04-14 | DummyVecEnv default, SubprocVecEnv opt-in | Safer debugging; both work on Windows     |
-| 2026-04-15 | Callback freqs adjusted for n_envs        | SB3 callbacks fire per env.step()         |
-| 2026-04-15 | Best model = mean reward (proxy)          | Flag capture rate judged via evaluate.py  |
-| 2026-04-17 | --resume CLI for interrupted training     | SB3 PPO.load + reset_num_timesteps=False  |
-| 2026-04-17 | Hard stop callback at total_timesteps     | SB3 overshoots due to rollout completion  |
 | 2026-04-17 | Phase 2 not solved → Phase 3 ablations    | Entropy collapse + slow agent identified  |
+| 2026-04-19 | Entropy schedule (linear decay 0.05→floor)| Static ent_coef always collapses eventually |
+| 2026-04-20 | forward_scale=0.3 as standard             | Sweet spot — 0.2 didn't help, 0.3 stable  |
+| 2026-04-20 | EntropyCollapseDetector (diagnostic mode) | Detect entropy erosion early              |
+| 2026-04-21 | target_kl=0.05 as standard                | Calibrated to env's natural KL (~0.031 median) |
+| 2026-04-22 | Stochastic eval (50 eps) as ground truth  | Deterministic eval was giving identical trajectories |
+| 2026-05-05 | Checkpoint sweep as standard workflow     | best_model often not the true best        |
+| 2026-05-06 | Moderate reward shaping (flag=100, tp=-0.05)| D too gentle (18% cap), J too aggressive (fragile) |
+| 2026-05-06 | Compounding LR halving at frontier        | Prevents collapse, enables continued climbing |
 
 ---
 
@@ -130,37 +123,54 @@ Baseline PPO (5M steps, default config) completed but **not solved**.
 
 ---
 
-## Ablation Plan
+## Ablation Summary
 
-One variable at a time. Each ablation compared against Phase 2 baseline.
+Full details in `notebooks/ablation_journal/ablation_journal.md`.
 
-| ID | Variable | Baseline | Test Value | Hypothesis |
-|----|----------|----------|------------|------------|
-| A  | ent_coef | 0.01     | 0.02       | Prevent entropy collapse, maintain exploration |
-| B  | ent_coef | 0.01     | 0.03       | Stronger exploration pressure |
-| C  | forward_scale | 0.1 | 0.5        | Incentivize faster rightward movement |
-| D  | forward_scale | 0.1 | 1.0        | Even stronger speed incentive |
-| E  | action_space | SIMPLE (7) | RIGHT_ONLY (5) | Fewer actions = easier to learn + less entropy drift |
-| F  | timesteps | 5M      | 10M        | More training with healthy entropy |
-
-**Run order**: A → B (pick best ent_coef) → C → D (pick best forward_scale) → E → F if needed.
+| ID | Key Change | Best Flag% | Outcome |
+|----|-----------|-----------|----------|
+| A  | ent_coef=0.02 | 0% stoch | Marginal — entropy still oscillates |
+| B  | ent_coef=0.03 | 22% (best_model) | Good peak but volatile |
+| Ent Sched | 0.05→0.02 linear | 0% stoch | Schedule works but floor too low |
+| C  | forward_scale=0.2 | 0% stoch | Worse than base schedule |
+| D  | forward_scale=0.3 | 18% (5.0M) | First non-degrading run |
+| F  | D extended to 10M | 8% | Failed — entropy schedule bug on resume |
+| G  | flag_bonus=200, tp=-0.1 | 0% stoch | 36% training peak but collapsed |
+| H  | target_kl=0.015 | 0% | Too restrictive — never learned |
+| I  | target_kl=0.05 | 0% stoch | Learning + stable, still climbing |
+| J  | I extended to 10M | 26% (8.0M) | Former champion, narrow window |
+| K  | D + target_kl + 10M | 18% | D-family ceiling confirmed |
+| L  | Moderate shaping, fresh 10M | 30% (9.0M) | Broke D ceiling |
+| M  | Resume L 9.0M, LR÷2 | 36% (best_model) | LR halving works |
+| **N** | **Resume M 10.5M, LR÷2** | **64% (13.5M)** | **Current champion** |
+| O  | Resume N 13.5M, LR÷2 | ? | Next — targeting ≥80% |
 
 ---
 
 ## Next Actions
 
-1. Plan Phase 3 implementation: config support for experiment overrides
-2. Benchmark SubprocVecEnv vs DummyVecEnv before running multiple ablations
-3. Run Ablation A (ent_coef=0.02) on 3080 Ti
-4. Evaluate, compare against baseline, decide next ablation
+1. Run Ablation O (resume N 13.5M, LR=3.125e-5, 3M steps) on 3080 Ti
+2. Sweep O checkpoints with 50 stochastic episodes
+3. If ≥80% → Phase 3 solved. If not → assess whether to continue halving or try alternate approach
 
 ---
 
 ## Session Notes
 
-### Session — April 17, 2026
-- Analyzed Phase 2 training results in detail (TensorBoard + evaluations.npz)
-- Identified 3 root causes: entropy collapse, slow agent, post-5M degradation
-- Archived Phase 2 progress log to `progress_log_archive/progress_log_phase2.md`
-- Created Phase 3 progress log with ablation plan
-- Priority: fix entropy first, then speed, then action space
+### Session — May 7, 2026
+- Ablation N: 64% flag rate (32/50) — new champion
+- Compounding LR halving strategy: L(30%) → M(36%) → N(64%)
+- Created Ablation O config (LR=3.125e-5, resume from N 13.5M)
+- 16 points away from solving
+
+### Session — May 5–6, 2026
+- Checkpoint sweep infrastructure built (scripts/checkpoint_sweep.py)
+- Found J 8.0M = 26% as champion via sweep (hidden behind worse best_model)
+- Ablation K failed (D caps at 18%)
+- Ablation L: moderate reward shaping → 30%
+- Ablation M: resume L + half LR → 36%
+
+### Session — April 17–22, 2026
+- Ablations A–J completed (see ablation journal for full details)
+- Key discoveries: entropy schedule, target_kl=0.05, stochastic eval bug fix
+- Stochastic re-evaluation revealed ranking inversion (training peaks ≠ robustness)
