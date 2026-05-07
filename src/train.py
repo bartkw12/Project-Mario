@@ -79,8 +79,8 @@ def train(cfg: Config, resume_path: str | None = None, use_subproc: bool = False
             verbose=0,
         )
 
-    # Checkpoint every 500K timesteps (adjusted for n_envs)
-    checkpoint_freq = max(500_000 // cfg.env.num_envs, 1)
+    # Checkpoint frequency (adjusted for n_envs)
+    checkpoint_freq = max(cfg.training.checkpoint_freq // cfg.env.num_envs, 1)
     checkpoint_dir = base / "models" / "checkpoints"
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
     checkpoint_cb = CheckpointCallback(

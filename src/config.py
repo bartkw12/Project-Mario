@@ -33,6 +33,7 @@ class TrainingConfig:
     ent_coef: float = 0.01
     ent_coef_final: float | None = None
     target_kl: float | None = None
+    checkpoint_freq: int = 500000
 
 
 @dataclass
