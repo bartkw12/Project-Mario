@@ -1,11 +1,7 @@
-Step 1 — Re-evaluate O 14.5M with 200 episodes:
+Run Ablation Q:
 
-python -m src.evaluate --config configs/experiments/ablation_o.yaml --model results/ablation_o/models/checkpoints/ppo_mario_14500000_steps.zip --episodes 200 --stochastic
+python -m src.train --config configs/experiments/ablation_q.yaml --resume results/ablation_o/models/checkpoints/ppo_mario_14500000_steps.zip --name ablation_q --subproc
 
-Step 2 — Run Ablation P (after reviewing the 200-episode result):
+Sweep Q checkpoints:
 
-python -m src.train --config configs/experiments/ablation_p.yaml --resume results/ablation_o/models/checkpoints/ppo_mario_14500000_steps.zip --name ablation_p --subproc
-
-Step 3 — Sweep P checkpoints:
-
-python -m scripts.checkpoint_sweep --config configs/experiments/ablation_p.yaml --checkpoints results/ablation_p/models/checkpoints --extra results/ablation_p/models/best_model/best_model.zip results/ablation_p/models/final_model.zip --episodes 50
+python -m scripts.checkpoint_sweep --config configs/experiments/ablation_q.yaml --checkpoints results/ablation_q/models/checkpoints --extra results/ablation_q/models/best_model/best_model.zip results/ablation_q/models/final_model.zip --episodes 50
