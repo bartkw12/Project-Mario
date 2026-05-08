@@ -1156,19 +1156,108 @@ The compounding LR halving strategy produced near-doubling of performance (36% �
 
 ### Verdict: **New project champion at 74%. 6 percentage points from solving.**
 
+### Extended Re-evaluation (200 episodes)
+
+O 14.5M was re-evaluated with 200 stochastic episodes to get a tighter confidence interval:
+
+| Metric | 50-episode estimate | 200-episode estimate |
+|---|---|---|
+| Flag rate | 74% (37/50) | **71.0% (142/200)** |
+| mean_x_pos | 2,923 | 2,894 |
+| mean_reward | 3,746 | 3,707 |
+| mean_steps | 330 | 324 |
+
+**True rate: ~71%** (95% CI: ~65–77%). The 50-episode sample was slightly optimistic.
+
+### Failure Mode Analysis (200 episodes)
+
+The 58 failures cluster at specific obstacles:
+
+| Failure Zone | x_pos range | Count | Share |
+|---|---|---|---|
+| Early death | ~685–704 | 3 | 5% |
+| Mid-level | ~1783–1960 | ~15 | 26% |
+| **Late-level wall** | **~2469–2477** | **~33** | **57%** |
+| Near-flag | ~2758–2761 | 3 | 5% |
+
+**x≈2470 is the dominant bottleneck** — over half of all failures die at the same obstacle. Solving this single choke point would push from 71% to ~87%.
+
 ### Lessons
 
 58. **Compounding LR strategy continues to work but with diminishing returns** — gains per halving: +6%, +28%, +10%. The +10% from O is smaller than N's +28%, indicating the strategy may be approaching its limit.
 59. **Entropy collapse is inevitable regardless of LR** — even at 1/8th original LR, the policy still hits a collapse cliff. The fundamental cause is cumulative entropy erosion, not individual update magnitude.
 60. **Very low LR enables partial collapse recovery** — a new phenomenon. The policy recovered from 0% to 26% post-collapse, suggesting the gradient signal is small enough that the policy can self-correct. This may be exploitable with longer training.
+61. **200-episode eval reveals the true rate is ~71%, not 74%** — 50-episode estimates have ±12% CI at this quality level. Use larger samples for models near the target.
+62. **Failures concentrate at x≈2470** — 57% of all failures die at the same late-level obstacle. The remaining gap is a single-obstacle consistency problem, not a general capability problem.
+
+---
+
+## Ablation P — Resume O 14.5M with LR Halved, Dense Checkpoints
+
+**Date**: May 8, 2026
+**Config**: `configs/experiments/ablation_p.yaml`
+
+**Hypothesis**: One more LR halving with dense checkpoints (100K intervals) should capture any improvement within the golden window.
+
+| Changed | Ablation O | Ablation P |
+|---|---|---|
+| lr | 0.00003125 | **0.000015625** |
+| total_timesteps | 16.5M | **16.5M** (2M additional from 14.5M) |
+| checkpoint_freq | 500K | **100K** (dense — new config field) |
+
+**Method**: Resumed from O 14.5M checkpoint. 2M additional steps (~1h 5min). New `checkpoint_freq` config field added to `TrainingConfig` to support dense checkpointing.
+
+### Results — Checkpoint Sweep (50 stochastic episodes each, 22 models)
+
+| Rank | Checkpoint | Flag% | mean_x | max_x | reward | steps |
+|---|---|---|---|---|---|---|
+| 1 | **14.8M** | **68% (34/50)** | 2,917 | 3,161 | 3,729 | 341 |
+| 2 | 14.7M | 68% (34/50) | 2,786 | 3,161 | 3,564 | 318 |
+| 3 | 14.9M | 66% (33/50) | 2,836 | 3,161 | 3,616 | 363 |
+| 4 | 14.6M | 64% (32/50) | 2,856 | 3,161 | 3,646 | 336 |
+| 5 | 16.4M | 50% (25/50) | 2,577 | 3,161 | 3,246 | 422 |
+| 6 | final_model | 48% (24/50) | 2,507 | 3,161 | 3,190 | 272 |
+| 7 | 16.0M | 44% (22/50) | 2,443 | 3,161 | 3,102 | 272 |
+| — | 15.0M | 0% (0/50) | 448 | 702 | 46 | 1,928 |
+| — | 15.1M | 0% (0/50) | 592 | 722 | 223 | 1,967 |
+
+### The Compounding LR Strategy (final)
+
+| Stage | LR | Peak Flag% | Gain | Additional Steps |
+|---|---|---|---|---|
+| L (fresh) | 2.5e-4 | 30% | — | 10M |
+| M (resume L 9.0M) | 1.25e-4 | 36% | +6% | +3M |
+| N (resume M 10.5M) | 6.25e-5 | 64% | +28% | +3M |
+| O (resume N 13.5M) | 3.125e-5 | 71%* | +7% | +3M |
+| **P (resume O 14.5M)** | **1.5625e-5** | **68%** | **-3%** | **+2M** |
+
+\* O's true rate revised to 71% via 200-episode re-evaluation.
+
+### Key Findings
+
+- **LR halving has hit its limit** — P's best (68%) is *below* O's true rate (71%). Updates are now too small to improve the policy.
+- **Collapse hit earlier** (15.0M vs O's 15.3M) and was more severe (0%, x_pos=448 — near-instant death)
+- **Golden window was only ~300K steps** (14.6–14.9M) before the cliff — the narrowest of any ablation
+- **Dense checkpoints confirmed**: no hidden peak between 500K markers. The true best was at 14.8M, consistent with coarser sampling
+- **Post-collapse partial recovery**: policy climbed back to 50% at 16.4M, confirming low-LR self-correction
+
+### Verdict: **Compounding LR strategy exhausted. P regresses from O.**
+
+### Lessons
+
+63. **LR=1.5625e-5 is below the useful threshold** — at this LR, updates are too small to overcome the x≈2470 obstacle. The policy can't learn new behaviors, only slowly drift.
+64. **Dense checkpointing (100K) confirmed no hidden peak** — the 500K grid was not missing a materially better checkpoint. The true optimum aligns with the coarser sweep.
+65. **The compounding LR strategy has a natural endpoint** — 5 iterations (L→M→N→O→P) identified the useful LR range as ~6.25e-5 to ~3.125e-5 for this policy. Below that, diminishing returns become negative returns.
 
 ---
 
 ## What's Next
 
-**O 14.5M is the new project champion** at 74% stochastic flag capture (37/50).
+**O 14.5M remains the project champion** at 71% stochastic flag capture (142/200).
 
-**Gap to target**: 74% → 80% (6 percentage points remaining).
+**Gap to target**: 71% → 80% (9 percentage points remaining).
+
+**What P proved**: The LR halving ladder is exhausted. Further reduction hurts rather than helps. The remaining gap is not a training stability or hyperparameter problem — it is a **single-obstacle consistency problem** at x≈2470, which accounts for 57% of all failures.
 
 **Solved = ≥80% flag capture over 50 stochastic eval episodes.**
 
@@ -1176,4 +1265,4 @@ Progress tiers:
 - <20%: Early progress ← D-family ceiling (18%)
 - 20–50%: Significant progress
 - 50–80%: Strong result
-- ≥80%: **Solved** ← **O 14.5M is 6 points away (74%)**
+- ≥80%: **Solved** ← **O 14.5M is 9 points away (71%)**
