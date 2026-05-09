@@ -1,7 +1,7 @@
-Run Ablation Q:
+Training (resume from O 14.5M):
 
-python -m src.train --config configs/experiments/ablation_q.yaml --resume results/ablation_o/models/checkpoints/ppo_mario_14500000_steps.zip --name ablation_q --subproc
+python -m src.train --config configs/experiments/ablation_r.yaml --resume results/ablation_o/models/checkpoints/rl_model_14500000_steps.zip --run-name ablation_r
 
-Sweep Q checkpoints:
+Checkpoint sweep (after training completes):
 
-python -m scripts.checkpoint_sweep --config configs/experiments/ablation_q.yaml --checkpoints results/ablation_q/models/checkpoints --extra results/ablation_q/models/best_model/best_model.zip results/ablation_q/models/final_model.zip --episodes 50
+python scripts/checkpoint_sweep.py --folder results/ablation_r/models --episodes 50 --config configs/experiments/ablation_r.yaml
