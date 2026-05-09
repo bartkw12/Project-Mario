@@ -1259,6 +1259,65 @@ The 58 failures cluster at specific obstacles:
 
 **What P proved**: The LR halving ladder is exhausted. Further reduction hurts rather than helps. The remaining gap is not a training stability or hyperparameter problem — it is a **single-obstacle consistency problem** at x≈2470, which accounts for 57% of all failures.
 
+---
+
+## Ablation Q — Resume O 14.5M with Higher Entropy Floor + Fewer Epochs
+
+**Date**: May 8–9, 2026
+**Config**: `configs/experiments/ablation_q.yaml`
+
+**Hypothesis**: Collapses happen because entropy erodes below a critical threshold with `ent_coef_final=0.03`. Raising the floor to 0.04 + reducing `n_epochs` from 4 to 3 should extend the golden window.
+
+| Changed | Ablation O | Ablation Q |
+|---|---|---|
+| ent_coef_final | 0.03 | **0.04** |
+| n_epochs | 4 | **3** |
+| total_timesteps | 16.5M | **17.5M** |
+| checkpoint_freq | 500K | **100K** |
+
+**Method**: Resumed from O 14.5M checkpoint. 3M additional steps (~55 min).
+
+### Results — Checkpoint Sweep (50 stochastic episodes each, 32 models)
+
+| Rank | Checkpoint | Flag% | mean_x | max_x | reward | steps |
+|---|---|---|---|---|---|---|
+| 1 | best_model | 72% (36/50) | 2,968 | 3,161 | 3,799 | 347 |
+| 2 | 14.6M | 72% (36/50) | 2,955 | 3,161 | 3,781 | 351 |
+| 3 | 16.6M | 28% (14/50) | 2,214 | 3,161 | 2,768 | 348 |
+| 4 | 17.3M | 18% (9/50) | 2,015 | 3,161 | 2,521 | 255 |
+| 5–32 | all others | 0–14% | — | — | — | — |
+
+### What Went Wrong — The Entropy Discontinuity (Repeat of Ablation K)
+
+**Q repeated the exact failure mode already documented in Ablation K (lesson #45).**
+
+- O's ent_coef at 14.5M: **~0.032** (0.05→0.03 schedule at 88% progress)
+- Q's ent_coef at 14.5M: **~0.042** (0.05→0.04 schedule at 83% of 17.5M)
+
+The ent_coef **jumped 30% on resume** (0.032→0.042), immediately destabilizing the policy. The agent went from 72% to 0% (x_pos=297, instant death) within 200K steps. The policy was frozen at x=315 for over 1M steps (14.8–15.7M) before slowly recovering.
+
+The 72% best_model is just O's checkpoint re-saved before Q's changes took effect — Q contributed nothing new.
+
+### Verdict: **Failed. Entropy discontinuity on resume destroyed the policy (same as K).**
+
+### Lessons
+
+66. **Changing `ent_coef_final` on resume is destructive — now confirmed twice** (K: 0.02→0.04 destroyed D; Q: 0.03→0.04 destroyed O). The entropy schedule produces a discontinuity when the floor changes because the schedule interpolation recalculates the current ent_coef. This is a hard rule: **never change `ent_coef` or `ent_coef_final` when resuming.**
+67. **The `n_epochs` change could not be evaluated** — the entropy discontinuity dominated. Whether n_epochs=3 helps or hurts remains unknown. Testing it requires an isolated run with matching entropy parameters.
+68. **Recovery from collapse is possible but insufficient** — Q partially recovered to 28% (16.6M) and 18% (17.3M), but never approached O's 71%. Even with very low LR + higher entropy floor, a destroyed policy cannot fully recover to its pre-collapse quality.
+
+---
+
+## What's Next
+
+**O 14.5M remains the project champion** at 71% stochastic flag capture (142/200).
+
+**Gap to target**: 71% → 80% (9 percentage points remaining).
+
+**Hard rules established (from K and Q failures):**
+- Do NOT change `ent_coef` or `ent_coef_final` when resuming
+- Do NOT halve LR below 3.125e-5 (P proved negative returns)
+
 **Solved = ≥80% flag capture over 50 stochastic eval episodes.**
 
 Progress tiers:
