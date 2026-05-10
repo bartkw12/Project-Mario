@@ -1,8 +1,1 @@
-Training (resume from O 14.5M):
-
-python -m src.train --config configs/experiments/ablation_r.yaml --resume results/ablation_o/models/checkpoints/rl_model_14500000_steps.zip --run-name ablation_r
-
-Checkpoint sweep (after training completes) NEW:
-
-python -m scripts.checkpoint_sweep --config configs/experiments/ablation_r.yaml --checkpoints results/ablation_r/models/checkpoints --extra results/ablation_r/models/best_model/best_model.zip results/ablation_r/models/final_model.zip --episodes 50
-
+python -m src.evaluate --config configs/experiments/ablation_r.yaml --model results/ablation_r/models/final_model.zip --episodes 200 --stochastic
