@@ -2,25 +2,11 @@ Phase L — 3 Seeds (10M steps each, ~1.5 hrs/seed)
 
 Training:
 
-# Seed 1
-python -m src.train --config configs/experiments/ablation_l.yaml --seed 1 --name multiseed_s1_L
-
-# Seed 2
-python -m src.train --config configs/experiments/ablation_l.yaml --seed 2 --name multiseed_s2_L
-
-# Seed 3
-python -m src.train --config configs/experiments/ablation_l.yaml --seed 3 --name multiseed_s3_L
+python -m src.train --config configs/experiments/ablation_l.yaml --seed 1 --name multiseed_s1_L --subproc; python -m src.train --config configs/experiments/ablation_l.yaml --seed 2 --name multiseed_s2_L --subproc; python -m src.train --config configs/experiments/ablation_l.yaml --seed 3 --name multiseed_s3_L --subproc
 
 
 -----
 
 Sweeps (run after each training finishes):
 
-# Seed 1 sweep
-python -m scripts.checkpoint_sweep --config configs/experiments/ablation_l.yaml --checkpoints results/multiseed_s1_L/models/checkpoints --extra results/multiseed_s1_L/models/best_model/best_model.zip results/multiseed_s1_L/models/final_model.zip --episodes 50
-
-# Seed 2 sweep
-python -m scripts.checkpoint_sweep --config configs/experiments/ablation_l.yaml --checkpoints results/multiseed_s2_L/models/checkpoints --extra results/multiseed_s2_L/models/best_model/best_model.zip results/multiseed_s2_L/models/final_model.zip --episodes 50
-
-# Seed 3 sweep
-python -m scripts.checkpoint_sweep --config configs/experiments/ablation_l.yaml --checkpoints results/multiseed_s3_L/models/checkpoints --extra results/multiseed_s3_L/models/best_model/best_model.zip results/multiseed_s3_L/models/final_model.zip --episodes 50
+python -m scripts.checkpoint_sweep --config configs/experiments/ablation_l.yaml --checkpoints results/multiseed_s1_L/models/checkpoints --extra results/multiseed_s1_L/models/best_model/best_model.zip results/multiseed_s1_L/models/final_model.zip --episodes 50; python -m scripts.checkpoint_sweep --config configs/experiments/ablation_l.yaml --checkpoints results/multiseed_s2_L/models/checkpoints --extra results/multiseed_s2_L/models/best_model/best_model.zip results/multiseed_s2_L/models/final_model.zip --episodes 50; python -m scripts.checkpoint_sweep --config configs/experiments/ablation_l.yaml --checkpoints results/multiseed_s3_L/models/checkpoints --extra results/multiseed_s3_L/models/best_model/best_model.zip results/multiseed_s3_L/models/final_model.zip --episodes 50
