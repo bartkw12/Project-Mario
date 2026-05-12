@@ -578,3 +578,79 @@ Episode length: 2005.00 +/- 0.00
 Training: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 10.0M/10.0M [3:59:37<00:00, 696step/s, x_pos=1755, flag%=2.0%]
 [train] Final model saved to results\multiseed_s2_L\models\final_model.zip
 
+Sweep for seed 2
+
+         flag_rate=0% (0/50)  mean_x=512  max_x=1518  reward=557  steps=209  (71s)
+[sweep] (3/22) Evaluating 1.5M — results\multiseed_s2_L\models\checkpoints\ppo_mario_1500000_steps.zip
+         flag_rate=0% (0/50)  mean_x=816  max_x=1661  reward=969  steps=142  (50s)
+[sweep] (4/22) Evaluating 2.0M — results\multiseed_s2_L\models\checkpoints\ppo_mario_2000000_steps.zip
+         flag_rate=0% (0/50)  mean_x=296  max_x=296  reward=318  steps=40  (13s)
+[sweep] (5/22) Evaluating 2.5M — results\multiseed_s2_L\models\checkpoints\ppo_mario_2500000_steps.zip
+         flag_rate=0% (0/50)  mean_x=846  max_x=1800  reward=1014  steps=114  (38s)
+[sweep] (6/22) Evaluating 3.0M — results\multiseed_s2_L\models\checkpoints\ppo_mario_3000000_steps.zip
+         flag_rate=0% (0/50)  mean_x=956  max_x=1798  reward=1134  steps=213  (70s)
+[sweep] (7/22) Evaluating 3.5M — results\multiseed_s2_L\models\checkpoints\ppo_mario_3500000_steps.zip
+         flag_rate=2% (1/50)  mean_x=1052  max_x=3161  reward=1278  steps=142  (47s)
+[sweep] (8/22) Evaluating 4.0M — results\multiseed_s2_L\models\checkpoints\ppo_mario_4000000_steps.zip
+         flag_rate=0% (0/50)  mean_x=912  max_x=1785  reward=1096  steps=134  (44s)
+[sweep] (9/22) Evaluating 4.5M — results\multiseed_s2_L\models\checkpoints\ppo_mario_4500000_steps.zip
+         flag_rate=0% (0/50)  mean_x=948  max_x=1525  reward=1140  steps=146  (48s)
+[sweep] (10/22) Evaluating 5.0M — results\multiseed_s2_L\models\checkpoints\ppo_mario_5000000_steps.zip
+         flag_rate=0% (0/50)  mean_x=975  max_x=1793  reward=1179  steps=124  (40s)
+[sweep] (11/22) Evaluating 5.5M — results\multiseed_s2_L\models\checkpoints\ppo_mario_5500000_steps.zip
+         flag_rate=0% (0/50)  mean_x=1132  max_x=2466  reward=1377  steps=153  (50s)
+[sweep] (12/22) Evaluating 6.0M — results\multiseed_s2_L\models\checkpoints\ppo_mario_6000000_steps.zip
+         flag_rate=2% (1/50)  mean_x=1245  max_x=3161  reward=1527  steps=149  (50s)
+[sweep] (13/22) Evaluating 6.5M — results\multiseed_s2_L\models\checkpoints\ppo_mario_6500000_steps.zip
+         flag_rate=0% (0/50)  mean_x=1504  max_x=2755  reward=1855  steps=179  (59s)
+[sweep] (14/22) Evaluating 7.0M — results\multiseed_s2_L\models\checkpoints\ppo_mario_7000000_steps.zip
+         flag_rate=4% (2/50)  mean_x=1866  max_x=3161  reward=2324  steps=201  (69s)
+[sweep] (15/22) Evaluating 7.5M — results\multiseed_s2_L\models\checkpoints\ppo_mario_7500000_steps.zip
+         flag_rate=6% (3/50)  mean_x=1913  max_x=3161  reward=2375  steps=255  (84s)
+[sweep] (16/22) Evaluating 8.0M — results\multiseed_s2_L\models\checkpoints\ppo_mario_8000000_steps.zip
+         flag_rate=18% (9/50)  mean_x=2192  max_x=3161  reward=2755  steps=239  (78s)
+[sweep] (17/22) Evaluating 8.5M — results\multiseed_s2_L\models\checkpoints\ppo_mario_8500000_steps.zip
+         flag_rate=28% (14/50)  mean_x=2504  max_x=3161  reward=3153  steps=314  (103s)
+[sweep] (18/22) Evaluating 9.0M — results\multiseed_s2_L\models\checkpoints\ppo_mario_9000000_steps.zip
+         flag_rate=4% (2/50)  mean_x=1653  max_x=3161  reward=2022  steps=300  (96s)
+[sweep] (19/22) Evaluating 9.5M — results\multiseed_s2_L\models\checkpoints\ppo_mario_9500000_steps.zip
+         flag_rate=28% (14/50)  mean_x=2159  max_x=3161  reward=2724  steps=234  (76s)
+[sweep] (20/22) Evaluating 10.0M — results\multiseed_s2_L\models\checkpoints\ppo_mario_10000000_steps.zip
+         flag_rate=0% (0/50)  mean_x=1188  max_x=2850  reward=1456  steps=130  (42s)
+[sweep] (21/22) Evaluating best_model — results\multiseed_s2_L\models\best_model\best_model.zip
+         flag_rate=42% (21/50)  mean_x=2484  max_x=3161  reward=3150  steps=284  (95s)
+[sweep] (22/22) Evaluating final_model — results\multiseed_s2_L\models\final_model.zip
+         flag_rate=2% (1/50)  mean_x=1389  max_x=3161  reward=1711  steps=163  (52s)
+
+===============================================================================================
+  CHECKPOINT SWEEP RESULTS — 50 stochastic episodes per model
+  Config: configs/experiments/ablation_l.yaml
+===============================================================================================
+  Rank  Model           Flag%  Flags   mean_x   max_x   reward   steps
+  ----- -------------- ------ ------ -------- ------- -------- -------
+  1     best_model       42%    21/50     2484    3161     3150    284 ★
+  2     8.5M             28%    14/50     2504    3161     3153    314
+  3     9.5M             28%    14/50     2159    3161     2724    234
+  4     8.0M             18%     9/50     2192    3161     2755    239
+  5     7.5M              6%     3/50     1913    3161     2375    255
+  6     7.0M              4%     2/50     1866    3161     2324    201
+  7     9.0M              4%     2/50     1653    3161     2022    300
+  8     final_model       2%     1/50     1389    3161     1711    163
+  9     6.0M              2%     1/50     1245    3161     1527    149
+  10    3.5M              2%     1/50     1052    3161     1278    142
+  11    6.5M              0%     0/50     1504    2755     1855    179
+  12    10.0M             0%     0/50     1188    2850     1456    130
+  13    5.5M              0%     0/50     1132    2466     1377    153
+  14    5.0M              0%     0/50      975    1793     1179    124
+  15    3.0M              0%     0/50      956    1798     1134    213
+  16    4.5M              0%     0/50      948    1525     1140    146
+  17    4.0M              0%     0/50      912    1785     1096    134
+  18    2.5M              0%     0/50      846    1800     1014    114
+  19    1.5M              0%     0/50      816    1661      969    142
+  20    500K              0%     0/50      634    1956      730    150
+  21    1.0M              0%     0/50      512    1518      557    209
+  22    2.0M              0%     0/50      296     296      318     40
+===============================================================================================
+
+  Best checkpoint: best_model — 42% flag rate (21/50)
+  Path: results\multiseed_s2_L\models\best_model\best_model.zip
