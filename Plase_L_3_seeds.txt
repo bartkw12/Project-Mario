@@ -944,3 +944,77 @@ Training: 100%|█████████████████████�
 
 Sweep for seed 3
 
+         flag_rate=0% (0/50)  mean_x=469  max_x=898  reward=534  steps=73  (23s)
+[sweep] (3/22) Evaluating 1.5M — results\multiseed_s3_L\models\checkpoints\ppo_mario_1500000_steps.zip
+         flag_rate=0% (0/50)  mean_x=760  max_x=1673  reward=885  steps=187  (60s)
+[sweep] (4/22) Evaluating 2.0M — results\multiseed_s3_L\models\checkpoints\ppo_mario_2000000_steps.zip
+         flag_rate=0% (0/50)  mean_x=904  max_x=1960  reward=1085  steps=133  (44s)
+[sweep] (5/22) Evaluating 2.5M — results\multiseed_s3_L\models\checkpoints\ppo_mario_2500000_steps.zip
+         flag_rate=0% (0/50)  mean_x=684  max_x=1619  reward=692  steps=565  (184s)
+[sweep] (6/22) Evaluating 3.0M — results\multiseed_s3_L\models\checkpoints\ppo_mario_3000000_steps.zip
+         flag_rate=0% (0/50)  mean_x=720  max_x=1950  reward=854  steps=105  (34s)
+[sweep] (7/22) Evaluating 3.5M — results\multiseed_s3_L\models\checkpoints\ppo_mario_3500000_steps.zip
+         flag_rate=0% (0/50)  mean_x=299  max_x=434  reward=312  steps=79  (26s)
+[sweep] (8/22) Evaluating 4.0M — results\multiseed_s3_L\models\checkpoints\ppo_mario_4000000_steps.zip
+         flag_rate=0% (0/50)  mean_x=775  max_x=1432  reward=912  steps=158  (51s)
+[sweep] (9/22) Evaluating 4.5M — results\multiseed_s3_L\models\checkpoints\ppo_mario_4500000_steps.zip
+         flag_rate=0% (0/50)  mean_x=786  max_x=1677  reward=940  steps=100  (33s)
+[sweep] (10/22) Evaluating 5.0M — results\multiseed_s3_L\models\checkpoints\ppo_mario_5000000_steps.zip
+         flag_rate=0% (0/50)  mean_x=844  max_x=2789  reward=1011  steps=118  (39s)
+[sweep] (11/22) Evaluating 5.5M — results\multiseed_s3_L\models\checkpoints\ppo_mario_5500000_steps.zip
+         flag_rate=0% (0/50)  mean_x=924  max_x=1966  reward=1114  steps=123  (40s)
+[sweep] (12/22) Evaluating 6.0M — results\multiseed_s3_L\models\checkpoints\ppo_mario_6000000_steps.zip
+         flag_rate=0% (0/50)  mean_x=960  max_x=1960  reward=1163  steps=116  (37s)
+[sweep] (13/22) Evaluating 6.5M — results\multiseed_s3_L\models\checkpoints\ppo_mario_6500000_steps.zip
+         flag_rate=0% (0/50)  mean_x=853  max_x=1527  reward=1019  steps=133  (43s)
+[sweep] (14/22) Evaluating 7.0M — results\multiseed_s3_L\models\checkpoints\ppo_mario_7000000_steps.zip
+         flag_rate=0% (0/50)  mean_x=969  max_x=2469  reward=1174  steps=119  (39s)
+[sweep] (15/22) Evaluating 7.5M — results\multiseed_s3_L\models\checkpoints\ppo_mario_7500000_steps.zip
+         flag_rate=2% (1/50)  mean_x=989  max_x=3161  reward=1196  steps=143  (46s)
+[sweep] (16/22) Evaluating 8.0M — results\multiseed_s3_L\models\checkpoints\ppo_mario_8000000_steps.zip
+         flag_rate=6% (3/50)  mean_x=1410  max_x=3161  reward=1739  steps=178  (58s)
+[sweep] (17/22) Evaluating 8.5M — results\multiseed_s3_L\models\checkpoints\ppo_mario_8500000_steps.zip
+         flag_rate=0% (0/50)  mean_x=1303  max_x=2473  reward=1596  steps=163  (52s)
+[sweep] (18/22) Evaluating 9.0M — results\multiseed_s3_L\models\checkpoints\ppo_mario_9000000_steps.zip
+         flag_rate=2% (1/50)  mean_x=1627  max_x=3161  reward=2013  steps=194  (63s)
+[sweep] (19/22) Evaluating 9.5M — results\multiseed_s3_L\models\checkpoints\ppo_mario_9500000_steps.zip
+         flag_rate=0% (0/50)  mean_x=1681  max_x=2757  reward=2076  steps=210  (68s)
+[sweep] (20/22) Evaluating 10.0M — results\multiseed_s3_L\models\checkpoints\ppo_mario_10000000_steps.zip
+         flag_rate=4% (2/50)  mean_x=1884  max_x=3161  reward=2341  steps=225  (73s)
+[sweep] (21/22) Evaluating best_model — results\multiseed_s3_L\models\best_model\best_model.zip
+         flag_rate=8% (4/50)  mean_x=1911  max_x=3161  reward=2353  steps=336  (106s)
+[sweep] (22/22) Evaluating final_model — results\multiseed_s3_L\models\final_model.zip
+         flag_rate=2% (1/50)  mean_x=1655  max_x=3161  reward=2048  steps=200  (65s)
+
+===============================================================================================
+  CHECKPOINT SWEEP RESULTS — 50 stochastic episodes per model
+  Config: configs/experiments/ablation_l.yaml
+===============================================================================================
+  Rank  Model           Flag%  Flags   mean_x   max_x   reward   steps
+  ----- -------------- ------ ------ -------- ------- -------- -------
+  1     best_model        8%     4/50     1911    3161     2353    336 ★
+  2     8.0M              6%     3/50     1410    3161     1739    178
+  3     10.0M             4%     2/50     1884    3161     2341    225
+  4     final_model       2%     1/50     1655    3161     2048    200
+  5     9.0M              2%     1/50     1627    3161     2013    194
+  6     7.5M              2%     1/50      989    3161     1196    143
+  7     9.5M              0%     0/50     1681    2757     2076    210
+  8     8.5M              0%     0/50     1303    2473     1596    163
+  9     7.0M              0%     0/50      969    2469     1174    119
+  10    6.0M              0%     0/50      960    1960     1163    116
+  11    5.5M              0%     0/50      924    1966     1114    123
+  12    2.0M              0%     0/50      904    1960     1085    133
+  13    6.5M              0%     0/50      853    1527     1019    133
+  14    5.0M              0%     0/50      844    2789     1011    118
+  15    4.5M              0%     0/50      786    1677      940    100
+  16    4.0M              0%     0/50      775    1432      912    158
+  17    1.5M              0%     0/50      760    1673      885    187
+  18    3.0M              0%     0/50      720    1950      854    105
+  19    2.5M              0%     0/50      684    1619      692    565
+  20    1.0M              0%     0/50      469     898      534     73
+  21    3.5M              0%     0/50      299     434      312     79
+  22    500K              0%     0/50      167     305      -31    776
+===============================================================================================
+
+  Best checkpoint: best_model — 8% flag rate (4/50)
+  Path: results\multiseed_s3_L\models\best_model\best_model.zip
