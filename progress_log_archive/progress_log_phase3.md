@@ -8,11 +8,12 @@
 
 ## Current State
 
-**Phase**: 3 — Ablations & Iteration
+**Phase**: 3 — COMPLETED (SOLVED)
 **Branch**: `v2-dev`
 **Hardware**: CPU (dev VM) + 3080 Ti (personal PC)
-**Last session**: May 7, 2026
+**Last session**: May 14, 2026
 **Previous phases**: Phase 1, Phase 2 archived in `progress_log_archive/`
+**Result**: **87.5% flag capture (175/200)** — target was ≥80%
 
 ---
 
@@ -36,14 +37,16 @@ Baseline PPO (5M steps, default config) completed but **not solved**.
 - [x] Ablation K: D extended to 10M (failed — D-family caps at 18%)
 - [x] Ablation L: Moderate reward shaping (flag_bonus=100, time_penalty=-0.05) — peaked 30%
 - [x] Ablation M: Resume L 9.0M with LR halved (1.25e-4) — peaked 36%
-- [x] Ablation N: Resume M 10.5M with LR halved again (6.25e-5) — peaked **64%**
+- [x] Ablation N: Resume M 10.5M with LR halved again (6.25e-5) — peaked 64%
+- [x] Ablation O: Resume N 13.5M with LR halved (3.125e-5) — peaked 71% (200-ep confirmed)
+- [x] Ablation P: Resume O 14.5M with LR halved (1.5625e-5) — regressed to 68% (LR exhausted)
+- [x] Ablation Q: Resume O with higher entropy floor — catastrophic collapse (entropy discontinuity)
+- [x] Ablation R: Resume O with n_epochs=3 — 64% (200-ep), worse than O
+- [x] Multi-seed Phase L: Seeds 1/2/3 — seed 1 peaked 54%, seed 2 42%, seed 3 dead (8%)
+- [x] **Multi-seed Phase M: Seed 1 resumed from 8.0M with LR÷2 — 87.5% (175/200) SOLVED**
 
-### Current — Compounding LR strategy
-- [ ] Ablation O: Resume N 13.5M with LR halved again (3.125e-5) for 3M more steps
-- Target: cross 80% stochastic flag capture
-
-**Best model**: N 13.5M — 64% flag rate (32/50 stochastic episodes)
-**Solved = ≥80% flag capture over 50 stochastic eval episodes.**
+**Final model**: `results/multiseed_s1_M/models/checkpoints/ppo_mario_12000000_steps.zip`
+**Result**: 87.5% stochastic flag capture (175/200 episodes) — **PROJECT SOLVED**
 
 ---
 
@@ -142,20 +145,46 @@ Full details in `notebooks/ablation_journal/ablation_journal.md`.
 | K  | D + target_kl + 10M | 18% | D-family ceiling confirmed |
 | L  | Moderate shaping, fresh 10M | 30% (9.0M) | Broke D ceiling |
 | M  | Resume L 9.0M, LR÷2 | 36% (best_model) | LR halving works |
-| **N** | **Resume M 10.5M, LR÷2** | **64% (13.5M)** | **Current champion** |
-| O  | Resume N 13.5M, LR÷2 | ? | Next — targeting ≥80% |
+| N | Resume M 10.5M, LR÷2 | 64% (13.5M) | Strong — former champion |
+| O | Resume N 13.5M, LR÷2 | 71% (14.5M) | 200-ep confirmed champion (seed 42) |
+| P | Resume O 14.5M, LR÷2 | 68% | Regressed — LR halving exhausted |
+| Q | Resume O, ent_coef_final=0.04 | 0% (collapsed) | Entropy discontinuity on resume |
+| R | Resume O, n_epochs=3 | 64% (200-ep) | Wider window but lower ceiling |
+| Multi-seed L | Seeds 1/2/3, fresh L recipe | 54%/42%/8% | Seed 1 exceptional |
+| **Multi-seed M** | **Seed 1, resume 8.0M, LR÷2** | **87.5% (200-ep)** | **SOLVED** |
 
 ---
 
 ## Next Actions
 
-1. Run Ablation O (resume N 13.5M, LR=3.125e-5, 3M steps) on 3080 Ti
-2. Sweep O checkpoints with 50 stochastic episodes
-3. If ≥80% → Phase 3 solved. If not → assess whether to continue halving or try alternate approach
+**Phase 3 is complete. Project solved.**
+
+Potential future work (not required):
+- Record a showcase video of the winning model
+- Test generalization to other levels (1-2, 1-3, etc.)
+- Write up findings for documentation/blog post
 
 ---
 
 ## Session Notes
+
+### Session — May 14, 2026 — PROJECT SOLVED
+- Multi-seed Phase M (seed 1): **87.5% flag capture (175/200)**
+- 200-episode evaluation confirms result well above 80% target
+- Winning recipe: L config + seed 1 + one LR halving (2.5e-4 → 1.25e-4)
+- Total training: 12M steps (~4 hours GPU across two phases)
+- Phase 3 complete
+
+### Session — May 10–13, 2026
+- Ablation R: n_epochs=3 isolated test — 64% (200-ep), worse than O
+- Multi-seed Phase L: seed 1 = 54%, seed 2 = 42%, seed 3 = 8%
+- Seed 1 selected for continuation through compounding pipeline
+
+### Session — May 8–9, 2026
+- Ablation O: 71% (200-ep re-eval, 142/200) — new champion
+- Ablation P: LR halving to 1.5625e-5 regressed to 68% — exhausted
+- Ablation Q: Entropy floor change caused catastrophic collapse (repeat of K lesson)
+- Failure analysis: x≈2470 bottleneck accounts for 57% of O's failures
 
 ### Session — May 7, 2026
 - Ablation N: 64% flag rate (32/50) — new champion
