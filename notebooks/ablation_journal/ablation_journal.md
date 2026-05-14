@@ -1308,13 +1308,85 @@ The 72% best_model is just O's checkpoint re-saved before Q's changes took effec
 
 ---
 
+## Ablation R — Resume O 14.5M with n_epochs=3 (Isolated Test)
+
+**Date**: May 9–10, 2026
+**Config**: `configs/experiments/ablation_r.yaml`
+
+**Hypothesis**: Q's entropy discontinuity prevented testing n_epochs=3. This isolates it by keeping `ent_coef_final=0.03` (matching O exactly). Fewer gradient passes should extend the golden window.
+
+| Changed | Ablation O | Ablation R |
+|---|---|---|
+| n_epochs | 4 | **3** |
+| total_timesteps | 16.5M | **17.5M** |
+| checkpoint_freq | 500K | **100K** |
+
+**Method**: Resumed from O 14.5M. 3M additional steps.
+
+### Results — Sweep (50 episodes)
+
+| Metric | Best |
+|---|---|
+| Peak | 74% (final_model, 17.5M) |
+| 2nd | 70% (15.7M, 14.7M) |
+| Checkpoints ≥60% | 5 |
+
+### 200-Episode Re-Eval of R final_model: **64% (128/200)**
+
+Significantly worse than O's 71% (142/200). The 50-ep estimate (74%) was 10 points optimistic.
+
+**Failure zones** (72 failures): early ~670–712 (5.6%), mid-early ~1433–1515 (9.7%), mid ~1787–2028 (31.9%), late wall ~2469–2476 (38.9%), near-flag ~2747–2850 (13.9%).
+
+### Verdict: **n_epochs=3 extends training life (3M wide window vs 1M) but lowers the ceiling.** Policy oscillates rather than locking in. O 14.5M remains champion.
+
+### Lessons
+
+69. **n_epochs=3 prevents permanent collapse but degrades precision.** Fewer gradient passes mean the policy never consolidates obstacle passes as firmly — it spreads failures across all zones instead of concentrating at x≈2470.
+70. **50-episode sweeps are dangerously noisy.** R: 74%→64% (10-point drop on re-eval). O: 74%→71% (3-point drop). Treat 50-ep results as rough screening only.
+71. **"Resume from O and tweak hyperparameters" is exhausted.** LR halving (P), entropy floor (Q), and n_epochs (R) all failed to beat O's 71%.
+
+---
+
+## Multi-Seed Phase L — Fresh L Recipe with Seeds 1, 2, 3
+
+**Date**: May 10–13, 2026
+**Config**: `configs/experiments/ablation_l.yaml` with `--seed 1/2/3`
+
+**Rationale**: The "resume from O" approach is exhausted. The compounding LR pipeline (L→M→N→O) is proven to reach 71% with seed 42. Running multiple seeds from scratch exploits seed variance — a luckier seed may exceed 80% through the same pipeline.
+
+### Results — Phase L Sweep (50 episodes each)
+
+| Seed | Best Checkpoint | Peak Flag% | At Step |
+|---|---|---|---|
+| **Seed 1** | 8.0M | **54%** | 8.0M |
+| Seed 2 | best_model | 42% | ~8.5M |
+| Seed 3 | best_model | 8% | ~9.2M |
+| Original (seed 42) | 9.0M | 30% | 9.0M |
+
+### Key Observations
+
+- **Seed 1 is exceptional**: 54% at 8.0M — 24 points above the original seed 42 at the same phase. This seed learned the level faster and more robustly.
+- **Seed 2** is marginally above original but not dramatic.
+- **Seed 3** is dead — extreme entropy collapse throughout, never cracked 10%.
+
+### Verdict: **Seed 1 is the most promising candidate.** Continue through M→N→O pipeline. With a 54% starting point (vs original's 30%), there's a realistic chance the compounding LR halvings push past 80%.
+
+### Lessons
+
+72. **Seed variance is massive** — same config produces 8% to 54% across 3 seeds. Seed selection is a legitimate optimization axis.
+73. **Seed 1 learned earlier and more stably** than seed 42 — already 54% at 8.0M vs seed 42's 30% at 9.0M. This gives the compounding pipeline a better foundation to build on.
+
+---
+
 ## What's Next
 
 **O 14.5M remains the project champion** at 71% stochastic flag capture (142/200).
 
+**Active strategy**: Continue seed 1 through M→N→O compounding LR pipeline. Next: Phase M (resume seed 1's 8.0M with LR=1.25e-4).
+
 **Gap to target**: 71% → 80% (9 percentage points remaining).
 
-**Hard rules established (from K and Q failures):**
+**Hard rules established:**
 - Do NOT change `ent_coef` or `ent_coef_final` when resuming
 - Do NOT halve LR below 3.125e-5 (P proved negative returns)
 
