@@ -312,9 +312,11 @@ Prints per-episode stats (x_pos, reward, steps, flag capture) and a summary incl
 ### Record Video
 
 ```bash
-# Record evaluation episodes as .mp4 files
-python -m src.evaluate --model results/ablation_d/models/best_model/best_model.zip --record --episodes 5
+# Record evaluation episodes as .mp4 files (stochastic for varied runs)
+python -m src.evaluate --model results/multiseed_s1_M/models/checkpoints/ppo_mario_12000000_steps.zip --record --stochastic --episodes 5
 ```
+
+> **Note**: Without `--stochastic`, evaluation uses deterministic (argmax) actions, which produces the exact same trajectory every time with a fixed seed. Use `--stochastic` to get varied episodes.
 
 Videos are saved to `results/videos/` as `episode_001.mp4`, `episode_002.mp4`, etc. Each video is upscaled 3x from native NES resolution (240×256 → 720×768) with a stats overlay bar showing episode number, x_pos, reward, steps, and flag status.
 
@@ -364,6 +366,7 @@ Open `http://localhost:6006` (default) in your browser. Key metrics to monitor:
 | `--model` | `str` | — | Path to trained model `.zip` (omit for random agent) |
 | `--episodes` | `int` | `5` | Number of evaluation episodes |
 | `--record` | flag | — | Record episodes as `.mp4` video files |
+| `--stochastic` | flag | — | Use sampled actions instead of deterministic argmax |
 | `--seed` | `int` | — | Override seed from config |
 
 ---
