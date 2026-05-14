@@ -1,3 +1,3 @@
-Phase M Recommended: 200-Episode Confirmation:
+Video embed link:
 
-python -m src.evaluate --config configs/experiments/ablation_m.yaml --model results/multiseed_s1_M/models/checkpoints/ppo_mario_12000000_steps.zip --episodes 200 --stochastic
+https://github.com/bartkw12/Project-Mario/releases/download/v1.0/PhaseM_solved.mp4
