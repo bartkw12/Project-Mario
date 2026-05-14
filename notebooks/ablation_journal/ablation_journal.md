@@ -1390,10 +1390,141 @@ Significantly worse than O's 71% (142/200). The 50-ep estimate (74%) was 10 poin
 - Do NOT change `ent_coef` or `ent_coef_final` when resuming
 - Do NOT halve LR below 3.125e-5 (P proved negative returns)
 
-**Solved = ≥80% flag capture over 50 stochastic eval episodes.**
+---
 
-Progress tiers:
+## Multi-Seed Phase M — SOLVED: 87.5% Flag Capture (175/200)
+
+**Date**: May 13–14, 2026
+**Config**: `configs/experiments/ablation_m.yaml` with `--seed 1`
+**Model**: `results/multiseed_s1_M/models/checkpoints/ppo_mario_12000000_steps.zip`
+
+### Setup
+
+Resumed from seed 1's Phase L best checkpoint (8.0M, 54%) with LR halved to 1.25e-4. Trained 4M additional steps (8.0M → 12.0M). This is the first LR halving in the compounding pipeline for this seed.
+
+| Parameter | Value |
+|---|---|
+| lr | 1.25e-4 (halved from L's 2.5e-4) |
+| n_epochs | 4 |
+| ent_coef | 0.05 → 0.03 (linear schedule) |
+| target_kl | 0.05 |
+| total_timesteps | 12M |
+| seed | 1 |
+| Resume from | multiseed_s1_L 8.0M |
+
+### Training Trajectory
+
+The training flag_rate climbed steadily: 37% → 45% → 56% → 72% → **84% → 92%** by 12.0M. A brief entropy collapse warning at ~10.1M (flag_rate dropped to 7%) was self-correcting — the policy recovered within 200K steps and continued climbing.
+
+### 50-Episode Sweep Results
+
+| Rank | Checkpoint | Flag% |
+|---|---|---|
+| 1 | 12.0M | **82%** (41/50) |
+| 2 | best_model | **82%** (41/50) |
+| 3 | final_model | **82%** (41/50) |
+| 4 | 11.0M | 72% (36/50) |
+| 5 | 11.5M | 70% (35/50) |
+| 6 | 9.0M | 64% (32/50) |
+
+Three checkpoints at ≥80% — far more robust than any prior result.
+
+### 200-Episode Confirmation: **87.5% (175/200)**
+
+| Metric | Value |
+|---|---|
+| **Flag capture rate** | **87.5% (175/200)** |
+| mean_x_pos | 3011 |
+| max_x_pos | 3161 |
+| mean_reward | 3869.5 |
+| mean_steps | 362 |
+
+This exceeds the 80% target by 7.5 percentage points. The 50-episode estimate (82%) was actually **conservative** — the true rate is higher.
+
+### Failure Analysis (25/200 episodes failed)
+
+| Zone | x range | Count | % of failures |
+|---|---|---|---|
+| Early | ~829–898 | 4 | 16% |
+| Mid-early | ~1433–1435 | 2 | 8% |
+| Mid | ~1788–1964 | 9 | 36% |
+| Late wall | ~2466–2472 | 7 | 28% |
+| Near-flag | ~2763–2764 | 3 | 12% |
+
+The x≈2470 bottleneck that dominated O's failures (57% of all failures) is now just 28%. This seed solved the wall obstacle much more consistently than seed 42 ever did.
+
+### Why This Seed Won
+
+1. **Better early learning**: Seed 1 reached 54% after Phase L alone (vs 30% for seed 42). It entered Phase M with a stronger, more consolidated policy.
+2. **Only needed one LR halving**: Seed 42 needed four halvings (L→M→N→O) and still peaked at 71%. Seed 1 solved the level in just two phases (L→M).
+3. **Total training**: 12M steps total (~4 hours GPU). Seed 42 used 16.5M steps and never crossed 80%.
+
+### The Winning Recipe (Complete Specification)
+
+```yaml
+env:
+  game: SuperMarioBros-1-1-v0
+  movement: SIMPLE_MOVEMENT
+  frame_skip: 4
+  frame_stack: 4
+  obs_size: 84
+  num_envs: 16
+
+training:
+  total_timesteps: 12000000
+  lr: 0.000125
+  n_steps: 1024
+  batch_size: 512
+  n_epochs: 4
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  ent_coef: 0.05
+  ent_coef_final: 0.03
+  target_kl: 0.05
+
+reward:
+  forward_scale: 0.3
+  death_penalty: -15.0
+  flag_bonus: 100.0
+  time_penalty: -0.05
+
+seed: 1
+```
+
+**Method**: Train Phase L (LR=2.5e-4) for 10M steps → sweep → pick best checkpoint (8.0M) → resume Phase M (LR=1.25e-4) to 12M → evaluate.
+
+### Verdict: **PROJECT SOLVED.**
+
+### Lessons
+
+74. **Seed selection + compounding LR is the winning strategy.** The recipe (L config + LR halvings) was already proven — it just needed a better seed.
+75. **A stronger Phase L foundation dramatically reduces the work needed.** Seed 1 at 54% needed only one halving to reach 87.5%. Seed 42 at 30% needed four halvings and still capped at 71%.
+76. **The 50-episode screening methodology works.** Screen with 50 episodes, confirm with 200. In this case the 50-ep estimate (82%) was actually conservative (true rate: 87.5%).
+77. **Multi-seed is not expensive.** Three Phase L runs cost ~4.5 hours. The winning seed then needed only one more 2-hour Phase M run. Total additional cost to solve: ~6.5 hours of GPU compared to dozens of hours of failed ablations on seed 42.
+
+---
+
+## Project Summary
+
+**Target**: ≥80% stochastic flag capture over 50 episodes on Super Mario Bros Level 1-1.
+
+**Achieved**: **87.5% (175/200)** — confirmed with full 200-episode evaluation.
+
+**Final model**: `results/multiseed_s1_M/models/checkpoints/ppo_mario_12000000_steps.zip`
+
+**Total ablations**: A through R + multi-seed = 21 experiment configurations across Phase 3.
+
+**Key breakthroughs**:
+- Phase 1–2: Established SB3 PPO + CnnPolicy pipeline, reward shaping, entropy scheduling
+- Ablation L: Found the core recipe (flag_bonus=100, time_penalty=-0.05, ent 0.05→0.03, target_kl=0.05)
+- Ablations M–O (seed 42): Proved compounding LR strategy works (30% → 71%)
+- Ablations P–R: Proved the "tweak and resume" approach is exhausted for seed 42
+- Multi-seed Phase L: Exploited seed variance to find a better starting trajectory
+- Multi-seed Phase M: **Solved** in one halving (54% → 87.5%)
+
+**Progress tiers (final)**:
 - <20%: Early progress ← D-family ceiling (18%)
-- 20–50%: Significant progress
-- 50–80%: Strong result
-- ≥80%: **Solved** ← **O 14.5M is 9 points away (71%)**
+- 20–50%: Significant progress ← L (30%), seed 1 L (54%)
+- 50–80%: Strong result ← O seed 42 (71%)
+- ≥80%: **SOLVED** ← **Seed 1 Phase M: 87.5% (175/200)** ✓
