@@ -1,9 +1,3 @@
-Phase M
+Phase M Recommended: 200-Episode Confirmation:
 
-Training:
-
-python -m src.train --config configs/experiments/ablation_m.yaml --seed 1 --name multiseed_s1_M --resume results/multiseed_s1_L/models/checkpoints/ppo_mario_8000000_steps.zip --subproc
-
-sweep:
-
-python -m scripts.checkpoint_sweep --config configs/experiments/ablation_m.yaml --checkpoints results/multiseed_s1_M/models/checkpoints --extra results/multiseed_s1_M/models/best_model/best_model.zip results/multiseed_s1_M/models/final_model.zip --episodes 50
+python -m src.evaluate --config configs/experiments/ablation_m.yaml --model results/multiseed_s1_M/models/checkpoints/ppo_mario_12000000_steps.zip --episodes 200 --stochastic
