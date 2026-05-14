@@ -43,9 +43,9 @@ A reinforcement learning agent trained with **Proximal Policy Optimization (PPO)
 
 This project trains a deep RL agent to play **Super Mario Bros (NES)** using the `gym-super-mario-bros` environment. The agent receives 84×84 grayscale, frame-stacked observations and outputs discrete movement actions via a convolutional neural network policy (CnnPolicy) optimized with PPO.
 
-**Primary Goal**: Achieve ≥80% flag capture rate over 50 evaluation episodes on Level 1-1.
+**Primary Goal**: Achieve ≥80% flag capture rate over 50 stochastic evaluation episodes on Level 1-1.
 
-**Current Phase**: Phase 3 — Ablation testing and hyperparameter tuning. A detailed ablation journal is maintained in `notebooks/ablation_journal/`.
+**Status**: ✅ **SOLVED** — 87.5% flag capture (175/200 episodes) confirmed via stochastic evaluation. A detailed ablation journal documenting 18 experiments across 3 phases is maintained in `notebooks/ablation_journal/`.
 
 ---
 
@@ -114,12 +114,12 @@ The default configuration uses **16 parallel environments**. Each environment is
 
 The raw environment reward is augmented with custom shaping signals via the `SimpleRewardShaping` wrapper:
 
-| Signal | Default | Description |
+| Signal | Winning Value | Description |
 |---|---|---|
 | **Forward progress** | `forward_scale=0.3` | Reward proportional to rightward x-position delta per step. Teaches the agent to move right. |
 | **Death penalty** | `death_penalty=-15.0` | Negative reward when Mario loses a life. Discourages risky behavior. |
-| **Flag bonus** | `flag_bonus=200.0` | Large positive reward for capturing the end-of-level flag. Incentivizes level completion. |
-| **Time penalty** | `time_penalty=-0.1` | Small per-step negative reward. Creates urgency — the agent is penalized for dawdling. |
+| **Flag bonus** | `flag_bonus=100.0` | Large positive reward for capturing the end-of-level flag. Incentivizes level completion. |
+| **Time penalty** | `time_penalty=-0.05` | Small per-step negative reward. Creates urgency — the agent is penalized for dawdling. |
 
 These values were tuned through ablation testing. The forward scale and flag bonus are the most impactful parameters — too low and the agent has no urgency; too high and the reward signal destabilizes training.
 
@@ -150,14 +150,10 @@ Custom Stable Baselines3 callbacks provide training visibility:
 Project-Mario/
 ├── README.md                   # This file
 ├── gameplan.md                 # High-level project reference
-├── progress_log.md             # Volatile session-to-session tracking
 ├── pyproject.toml              # Dependencies and build config
 ├── configs/
 │   ├── default.yaml            # Default training configuration
-│   └── experiments/            # Ablation experiment configs
-│       ├── ablation_a.yaml
-│       ├── ablation_b.yaml
-│       └── ...
+│   └── experiments/            # Ablation experiment configs (A through R)
 ├── src/
 │   ├── __init__.py
 │   ├── config.py               # YAML config → dataclass loader + CLI parser
@@ -168,13 +164,15 @@ Project-Mario/
 │       ├── __init__.py
 │       ├── mario_env.py        # Environment factory (make_vec_env, make_single_env)
 │       └── wrappers.py         # SkipFrame, SimpleRewardShaping
+├── scripts/
+│   └── checkpoint_sweep.py     # Evaluate all checkpoints in a run
 ├── results/
 │   ├── <experiment_name>/
 │   │   ├── models/             # Saved models (best + checkpoints)
-│   │   ├── logs/               # TensorBoard event files + eval logs
-│   │   └── videos/             # Recorded evaluation videos
+│   │   └── logs/               # TensorBoard event files + eval logs
 ├── notebooks/
 │   └── ablation_journal/       # Detailed ablation experiment notes
+├── progress_log_archive/       # Phase 1–3 progress logs
 ├── tests/                      # Smoke tests
 └── legacy/                     # V1 code (archived, not used)
 ```
@@ -416,31 +414,42 @@ Experiment-specific configs are stored in `configs/experiments/` and override an
 
 ## Current Results
 
-The project is currently in **Phase 3 — Ablation & Hyperparameter Tuning**. The goal is to achieve ≥80% flag capture rate over 50 evaluation episodes.
+**Goal achieved**: 87.5% flag capture rate (175/200 stochastic episodes), confirmed on the winning model at 12M timesteps.
 
-### Ablation Summary
+### Winning Configuration
 
-| Run | ent_coef | fwd_scale | flag_bonus | time_penalty | Peak Flag% | Final Flag% | Stable? |
-|---|---|---|---|---|---|---|---|
-| Baseline | 0.01 static | 0.1 | 50 | — | 6% | 0% | No |
-| Ablation A | 0.02 static | 0.1 | 50 | — | 6% | 1% | No |
-| Ablation B | 0.03 static | 0.1 | 50 | — | 28% | 0% | No |
-| Ent Schedule | 0.05→0.02 | 0.1 | 50 | — | 39% | 0% | Mostly |
-| Ablation C | 0.05→0.02 | 0.2 | 50 | — | 27% | 0% | Better |
-| **Ablation D** | 0.05→0.02 | **0.3** | 50 | — | 22% | **22%** | **Yes** |
-| Ablation F | 0.04→0.03* | 0.3 | 50 | — | 26% | 0% | No (bug) |
-| **Ablation G** | 0.05→0.03 | 0.3 | **200** | **-0.1** | *in progress* | *in progress* | *pending* |
+| Parameter | Value |
+|---|---|
+| Seed | 1 |
+| Learning rate | 1.25e-4 (halved once from 2.5e-4) |
+| ent_coef | 0.05 → 0.03 (linear schedule) |
+| target_kl | 0.05 |
+| forward_scale | 0.3 |
+| flag_bonus | 100 |
+| time_penalty | -0.05 |
+| Total training | ~12M timesteps (multi-phase with resume) |
 
-\* Ablation F's entropy schedule was effectively static due to a resume bug (since fixed).
+**Model path**: `results/multiseed_s1_M/models/checkpoints/ppo_mario_12000000_steps.zip`
+
+### Training Progression
+
+The winning model was trained across multiple phases with compounding learning rate reductions:
+
+| Phase | Timesteps | LR | Seed | Flag% (200-ep) |
+|---|---|---|---|---|
+| L (base) | 0 → 8M | 2.5e-4 | 1 | 54% |
+| M (resume) | 8M → 12M | 1.25e-4 | 1 | **87.5%** |
 
 ### Key Findings
 
-- **Entropy scheduling is essential** — static `ent_coef` values always collapse in long training runs. A linear schedule from 0.05 → 0.03 provides stable exploration.
-- **`forward_scale=0.3`** is the sweet spot — the only configuration where the policy did not degrade by end of training.
-- **Ablation D** was the most promising run: the policy was still improving at 5M steps (22% flag rate, upward trend, no degradation).
-- **The agent can reach the flag** — every run achieved `max_x_pos=3161` (end of level). The challenge is consistency and speed.
+- **Entropy scheduling is essential** — static `ent_coef` always collapses in long PPO runs. A linear decay from 0.05 → 0.03 maintains exploration without sacrificing convergence.
+- **Seed variance is massive** — on the same config, 3 seeds produced 8%, 42%, and 54% flag rates. Multi-seed runs are necessary to find strong policies.
+- **Compounding LR reductions work** — resuming from a good checkpoint with halved LR refines policy precision without catastrophic forgetting. This took the best seed from 54% → 87.5%.
+- **50-episode evaluations overestimate** — small sample evals inflated scores by up to 10 points. Always confirm with ≥200 episodes.
+- **`forward_scale=0.3`** is the sweet spot — the only reward scale where policies did not degrade by end of training.
+- **`target_kl=0.05`** prevents catastrophic updates — without it, aggressive KL divergence causes sudden policy collapse.
 
-For detailed ablation methodology, results, and analysis, see the [ablation journal](notebooks/ablation_journal/ablation_journal.md).
+For the full 18-experiment ablation campaign, see the [ablation journal](notebooks/ablation_journal/ablation_journal.md).
 
 ---
 
