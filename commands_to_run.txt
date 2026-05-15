@@ -1,3 +1,29 @@
-Video embed link:
+Video reduce size steps:
 
-https://github.com/bartkw12/Project-Mario/releases/download/v1.0/PhaseM_solved.mp4
+Step 1: Install ffmpeg
+Open a new terminal in VS Code and run:
+
+winget install --id Gyan.FFmpeg -e
+
+After it finishes, close and reopen the terminal (so the PATH updates).
+
+Step 2: Compress the video
+Navigate to wherever PhaseM_solved.mp4 lives and run:
+
+ffmpeg -i PhaseM_solved.mp4 -vcodec libx264 -crf 28 PhaseM_solved_compressed.mp4
+
+You only need to shave ~0.2 MB, so -crf 28 will be virtually identical quality. Check the output size:
+
+(Get-Item PhaseM_solved_compressed.mp4).Length / 1MB
+
+If it's under 10, you're good. If somehow still over, use -crf 30 instead.
+
+Step 3: Upload via GitHub Issues
+Go to your repo → Issues → New Issue
+Drag PhaseM_solved_compressed.mp4 into the text box
+Wait for it to upload — GitHub generates a URL like:
+https://github.com/user-attachments/assets/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+Copy that URL — you can discard the issue (no need to submit it)
+Paste the URL here and I'll update the README
+
+That user-attachments/assets/... URL format is the one GitHub reliably auto-embeds as an inline video player.
