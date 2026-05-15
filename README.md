@@ -15,7 +15,7 @@ A reinforcement learning agent trained with **Proximal Policy Optimization (PPO)
 
 https://github.com/user-attachments/assets/190abfe6-bbd7-475f-a2fd-19ccff0e0f41
 
-*A PPO agent trained from scratch over 12M timesteps, conquering Super Mario Bros Level 1-1 — no human gameplay data, no imitation learning, just reinforcement learning and 18 ablation experiments.*
+*A PPO agent trained from scratch over 12M timesteps, conquering Super Mario Bros Level 1-1 — no human gameplay data, no imitation learning, just reinforcement learning and 18 ablation experiments (~70 hours of GPU training).*
 
 </div>
 
