@@ -13,7 +13,7 @@ A reinforcement learning agent trained with **Proximal Policy Optimization (PPO)
   <strong>Phase M — 87.5% Flag Capture Rate (Solved)</strong>
 </p>
 
-https://github.com/bartkw12/Project-Mario/releases/download/v1.0/PhaseM_solved.mp4
+https://github.com/user-attachments/assets/190abfe6-bbd7-475f-a2fd-19ccff0e0f41
 
 ---
 
