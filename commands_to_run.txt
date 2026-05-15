@@ -28,49 +28,5 @@ Paste the URL here and I'll update the README
 
 That user-attachments/assets/... URL format is the one GitHub reliably auto-embeds as an inline video player.
 
-----------------------------------------------------------------------------------------------------------------------------------
-
-Get this error in terminal:
-
-PS I:\Python\RL\Project-Mario> .venv\Scripts\activate
-(.venv) PS I:\Python\RL\Project-Mario> cd .\results\
-(.venv) PS I:\Python\RL\Project-Mario\results> cd .\videos\
-(.venv) PS I:\Python\RL\Project-Mario\results\videos> ffmpeg -i PhaseM_solved.mp4 -vcodec libx264 -crf 28 .\PhaseM_solved.mp4         
-ffmpeg : The term 'ffmpeg' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
-At line:1 char:1
-+ ffmpeg -i PhaseM_solved.mp4 -vcodec libx264 -crf 28 .\PhaseM_solved.m ...
-+ ~~~~~~
-    + CategoryInfo          : ObjectNotFound: (ffmpeg:String) [], CommandNotFoundException
-    + FullyQualifiedErrorId : CommandNotFoundException
-(.venv) PS I:\Python\RL\Project-Mario\results\videos> ls
-
-
-    Directory: I:\Python\RL\Project-Mario\results\videos
-
-
-Mode                 LastWriteTime         Length Name                                                                                                                                                                             
--a----         5/14/2026   3:47 PM       10965539 episode_001.mp4                                                                                                                                                                  
--a----         5/14/2026   3:48 PM       11011183 episode_003.mp4                                                                                                                                                                  
--a----         5/14/2026   3:48 PM       12151693 episode_004.mp4                                                                                                                                                                  
--a----         5/14/2026   3:48 PM       11771291 episode_005.mp4                                                                                                                                                                  
--a----         4/22/2026   2:07 PM       11739799 Old_run_solved.mp4                                                                                                                                                               
--a----         5/14/2026   3:47 PM       10755852 PhaseM_solved.mp4                                                                                                                                                                
-
-
-(.venv) PS I:\Python\RL\Project-Mario\results\videos> ffmpeg -version
-ffmpeg : The term 'ffmpeg' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
-At line:1 char:1
-+ ffmpeg -version
-+ ~~~~~~
-    + CategoryInfo          : ObjectNotFound: (ffmpeg:String) [], CommandNotFoundException
-    + FullyQualifiedErrorId : CommandNotFoundException
- 
-(.venv) PS I:\Python\RL\Project-Mario\results\videos> ffmpeg --version
-ffmpeg : The term 'ffmpeg' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
-At line:1 char:1
-+ ffmpeg --version
-+ ~~~~~~
-    + CategoryInfo          : ObjectNotFound: (ffmpeg:String) [], CommandNotFoundException
-    + FullyQualifiedErrorId : CommandNotFoundException
- 
-(.venv) PS I:\Python\RL\Project-Mario\results\videos> 
+GENERATED URL:
+https://github.com/user-attachments/assets/190abfe6-bbd7-475f-a2fd-19ccff0e0f41
