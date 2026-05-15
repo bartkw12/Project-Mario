@@ -9,11 +9,15 @@ A reinforcement learning agent trained with **Proximal Policy Optimization (PPO)
   <img src="https://img.shields.io/badge/Env-Super%20Mario%20Bros-red" alt="Mario">
 </p>
 
-<p align="center">
-  <strong>Phase M — 87.5% Flag Capture Rate (Solved)</strong>
-</p>
+<div align="center">
+
+**Phase M — 87.5% Flag Capture Rate (Solved)**
 
 https://github.com/user-attachments/assets/190abfe6-bbd7-475f-a2fd-19ccff0e0f41
+
+*A PPO agent trained from scratch over 12M timesteps, conquering Super Mario Bros Level 1-1 — no human gameplay data, no imitation learning, just reinforcement learning and 18 ablation experiments.*
+
+</div>
 
 ---
 
