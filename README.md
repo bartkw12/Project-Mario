@@ -453,6 +453,34 @@ The winning model was trained across multiple phases with compounding learning r
 | L (base) | 0 → 8M | 2.5e-4 | 1 | 54% |
 | M (resume) | 8M → 12M | 1.25e-4 | 1 | **87.5%** |
 
+### Training Results
+
+The figures below are exported directly from the TensorBoard logs of the winning Phase M run (`results/multiseed_s1_M/logs/PPO_0`). They summarize the 8M → 12M resume window that produced the final 12M checkpoint. These are training-time diagnostics, not replacements for the final 175/200 stochastic evaluation result.
+
+#### 1. Task-Level Learning Curves
+
+<p align="center">
+  <img src="training_graphs/01_phase_m_progress_overview.png" alt="Phase M learning curves" width="900">
+</p>
+
+This plot tracks the most decision-relevant training signals: rolling flag capture rate, mean terminal x-position, and mean episodic reward. All three improve together during Phase M, which matters because it suggests the policy is not merely exploiting the shaped reward, but is actually getting farther into the level and finishing more episodes successfully. This is the main task-performance figure: it shows that the resume phase improved both objective completion and trajectory quality.
+
+#### 2. PPO Stability Diagnostics
+
+<p align="center">
+  <img src="training_graphs/02_phase_m_policy_stability.png" alt="Phase M PPO stability diagnostics" width="900">
+</p>
+
+This figure shows the optimization-side view of the same run through entropy loss, approximate KL, and clip fraction. It is useful because strong Mario returns alone do not distinguish stable refinement from an unstable late-stage policy. Here, the updates remain controlled while entropy stays meaningfully above full collapse, which is consistent with the claim that the entropy schedule and `target_kl=0.05` kept Phase M in a productive fine-tuning regime rather than a brittle deterministic one.
+
+#### 3. Entropy-Collapse Monitoring
+
+<p align="center">
+  <img src="training_graphs/03_phase_m_collapse_diagnostics.png" alt="Phase M entropy collapse diagnostics" width="900">
+</p>
+
+This figure comes from the custom collapse-monitoring callback and is the most project-specific diagnostic. It combines entropy, rolling entropy velocity, KL-over-threshold fraction, and diagnostic flag rate to test a central hypothesis from the ablation campaign: many long PPO runs fail because apparent progress is purchased by entropy collapse. In the successful Phase M run, flag rate rises without the severe entropy-velocity signature associated with catastrophic late-stage degradation, which supports the interpretation that this run improved robustness rather than simply overfitting a narrow deterministic trajectory.
+
 ### Key Findings
 
 - **Entropy scheduling is essential** — static `ent_coef` always collapses in long PPO runs. A linear decay from 0.05 → 0.03 maintains exploration without sacrificing convergence.
