@@ -1,0 +1,28 @@
+Project Mario training graph export
+source_logdir: results/multiseed_s1_M/logs/PPO_0
+
+available_scalar_tags:
+- collapse/approx_kl (283 points)
+- collapse/entropy (283 points)
+- collapse/entropy_vel_rolling (273 points)
+- collapse/entropy_velocity (282 points)
+- collapse/flag_rate (283 points)
+- collapse/kl_clip_frac (283 points)
+- eval/mean_ep_length (40 points)
+- eval/mean_reward (40 points)
+- mario/flag_capture_rate (284 points)
+- mario/max_x_pos (284 points)
+- mario/mean_x_pos (284 points)
+- rollout/ep_len_mean (244 points)
+- rollout/ep_rew_mean (244 points)
+- time/fps (244 points)
+- train/approx_kl (244 points)
+- train/clip_fraction (244 points)
+- train/clip_range (244 points)
+- train/ent_coef (284 points)
+- train/entropy_loss (244 points)
+- train/explained_variance (244 points)
+- train/learning_rate (244 points)
+- train/loss (244 points)
+- train/policy_gradient_loss (244 points)
+- train/value_loss (244 points)
