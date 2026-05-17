@@ -132,7 +132,7 @@ The raw environment reward is augmented with custom shaping signals via the `Sim
 | **Flag bonus** | `flag_bonus=100.0` | Large positive reward for capturing the end-of-level flag. Incentivizes level completion. |
 | **Time penalty** | `time_penalty=-0.05` | Small per-step negative reward. Creates urgency — the agent is penalized for dawdling. |
 
-These values were tuned through ablation testing. The forward scale and flag bonus are the most impactful parameters — too low and the agent has no urgency; too high and the reward signal destabilizes training.
+These values were tuned through ablation testing. The forward scale and flag bonus are the most impactful parameters; too low and the agent has no urgency, too high and the reward signal destabilizes training.
 
 ### Entropy Scheduling
 
