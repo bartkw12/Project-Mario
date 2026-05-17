@@ -45,6 +45,7 @@ https://github.com/user-attachments/assets/190abfe6-bbd7-475f-a2fd-19ccff0e0f41
 - [CLI Reference](#cli-reference)
 - [Configuration](#configuration)
 - [Current Results](#current-results)
+  - [Training Results](#training-results)
 - [License](#license)
 
 ---
@@ -455,7 +456,7 @@ The winning model was trained across multiple phases with compounding learning r
 
 ### Training Results
 
-The figures below are exported directly from the TensorBoard logs of the winning Phase M run (`results/multiseed_s1_M/logs/PPO_0`). They summarize the 8M → 12M resume window that produced the final 12M checkpoint. These are training-time diagnostics, not replacements for the final 175/200 stochastic evaluation result.
+The figures below are exported from the TensorBoard logs of the winning Phase M run (`results/multiseed_s1_M/logs/PPO_0`), covering the 8M → 12M resume window. These are training-time diagnostics; the final 87.5% (175/200) result comes from a separate stochastic evaluation of the 12M checkpoint.
 
 #### 1. Task-Level Learning Curves
 
@@ -463,7 +464,7 @@ The figures below are exported directly from the TensorBoard logs of the winning
   <img src="training_graphs/01_phase_m_progress_overview.png" alt="Phase M learning curves" width="900">
 </p>
 
-This plot tracks the most decision-relevant training signals: rolling flag capture rate, mean terminal x-position, and mean episodic reward. All three improve together during Phase M, which matters because it suggests the policy is not merely exploiting the shaped reward, but is actually getting farther into the level and finishing more episodes successfully. This is the main task-performance figure: it shows that the resume phase improved both objective completion and trajectory quality.
+Rolling flag capture rate, mean terminal x-position, and mean episodic return over the Phase M resume window. All three metrics improve in tandem, indicating that the policy is not merely exploiting the shaped reward signal — it is penetrating deeper into the level and completing more episodes. The co-movement across task completion, spatial progress, and return confirms that the halved learning rate produced genuine policy refinement rather than reward hacking.
 
 #### 2. PPO Stability Diagnostics
 
@@ -471,7 +472,7 @@ This plot tracks the most decision-relevant training signals: rolling flag captu
   <img src="training_graphs/02_phase_m_policy_stability.png" alt="Phase M PPO stability diagnostics" width="900">
 </p>
 
-This figure shows the optimization-side view of the same run through entropy loss, approximate KL, and clip fraction. It is useful because strong Mario returns alone do not distinguish stable refinement from an unstable late-stage policy. Here, the updates remain controlled while entropy stays meaningfully above full collapse, which is consistent with the claim that the entropy schedule and `target_kl=0.05` kept Phase M in a productive fine-tuning regime rather than a brittle deterministic one.
+Entropy loss, approximate KL divergence, and clip fraction characterize the optimization dynamics behind the task-level improvements above. Strong returns alone do not distinguish stable refinement from an unstable late-stage policy. Here, entropy remains above full collapse, KL stays bounded, and clip fraction does not spike — consistent with the entropy schedule (`0.05 → 0.03`) and `target_kl=0.05` maintaining a productive fine-tuning regime without brittle deterministic convergence.
 
 #### 3. Entropy-Collapse Monitoring
 
@@ -479,7 +480,7 @@ This figure shows the optimization-side view of the same run through entropy los
   <img src="training_graphs/03_phase_m_collapse_diagnostics.png" alt="Phase M entropy collapse diagnostics" width="900">
 </p>
 
-This figure comes from the custom collapse-monitoring callback and is the most project-specific diagnostic. It combines entropy, rolling entropy velocity, KL-over-threshold fraction, and diagnostic flag rate to test a central hypothesis from the ablation campaign: many long PPO runs fail because apparent progress is purchased by entropy collapse. In the successful Phase M run, flag rate rises without the severe entropy-velocity signature associated with catastrophic late-stage degradation, which supports the interpretation that this run improved robustness rather than simply overfitting a narrow deterministic trajectory.
+Output from the custom `EntropyCollapseDetector` callback, combining captured entropy, rolling entropy velocity, KL-over-threshold fraction, and diagnostic flag rate. A central finding from the ablation campaign is that many long PPO runs fail because apparent reward improvement is purchased by entropy collapse — the policy narrows to a single deterministic trajectory that is brittle under stochastic evaluation. In Phase M, flag rate rises without the sustained negative entropy-velocity signature associated with catastrophic collapse, supporting the conclusion that this run achieved robust generalization rather than trajectory overfitting.
 
 ### Key Findings
 
