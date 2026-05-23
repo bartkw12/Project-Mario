@@ -45,6 +45,7 @@ https://github.com/user-attachments/assets/190abfe6-bbd7-475f-a2fd-19ccff0e0f41
 - [CLI Reference](#cli-reference)
 - [Configuration](#configuration)
 - [Current Results](#current-results)
+  - [Training Results](#training-results)
 - [License](#license)
 
 ---
@@ -131,7 +132,7 @@ The raw environment reward is augmented with custom shaping signals via the `Sim
 | **Flag bonus** | `flag_bonus=100.0` | Large positive reward for capturing the end-of-level flag. Incentivizes level completion. |
 | **Time penalty** | `time_penalty=-0.05` | Small per-step negative reward. Creates urgency — the agent is penalized for dawdling. |
 
-These values were tuned through ablation testing. The forward scale and flag bonus are the most impactful parameters — too low and the agent has no urgency; too high and the reward signal destabilizes training.
+These values were tuned through ablation testing. The forward scale and flag bonus are the most impactful parameters; too low and the agent has no urgency, too high and the reward signal destabilizes training.
 
 ### Entropy Scheduling
 
@@ -452,6 +453,34 @@ The winning model was trained across multiple phases with compounding learning r
 |---|---|---|---|---|
 | L (base) | 0 → 8M | 2.5e-4 | 1 | 54% |
 | M (resume) | 8M → 12M | 1.25e-4 | 1 | **87.5%** |
+
+### Training Results
+
+The figures below are exported from the TensorBoard logs of the winning Phase M run (`results/multiseed_s1_M/logs/PPO_0`), covering the 8M → 12M resume window. These are training-time diagnostics; the final 87.5% (175/200) result comes from a separate stochastic evaluation of the 12M checkpoint.
+
+#### 1. Task-Level Learning Curves
+
+<p align="center">
+  <img src="training_graphs/01_phase_m_progress_overview.png" alt="Phase M learning curves" width="900">
+</p>
+
+Rolling flag capture rate, mean terminal x-position, and mean episodic return over the Phase M resume window. All three metrics improve in tandem, indicating that the policy is not merely exploiting the shaped reward signal, it is penetrating deeper into the level and completing more episodes. The co-movement across task completion, spatial progress, and return confirms that the halved learning rate produced genuine policy refinement rather than reward hacking.
+
+#### 2. PPO Stability Diagnostics
+
+<p align="center">
+  <img src="training_graphs/02_phase_m_policy_stability.png" alt="Phase M PPO stability diagnostics" width="900">
+</p>
+
+Entropy loss, approximate KL divergence, and clip fraction characterize the optimization dynamics behind the task-level improvements above. Strong returns alone do not distinguish stable refinement from an unstable late-stage policy. Here, entropy remains above full collapse, KL stays bounded, and clip fraction does not spike, consistent with the entropy schedule (`0.05 → 0.03`) and `target_kl=0.05` maintaining a productive fine-tuning regime without brittle deterministic convergence.
+
+#### 3. Entropy-Collapse Monitoring
+
+<p align="center">
+  <img src="training_graphs/03_phase_m_collapse_diagnostics.png" alt="Phase M entropy collapse diagnostics" width="900">
+</p>
+
+Output from the custom `EntropyCollapseDetector` callback, combining captured entropy, rolling entropy velocity, KL-over-threshold fraction, and diagnostic flag rate. A central finding from the ablation campaign is that many long PPO runs fail because apparent reward improvement is purchased by entropy collapse, the policy narrows to a single deterministic trajectory that is brittle under stochastic evaluation. In Phase M, flag rate rises without the sustained negative entropy-velocity signature associated with catastrophic collapse, supporting the conclusion that this run achieved robust generalization rather than trajectory overfitting.
 
 ### Key Findings
 
